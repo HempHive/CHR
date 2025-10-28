@@ -64,7 +64,7 @@ img{ display:block; }
   display:flex; flex-direction:column; align-items:flex-start; gap:8px;
 }
 .brand{
-  display:flex; flex-direction:column; gap:4px;
+  display:flex; flex-direction:row; align-items:center; gap:10px;
 }
 .brand .title{
   font-weight:800; letter-spacing:1.5px;
@@ -76,8 +76,10 @@ img{ display:block; }
   text-shadow: 0 0 10px #0ff6, 0 0 20px #f3f6;
 }
 .brand .subtitle{
-  color:var(--muted);
+  color:#ffd166; /* gold style */
+  font-weight:700;
   font-size: 12px;
+  white-space:nowrap;
 }
 
 .info-chips{
@@ -767,12 +769,20 @@ img{ display:block; }
       const add10 = document.createElement('button'); add10.textContent = '+10';
       const sub10 = document.createElement('button'); sub10.textContent = '−10';
       const clearSel = document.createElement('button'); clearSel.textContent = 'Clear';
-      qbCtrls.appendChild(add10); qbCtrls.appendChild(sub10); qbCtrls.appendChild(clearSel);
+      const resetBtn = document.createElement('button'); resetBtn.textContent = '💵';
+      qbCtrls.appendChild(add10); qbCtrls.appendChild(sub10); qbCtrls.appendChild(clearSel); qbCtrls.appendChild(resetBtn);
       qb.appendChild(qbCtrls);
 
       add10.onclick = ()=>{ if (selectedHorse!=null) adjustQuickBet(+10, selectedHorse); };
       sub10.onclick = ()=>{ if (selectedHorse!=null) adjustQuickBet(-10, selectedHorse); };
       clearSel.onclick = ()=>{ selectedHorse = null; syncSelected(); };
+      resetBtn.onclick = ()=>{
+        if (GAME.state.phase !== 'BETTING_OPEN') return;
+        // remove all bets for this player in this heat
+        p.bets = [];
+        render();
+        syncHasBet();
+      };
 
       function syncSelected(){
         horseButtons.forEach((b, hid)=>{
@@ -1474,7 +1484,8 @@ img{ display:block; }
 
   // ---------- Admin buttons ----------
   els.courseSelect.addEventListener('change', e => {
-    if (GAME.state.phase !== 'BETTING_OPEN') return; // lock when not open
+    // Allow course change whenever betting is open; block otherwise
+    if (GAME.state.phase !== 'BETTING_OPEN') return;
     GAME.state.course = e.target.value;
     applyCourseSkin(GAME.state.course);
   });
@@ -1508,15 +1519,11 @@ img{ display:block; }
     };
   }
   document.getElementById('btnToggleTrack').onclick = () => {
-    // Allow toggle only during final 3s of countdown, and only from Straight -> Course
-    const msLeft = GAME.state.countdownEndAt - Date.now();
-    const allowWindow = msLeft > 0 && msLeft <= 3000;
-    const current = GAME.state.trackMode;
-    const next = current === 'straight' ? 'course' : 'straight';
-    if (next === 'straight') return; // disallow switching into Straight during countdown window
-    if (!allowWindow) return; // only permit during 3s window
-    GAME.state.trackMode = next;
-    document.getElementById('btnToggleTrack').textContent = `Track: ${GAME.state.trackMode === 'course' ? 'Course' : 'Straight'}`;
+    // Allow toggling track shape whenever betting is open; block during racing
+    if (GAME.state.phase === 'RACING') return;
+    GAME.state.trackMode = GAME.state.trackMode === 'course' ? 'straight' : 'course';
+    const btn = document.getElementById('btnToggleTrack');
+    if (btn) btn.textContent = `Track: ${GAME.state.trackMode === 'course' ? 'Course' : 'Straight'}`;
     GAME.state.trackTOffset = GAME.state.trackMode === 'course' ? 0.125 : 0;
     const stg = document.getElementById('stadiumGroup');
     const sgg = document.getElementById('straightGroup');
