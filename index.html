@@ -414,6 +414,7 @@ img{ display:block; }
         <button class="admin warn" id="btnSkipAnim">Skip Animation</button>
         <button class="admin" id="btnCommentary">Commentary</button>
         <button class="admin" id="btnRules">📜 Rules</button>
+        <button class="admin" id="btnSim60">Simulate ×60</button>
       </div>
     </div>
 
@@ -911,9 +912,37 @@ img{ display:block; }
     const entered = GAME.state.entered;
     return entered.map(id=>{
       const o = GAME.state.odds[id] ?? '?';
-      const ov = typeof o === 'number' ? o.toFixed(2) : o;
-      return `<span class=\"od\">H${id}: ${ov}x</span>`;
+      const fr = typeof o === 'number' ? decimalOddsToFraction(o) : o;
+      return `<span class=\"od\">H${id}: ${fr}</span>`;
     }).join('');
+  }
+
+  // Convert decimal odds (e.g. 9.86) to fractional string (e.g. 19/2)
+  function decimalOddsToFraction(dec){
+    const v = Math.max(1.0001, dec) - 1; // fractional component
+    // Continued fraction approximation with denominator limit
+    const maxDen = 50;
+    let num = 0, den = 1, prevNum = 1, prevDen = 0;
+    let x = v;
+    for (let i=0; i<20; i++){
+      const a = Math.floor(x);
+      const nextNum = a*num + prevNum;
+      const nextDen = a*den + prevDen;
+      if (nextDen > maxDen){ break; }
+      prevNum = num; prevDen = den;
+      num = nextNum; den = nextDen;
+      const frac = x - a;
+      if (Math.abs(frac) < 1e-9) break;
+      x = 1/frac;
+    }
+    if (den === 0){ num = Math.round(v*10); den = 10; }
+    // Fallback if zero
+    if (num === 0){ num = Math.round(v*10); den = 10; }
+    // Reduce fraction
+    const g = (a,b)=> b ? g(b, a%b) : Math.abs(a);
+    const d = g(num, den) || 1;
+    num = Math.round(num/d); den = Math.round(den/d);
+    return `${num}/${den}`;
   }
 
   function currentCommittedStake(player){
@@ -1069,6 +1098,7 @@ img{ display:block; }
     renderTopbar();
     renderPlayersControls();
     updateBetToggleLabel();
+    updatePlayerBorders();
   }
 
   // ---------- Race simulation ----------
@@ -1115,6 +1145,9 @@ img{ display:block; }
 
     stepRace(0);
     rafId = requestAnimationFrame(tickRace);
+    // update UI to reflect racing state
+    updatePlayerBorders();
+    renderTopbar();
   }
 
   function tickRace(ts){
@@ -1471,13 +1504,17 @@ img{ display:block; }
     buildPlayers();
     // odds chips in headers already built via buildPlayers()
     updateBetToggleLabel();
-    // highlight player panels when betting is open
+    updatePlayerBorders();
+    updateBankrollDisplays();
+  }
+
+  function updatePlayerBorders(){
     const open = GAME.state.phase === 'BETTING_OPEN';
+    const racing = GAME.state.phase === 'RACING';
     document.querySelectorAll('.player').forEach(el=>{
       el.classList.toggle('open', open);
-      el.classList.toggle('closed', !open);
+      el.classList.toggle('closed', !open || racing);
     });
-    updateBankrollDisplays();
   }
 
   function pointForMode(t, laneIndex){
@@ -1579,6 +1616,25 @@ img{ display:block; }
         GAME.state.qualifiers = { trialA: [], trialB: [] };
       }
       syncChampBtn();
+    };
+  }
+  // Simulate 60 races with current odds distribution and report counts
+  const btnSim60 = document.getElementById('btnSim60');
+  if (btnSim60){
+    btnSim60.onclick = () => {
+      if (GAME.state.phase === 'RACING') return;
+      const N = 60;
+      const counts = new Map(GAME.state.entered.map(id=>[id,0]));
+      // simulate by drawing order based on implied probabilities repeatedly
+      for (let i=0;i<N;i++){
+        const rng = mulberry32((Math.random()*0xFFFFFFFF)>>>0);
+        const plan = precomputeOutcome(GAME.state.entered, GAME.state.impliedProb, rng);
+        const winner = plan.order[0];
+        counts.set(winner, (counts.get(winner)||0)+1);
+      }
+      // build report
+      const lines = [...counts.entries()].sort((a,b)=>a[0]-b[0]).map(([id,c])=>`H${id}: ${c}`);
+      alert(`60-race simulation (winners count)\n` + lines.join('\n'));
     };
   }
   document.getElementById('btnToggleTrack').onclick = () => {
