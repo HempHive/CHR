@@ -252,6 +252,10 @@ img{ display:block; }
   box-shadow: inset 0 0 0 2px #0b1626, 0 8px 24px var(--shadow);
 }
 .player.open{ border-color:#0bbd7a; box-shadow: 0 0 0 2px rgba(11,189,122,0.2) inset; }
+.player.closed{ border-color:#a85cff; box-shadow: 0 0 0 2px rgba(168,92,255,0.25) inset; }
+@keyframes borderPulse { 0%{ box-shadow: 0 0 0 2px rgba(168,92,255,0.15) inset; } 50%{ box-shadow: 0 0 0 3px rgba(168,92,255,0.45) inset; } 100%{ box-shadow: 0 0 0 2px rgba(168,92,255,0.15) inset; } }
+.player.counting{ border-color:#a85cff; animation: borderPulse 600ms ease-in-out infinite; }
+.player.closed{ border-color:#a85cff; box-shadow: 0 0 0 2px rgba(168,92,255,0.25) inset; }
 .player header{
   grid-column: 1 / -1;
   display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -312,6 +316,9 @@ img{ display:block; }
 .selhorse{ display:flex; align-items:center; gap:8px; padding:6px 8px; background:#0f2037; border:1px solid #244766; border-radius:8px; margin-bottom:6px; }
 .selhorse img{ width:36px; height:26px; object-fit:contain; image-rendering: pixelated; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.45)); }
 .selhorse .label{ font-size:12px; color:#bfe0ff; }
+/* payout flash */
+.horse-btn.payout{ outline: 2px solid #ffd166; box-shadow: 0 0 0 2px rgba(255,209,102,0.35) inset; animation: btnPulse 800ms ease-in-out infinite; }
+@keyframes btnPulse { 0%{ outline-width:2px; } 50%{ outline-width:4px; } 100%{ outline-width:2px; } }
 
 /* Odds chips */
 .odds{
@@ -641,7 +648,7 @@ img{ display:block; }
       const p = (weightById[id] || 1) / totalWeight;
       impliedProb[id] = p;
       const dec = clamp((1 / p) * margin, minO, maxO);
-      odds[id] = Math.round(dec*10)/10;
+      odds[id] = Math.round(dec*100)/100; // two decimals
     });
     GAME.state.impliedProb = impliedProb;
     GAME.state.odds = odds;
@@ -755,7 +762,7 @@ img{ display:block; }
         btn.className = 'horse-btn';
         btn.dataset.horseId = String(id);
         btn.innerHTML = `<span class=\"name\">H${id} — ${h.name}</span>`;
-        btn.oncontextmenu = (e)=>{ e.preventDefault(); adjustQuickBet(-10, id); };
+        btn.oncontextmenu = (e)=>{ e.preventDefault(); adjustPlaceBet(+10, id); };
         btn.onclick = ()=>{
           if (selectedHorse === id) { selectedHorse = null; syncSelected(); return; }
           selectedHorse = id; syncSelected(); adjustQuickBet(+10, id);
@@ -766,21 +773,18 @@ img{ display:block; }
       qb.appendChild(grid);
 
       const qbCtrls = document.createElement('div'); qbCtrls.className = 'qb-controls';
-      const add10 = document.createElement('button'); add10.textContent = '+10';
-      const sub10 = document.createElement('button'); sub10.textContent = '−10';
       const clearSel = document.createElement('button'); clearSel.textContent = 'Clear';
       const resetBtn = document.createElement('button'); resetBtn.textContent = '💵';
-      qbCtrls.appendChild(add10); qbCtrls.appendChild(sub10); qbCtrls.appendChild(clearSel); qbCtrls.appendChild(resetBtn);
+      qbCtrls.appendChild(clearSel); qbCtrls.appendChild(resetBtn);
       qb.appendChild(qbCtrls);
 
-      add10.onclick = ()=>{ if (selectedHorse!=null) adjustQuickBet(+10, selectedHorse); };
-      sub10.onclick = ()=>{ if (selectedHorse!=null) adjustQuickBet(-10, selectedHorse); };
       clearSel.onclick = ()=>{ selectedHorse = null; syncSelected(); };
       resetBtn.onclick = ()=>{
         if (GAME.state.phase !== 'BETTING_OPEN') return;
         // remove all bets for this player in this heat
         p.bets = [];
         render();
+        updateBankrollDisplays();
         syncHasBet();
       };
 
@@ -822,6 +826,26 @@ img{ display:block; }
           if (stake>0) p.bets.push({ id: uid(), type:'WIN', pick:[horseId], stake });
         }
         render(); // refresh balances and odds display
+        updateBankrollDisplays();
+        syncHasBet();
+      }
+      function adjustPlaceBet(delta, horseId){
+        if (GAME.state.phase !== 'BETTING_OPEN') return;
+        const max = p.bankroll - currentCommittedStake(p);
+        if (delta>0 && max<=0) return;
+        const existingIdx = p.bets.findIndex(b=>b.type==='PLACE' && b.pick[0]===horseId && !b.result);
+        if (existingIdx>=0){
+          const b = p.bets[existingIdx];
+          let newStake = clamp(b.stake + delta, 0, p.bankroll);
+          newStake = Math.floor(newStake/10)*10;
+          if (newStake<=0){ p.bets.splice(existingIdx,1); }
+          else { p.bets[existingIdx] = { ...b, stake: newStake }; }
+        } else if (delta>0){
+          const stake = Math.min(10, max);
+          if (stake>0) p.bets.push({ id: uid(), type:'PLACE', pick:[horseId], stake });
+        }
+        render();
+        updateBankrollDisplays();
         syncHasBet();
       }
       const mybets = document.createElement('div');
@@ -887,13 +911,23 @@ img{ display:block; }
     const entered = GAME.state.entered;
     return entered.map(id=>{
       const o = GAME.state.odds[id] ?? '?';
-      return `<span class=\"od\">H${id}: ${o}x</span>`;
+      const ov = typeof o === 'number' ? o.toFixed(2) : o;
+      return `<span class=\"od\">H${id}: ${ov}x</span>`;
     }).join('');
   }
 
   function currentCommittedStake(player){
     // sum stakes of queued bets this heat
     return player.bets.reduce((a,b)=>a+b.stake,0);
+  }
+
+  function updateBankrollDisplays(){
+    GAME.players.forEach(p => {
+      const committed = currentCommittedStake(p);
+      const available = Math.max(0, p.bankroll - committed);
+      const el = document.querySelector(`[data-bind="bank${p.id}"]`);
+      if (el) el.textContent = formatMoney(available);
+    });
   }
 
   function collectBet(type, picksWrap, stake){
@@ -918,10 +952,10 @@ img{ display:block; }
 
   function betToString(b){
     const name = (id)=>`H${id} ${GAME.horses.find(h=>h.id===id).name}`;
-    const odds = (id)=> `${GAME.state.odds[id]?.toFixed(1) ?? '?' }x`;
+    const odds = (id)=> `${GAME.state.odds[id]?.toFixed(2) ?? '?' }x`;
     if (b.type==='WIN') return `WIN ${name(b.pick[0])} @ ${odds(b.pick[0])} — ${b.stake}`;
     if (b.type==='PLACE') return `PLACE ${name(b.pick[0])} @ ${odds(b.pick[0])} ×0.5 — ${b.stake}`;
-    return `QUINELLA ${name(b.pick[0])} + ${name(b.pick[1])} @ ${(GAME.state.odds[b.pick[0]]+GAME.state.odds[b.pick[1]]).toFixed(1)} ×0.25 — ${b.stake}`;
+    return `QUINELLA ${name(b.pick[0])} + ${name(b.pick[1])} @ ${(GAME.state.odds[b.pick[0]]+GAME.state.odds[b.pick[1]]).toFixed(2)} ×0.25 — ${b.stake}`;
   }
 
   function updatePicksUI(container, type){
@@ -1000,8 +1034,15 @@ img{ display:block; }
             renderRacePositionsInitial();
             placeFinishFlag();
           }
+          // pulse player borders during countdown
+          document.querySelectorAll('.player').forEach(el=>{
+            el.classList.add('counting');
+          });
         } else {
           if (countOverlay) countOverlay.style.display = 'none';
+          document.querySelectorAll('.player').forEach(el=>{
+            el.classList.remove('counting');
+          });
         }
       }
       renderTopbar();
@@ -1095,9 +1136,15 @@ img{ display:block; }
       const target = r.targets[h.id] || 12; // seconds to finish
       // fraction per second to traverse unit lap
       const fracPerSec = 1 / target;
-      // slight visual wiggle that does not change finishing order
-      const wiggle = (r.rng()-0.5) * 0.002;
-      const dx = (fracPerSec + wiggle) * dt;
+      // dynamic surges and slowdowns to add pack variability
+      const surge = (r.rng() < 0.03) ? 0.003 * (0.5 + r.rng()) : 0; // occasional burst
+      const slow = (r.rng() < 0.02) ? -0.002 * (0.5 + r.rng()) : 0; // occasional dip
+      const packBoost = (()=>{
+        // if 2+ horses are within 0.08 lap of each other, slightly increase pace
+        const nearby = r.horses.filter(o=>!o.finished && Math.abs(o.x - h.x) < 0.08).length;
+        return nearby>=2 ? 0.0015 : 0;
+      })();
+      const dx = Math.max(0, (fracPerSec + surge + slow + packBoost)) * dt;
       h.vx = dx / Math.max(dt, 1e-6);
       h.x += dx;
 
@@ -1296,6 +1343,20 @@ img{ display:block; }
       setTimeout(resetToStart, total*1000 + 50);
       
     }
+
+    // Flash payout buttons for winners
+    GAME.players.forEach((p, pi)=>{
+      const paid = p.bets.filter(b => b.result && b.result.win);
+      const layer = document.getElementById('players');
+      if (!layer) return;
+      paid.forEach(b=>{
+        const btn = layer.querySelector(`.player[data-player-id="${p.id}"] .horse-btn[data-horse-id="${b.pick[0]}"]`);
+        if (btn){
+          btn.classList.add('payout');
+          setTimeout(()=>btn.classList.remove('payout'), 3000);
+        }
+      });
+    });
   }
 
   function settleBet(bet, order){
@@ -1414,7 +1475,9 @@ img{ display:block; }
     const open = GAME.state.phase === 'BETTING_OPEN';
     document.querySelectorAll('.player').forEach(el=>{
       el.classList.toggle('open', open);
+      el.classList.toggle('closed', !open);
     });
+    updateBankrollDisplays();
   }
 
   function pointForMode(t, laneIndex){
