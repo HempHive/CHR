@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Arcade Horse Racing — 4P Betting</title>
+<title>Arcade Horse Racing — Betting</title>
 <style>
 /* =========================
    CSS VARIABLES / THEME
@@ -61,7 +61,8 @@ img{ display:block; }
   gap: 12px;
 }
 .top-left{
-  display:flex; flex-direction:column; align-items:flex-start; gap:8px;
+  display:flex; flex-direction:column; align-items:stretch; gap:8px;
+  width:100%; min-width:0;
 }
 .brand{
   display:flex; flex-direction:row; align-items:center; gap:10px;
@@ -83,21 +84,28 @@ img{ display:block; }
 }
 
 .info-chips{
-  display:flex; flex-wrap:nowrap; gap:8px; align-items:center; overflow:hidden;
+  display:flex; flex-wrap:nowrap; align-items:center; gap:6px;
+  width:100%; min-width:0; overflow:hidden;
+  font-size:12px;
 }
 .chip{
   background: var(--odd-chip);
   border: 1px solid var(--chip-border);
   border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-  display:flex; align-items:center; gap:8px;
+  padding: 5px 8px;
+  font-size:1em;
+  display:flex; align-items:center; gap:6px;
+  flex:0 0 auto;
+  white-space:nowrap;
 }
 .chip strong{ color: var(--accent-3); text-transform:uppercase; letter-spacing:0.5px; }
 
 .status{
-  display:flex; align-items:center; gap:8px;
+  display:flex; align-items:center; gap:6px;
   font-weight:700;
+  flex:0 0 auto;
+  white-space:nowrap;
+  font-size:1em;
 }
 .status .dot{
   width:10px; height:10px; border-radius:50%;
@@ -109,11 +117,44 @@ img{ display:block; }
 
 /* Course selector + Admin controls */
 .controls{
-  display:grid; align-items:center; gap:6px; grid-auto-flow: column; grid-auto-columns: minmax(64px, 1fr);
-  overflow:hidden; white-space:nowrap; width: 100%; margin-top:auto;
+  display:grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  align-items:stretch;
+  gap:4px;
+  width:100%;
+  min-width:0;
 }
-.controls select,.controls button, .controls label{ min-width:0; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
-.controls select,.controls button{ padding:6px 8px; }
+.controls select,.controls button{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  justify-self:stretch;
+  white-space:nowrap;
+  overflow:hidden;
+  text-align:center;
+  font-size:13px;
+  line-height:1.25;
+  padding:7px 4px;
+  appearance:none;
+  -webkit-appearance:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.controls button .ctl-label{
+  display:inline-block;
+  white-space:nowrap;
+  line-height:1.1;
+  transform-origin:center center;
+  max-width:100%;
+}
+.controls select{
+  padding-right:18px;
+  background-image: linear-gradient(45deg, transparent 50%, #9fd3ff 50%), linear-gradient(135deg, #9fd3ff 50%, transparent 50%);
+  background-position: calc(100% - 12px) calc(50% - 2px), calc(100% - 8px) calc(50% - 2px);
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+}
 .controls button.active{ background:#0b3a2e; border-color:#0bbd7a; box-shadow: 0 0 0 1px rgba(11,189,122,0.2) inset; }
 /* Stronger active state for Commentary */
 .controls #btnCommentary.active{ background:#2b1f4a; border-color:#a85cff; box-shadow: 0 0 0 1px rgba(168,92,255,0.35) inset, 0 0 8px rgba(168,92,255,0.3); }
@@ -121,7 +162,6 @@ img{ display:block; }
   background: #0f2037;
   border: 1px solid #244766;
   color:var(--text);
-  padding:6px 10px;
   border-radius:8px;
 }
 .controls button.admin{ border-color:#495a7a; background:#11243f;}
@@ -238,16 +278,44 @@ img{ display:block; }
 }
 
 /* Side players */
-.sidebar{
-  display:grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap:12px;
+.players-bar{
+  display:flex; align-items:stretch; gap:8px;
 }
+.sidebar{
+  flex:1;
+  display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:12px;
+}
+.sidebar.four-up{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.add-player-btn{
+  flex:0 0 34px;
+  width:34px;
+  align-self:stretch;
+  background:#0f2037;
+  border:1px dashed #244766;
+  color:var(--accent-3);
+  border-radius:10px;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.2;
+  padding:6px 4px;
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  letter-spacing:0.5px;
+}
+.add-player-btn:hover{ background:#112a45; border-color:#0bbd7a; }
+.add-player-btn.remove{ color:var(--danger); border-style:solid; }
+.sidebar.four-up .player{ padding:8px; }
+.sidebar.four-up .player input[type="text"]{ width:120px; font-size:13px; }
+.sidebar.four-up .horse-btn{ padding:6px 4px; min-height:46px; }
+.sidebar.four-up .horse-btn .name{ font-size:10px; }
+.sidebar.four-up .horse-grid.eight{ grid-template-columns: repeat(4, minmax(0,1fr)); }
 .player{
   background: var(--panel);
   border: 1px solid #1a2a44;
   border-radius: 12px;
   padding: 10px;
   display:grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   gap:10px;
   box-shadow: inset 0 0 0 2px #0b1626, 0 8px 24px var(--shadow);
 }
@@ -306,9 +374,15 @@ img{ display:block; }
 .quickbets{ grid-column: 1 / -1; background: var(--panel-2); border:1px solid #1a2a44; border-radius:10px; padding:8px; margin-top:8px; }
 .quickbets .title{ font-size:12px; color:var(--muted); margin-bottom:6px; }
 .horse-grid{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:6px; }
-.horse-btn{ background:#0f2037; border:1px solid #244766; color:#e6f1ff; border-radius:8px; padding:6px; display:flex; align-items:center; justify-content:space-between; gap:6px; cursor:pointer; user-select:none; }
-.horse-btn .name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:#bfe0ff; }
-.horse-btn .od{ font-size:12px; color:#9fd3ff; }
+.horse-grid.eight{ grid-template-columns: repeat(8, minmax(0,1fr)); }
+@media (max-width: 1100px){
+  .horse-grid.eight{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+}
+.horse-btn{ background:#0f2037; border:1px solid #244766; color:#e6f1ff; border-radius:8px; padding:8px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; user-select:none; min-height:52px; }
+.horse-btn .num{ font-size:14px; font-weight:800; color:#17f0ff; }
+.horse-btn .name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; color:#bfe0ff; max-width:100%; }
+.horse-btn .stake{ font-size:11px; color:var(--accent-3); font-weight:700; min-height:14px; }
+.horse-btn .od{ font-size:11px; color:#9fd3ff; }
 .horse-btn.selected{ outline:2px solid #a85cff; box-shadow: 0 0 0 2px rgba(168,92,255,0.25) inset; }
 .horse-btn.has-bet{ background:#0b3a2e; border-color:#0bbd7a; }
 .qb-controls{ display:flex; gap:6px; margin-top:6px; }
@@ -322,9 +396,11 @@ img{ display:block; }
 
 /* Odds chips */
 .odds{
-  display:inline-flex; gap:6px; flex-wrap:wrap;
+  display:flex; gap:4px; flex-wrap:nowrap;
+  flex:1 1 auto; min-width:0; margin-left:auto;
+  overflow:hidden; justify-content:flex-end;
 }
-.od{ background:#0a2237; border:1px solid #234260; border-radius:6px; padding:2px 6px; font-size:12px; }
+.od{ background:#0a2237; border:1px solid #234260; border-radius:6px; padding:2px 5px; font-size:1em; white-space:nowrap; flex:0 0 auto; }
 
 /* Footer */
 .footer{
@@ -438,17 +514,11 @@ img{ display:block; }
             </defs>
             <!-- Stadium: horizontal straights with outward left/right curves (match path math) -->
             <g id="stadiumGroup">
-              <path d="M 280 80 L 720 80 A 220 220 0 0 1 720 520 L 280 520 A 220 220 0 0 1 280 80 Z"
-                    fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="6" filter="url(#glow)"/>
-              <path d="M 310 110 L 690 110 A 190 190 0 0 1 690 490 L 310 490 A 190 190 0 0 1 310 110 Z"
-                    fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="10 10"/>
-              <path d="M 340 140 L 660 140 A 160 160 0 0 1 660 460 L 340 460 A 160 160 0 0 1 340 140 Z"
-                    fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="2" stroke-dasharray="10 10"/>
+              <path data-lane="outer" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="6" filter="url(#glow)"/>
             </g>
             <g id="straightGroup" style="display:none">
               <path d="M 80 200 L 920 200" stroke="rgba(255,255,255,0.35)" stroke-width="6" filter="url(#glow)"/>
               <path d="M 80 400 L 920 400" stroke="rgba(255,255,255,0.35)" stroke-width="6" filter="url(#glow)"/>
-              <path d="M 80 300 L 920 300" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="12 12"/>
             </g>
           </svg>
           <div class="finish-flag" id="finishFlag"></div>
@@ -464,7 +534,10 @@ img{ display:block; }
     </div>
 
     <!-- SIDEBAR PLAYERS -->
-    <div class="sidebar" id="players"></div>
+    <div class="players-bar">
+      <div class="sidebar" id="players"></div>
+      <button type="button" class="add-player-btn" id="btnTogglePlayer" title="Add 4th player">+ Player</button>
+    </div>
   </div>
 
   <!-- FOOTER -->
@@ -479,11 +552,9 @@ img{ display:block; }
 <!-- RULES MODAL (simple) -->
 <dialog id="rulesDialog">
   <h3>Rules & Payouts</h3>
-  <p>Bet in increments of 10. You cannot bet beyond your bankroll.</p>
+  <p>Tap a horse button to bet $10 on WIN. Tap again to add $10 more. Clear Bets removes all wagers for that player.</p>
   <ul>
     <li><b>WIN</b>: stake × odds(winner)</li>
-    <li><b>PLACE</b>: if 1st or 2nd, payout = stake × 0.5 × odds(horse)</li>
-    <li><b>QUINELLA</b>: if pair finishes 1st & 2nd (any order), payout = stake × (odds1 + odds2) × 0.25</li>
   </ul>
   <p>Trials: Top 2 from Trial A and Top 2 from Trial B advance to the Final. Final bet menu shows each qualifier’s trial result tag.</p>
   <div style="display:flex; gap:8px; justify-content:flex-end;">
@@ -595,6 +666,7 @@ img{ display:block; }
       countdownEndAt: 0,
       trackMode: 'course', // 'course' | 'straight'
       trackTOffset: 0.125,
+      activePlayerCount: 3,
       championship: false,
       autoTimer: null
     },
@@ -621,8 +693,142 @@ img{ display:block; }
     tickerText: document.getElementById('tickerText'),
     track: document.getElementById('track'),
     players: document.getElementById('players'),
+    btnTogglePlayer: document.getElementById('btnTogglePlayer'),
     parallax: document.getElementById('parallax')
   };
+
+  function activePlayers(){
+    return GAME.players.slice(0, GAME.state.activePlayerCount);
+  }
+
+  function syncPlayerBar(){
+    const bar = els.players;
+    const btn = els.btnTogglePlayer;
+    if (bar) bar.classList.toggle('four-up', GAME.state.activePlayerCount > 3);
+    if (btn){
+      const showFourth = GAME.state.activePlayerCount > 3;
+      btn.textContent = showFourth ? '− Player' : '+ Player';
+      btn.classList.toggle('remove', showFourth);
+      btn.title = showFourth ? 'Remove 4th player' : 'Add 4th player';
+    }
+  }
+
+  function stadiumPathD(cx, cy, r, straight){
+    const x1 = cx - straight / 2;
+    const x2 = cx + straight / 2;
+    const yTop = cy - r;
+    const yBot = cy + r;
+    return `M ${x1} ${yTop} L ${x2} ${yTop} A ${r} ${r} 0 0 1 ${x2} ${yBot} L ${x1} ${yBot} A ${r} ${r} 0 0 1 ${x1} ${yTop} Z`;
+  }
+
+  function getVisualLane(level){
+    const cx = 500, cy = 300;
+    const baseR = 220, outerStraight = 440;
+    const inset = 34 * level;
+    return { cx, cy, r: baseR - inset, straight: outerStraight - inset * 2 };
+  }
+
+  function buildTrackVisuals(){
+    const group = document.getElementById('stadiumGroup');
+    if (!group) return;
+    const path = group.querySelector('path[data-lane="outer"]');
+    if (!path) return;
+    const outer = getVisualLane(0);
+    path.setAttribute('d', stadiumPathD(outer.cx, outer.cy, outer.r, outer.straight));
+  }
+
+  let fitTopBarFrame = 0;
+
+  function initControlLabels(){
+    document.querySelectorAll('.controls button').forEach(btn => {
+      if (btn.querySelector('.ctl-label')) return;
+      const label = document.createElement('span');
+      label.className = 'ctl-label';
+      label.textContent = btn.textContent;
+      btn.textContent = '';
+      btn.appendChild(label);
+    });
+  }
+
+  function setControlLabel(btn, text){
+    if (!btn) return;
+    const label = btn.querySelector('.ctl-label');
+    if (label) label.textContent = text;
+    else btn.textContent = text;
+  }
+
+  function fitInfoChips(){
+    const row = document.querySelector('.info-chips');
+    if (!row) return;
+    const maxPx = 12;
+    const minPx = 8;
+    let size = maxPx;
+    row.style.fontSize = size + 'px';
+    while (size > minPx && row.scrollWidth > row.clientWidth + 1){
+      size -= 0.5;
+      row.style.fontSize = size + 'px';
+    }
+  }
+
+  function fitTopControls(){
+    const root = document.querySelector('.controls');
+    if (!root) return;
+    const items = [...root.querySelectorAll('select, button')];
+    if (!items.length) return;
+    const maxPx = 13;
+    const minPx = 6;
+
+    function applySize(sz){
+      items.forEach(el => {
+        el.style.fontSize = sz + 'px';
+        if (el.tagName === 'BUTTON'){
+          const label = el.querySelector('.ctl-label');
+          if (label){
+            label.style.fontSize = '1em';
+            label.style.transform = '';
+          }
+        }
+      });
+    }
+
+    let size = maxPx;
+    applySize(size);
+    while (size > minPx){
+      const overflow = items.some(el => {
+        if (el.scrollWidth > el.clientWidth + 1) return true;
+        if (el.tagName === 'BUTTON'){
+          const label = el.querySelector('.ctl-label');
+          if (label && label.scrollWidth > el.clientWidth - 6) return true;
+        }
+        return false;
+      });
+      if (!overflow) break;
+      size -= 0.5;
+      applySize(size);
+    }
+
+    items.forEach(el => {
+      if (el.tagName !== 'BUTTON') return;
+      const label = el.querySelector('.ctl-label');
+      if (!label) return;
+      const avail = el.clientWidth - 6;
+      if (label.scrollWidth > avail && avail > 0){
+        label.style.transform = `scale(${Math.max(0.55, avail / label.scrollWidth)})`;
+      }
+    });
+  }
+
+  function fitTopBar(){
+    fitInfoChips();
+    fitTopControls();
+  }
+
+  function scheduleFitTopBar(){
+    if (fitTopBarFrame) cancelAnimationFrame(fitTopBarFrame);
+    fitTopBarFrame = requestAnimationFrame(() => {
+      fitTopBarFrame = requestAnimationFrame(fitTopBar);
+    });
+  }
 
   // ---------- Course skin visuals ----------
   function applyCourseSkin(id){
@@ -712,7 +918,7 @@ img{ display:block; }
   // ---------- Sidebar players ----------
   function buildPlayers(){
     els.players.innerHTML = '';
-    GAME.players.forEach((p, idx)=>{
+    activePlayers().forEach((p, idx)=>{
       const wrap = document.createElement('div');
       wrap.className = 'player';
       wrap.dataset.playerId = String(p.id);
@@ -737,117 +943,74 @@ img{ display:block; }
       header.appendChild(nameWrap);
       header.appendChild(bal);
 
-      // Betting row
-      const betrow = document.createElement('div');
-      betrow.className = 'betrow';
-
-      // remove small stake controls; keep row minimal
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-      betrow.appendChild(actions);
-
-      // Quick bet grid
+      // Betting row — eight simple horse buttons (one per entrant)
       const qb = document.createElement('div');
       qb.className = 'quickbets';
-      const qbTitle = document.createElement('div'); qbTitle.className = 'title'; qbTitle.textContent = 'Quick Bets';
-      const selHorse = document.createElement('div'); selHorse.className = 'selhorse'; selHorse.style.display='none'; selHorse.innerHTML = '';
-      qb.appendChild(selHorse);
+      const qbTitle = document.createElement('div'); qbTitle.className = 'title';
+      qbTitle.textContent = 'Pick a horse ($10 per tap)';
       qb.appendChild(qbTitle);
-      const grid = document.createElement('div'); grid.className = 'horse-grid';
-      let selectedHorse = null;
+      const grid = document.createElement('div');
+      grid.className = 'horse-grid' + (GAME.state.entered.length >= 8 ? ' eight' : '');
       const horseButtons = new Map();
       GAME.state.entered.forEach(id=>{
         const h = GAME.horses.find(x=>x.id===id);
+        const odds = GAME.state.odds[id];
+        const fr = typeof odds === 'number' ? decimalOddsToFraction(odds) : '?';
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'horse-btn';
         btn.dataset.horseId = String(id);
-        btn.innerHTML = `<span class=\"name\">H${id} — ${h.name}</span>`;
-        btn.oncontextmenu = (e)=>{ e.preventDefault(); adjustPlaceBet(+10, id); };
-        btn.onclick = ()=>{
-          if (selectedHorse === id) { selectedHorse = null; syncSelected(); return; }
-          selectedHorse = id; syncSelected(); adjustQuickBet(+10, id);
-        };
+        btn.innerHTML = `<span class="num">H${id}</span><span class="name">${h.name}</span><span class="stake"></span><span class="od">${fr}</span>`;
+        btn.onclick = ()=> toggleWinBet(id);
         horseButtons.set(id, btn);
         grid.appendChild(btn);
       });
       qb.appendChild(grid);
 
       const qbCtrls = document.createElement('div'); qbCtrls.className = 'qb-controls';
-      const clearSel = document.createElement('button'); clearSel.textContent = 'Clear';
-      const resetBtn = document.createElement('button'); resetBtn.textContent = '💵';
-      qbCtrls.appendChild(clearSel); qbCtrls.appendChild(resetBtn);
+      const clearBets = document.createElement('button'); clearBets.textContent = 'Clear Bets';
+      qbCtrls.appendChild(clearBets);
       qb.appendChild(qbCtrls);
 
-      clearSel.onclick = ()=>{ selectedHorse = null; syncSelected(); };
-      resetBtn.onclick = ()=>{
+      clearBets.onclick = ()=>{
         if (GAME.state.phase !== 'BETTING_OPEN') return;
-        // remove all bets for this player in this heat
         p.bets = [];
         render();
         updateBankrollDisplays();
-        syncHasBet();
+        syncBetButtons();
       };
 
-      function syncSelected(){
-        horseButtons.forEach((b, hid)=>{
-          b.classList.toggle('selected', selectedHorse===hid);
-        });
-        if (selectedHorse!=null){
-          const h = GAME.horses.find(x=>x.id===selectedHorse);
-          selHorse.style.display='flex';
-          selHorse.innerHTML = `<img src=\"${h.sprite}\" alt=\"H${h.id}\"/><span class=\"label\">Selected: H${h.id} — ${h.name}</span>`;
-        } else {
-          selHorse.style.display='none';
-          selHorse.innerHTML = '';
-        }
-      }
-      function syncHasBet(){
-        const bets = p.bets.filter(b=>b.type==='WIN');
+      function syncBetButtons(){
         const stakeByHorse = new Map();
-        bets.forEach(b=>{ const id=b.pick[0]; stakeByHorse.set(id, (stakeByHorse.get(id)||0)+b.stake); });
+        p.bets.filter(b=>b.type==='WIN' && !b.result).forEach(b=>{
+          const id = b.pick[0];
+          stakeByHorse.set(id, (stakeByHorse.get(id)||0) + b.stake);
+        });
         horseButtons.forEach((b, hid)=>{
-          b.classList.toggle('has-bet', (stakeByHorse.get(hid)||0) > 0);
+          const stake = stakeByHorse.get(hid) || 0;
+          b.classList.toggle('has-bet', stake > 0);
+          const stakeEl = b.querySelector('.stake');
+          if (stakeEl) stakeEl.textContent = stake > 0 ? `$${stake}` : '';
         });
       }
-      function adjustQuickBet(delta, horseId){
+      function toggleWinBet(horseId){
         if (GAME.state.phase !== 'BETTING_OPEN') return;
-        const max = p.bankroll - currentCommittedStake(p);
-        if (delta>0 && max<=0) return;
         const existingIdx = p.bets.findIndex(b=>b.type==='WIN' && b.pick[0]===horseId && !b.result);
-        if (existingIdx>=0){
-          // modify existing bet by recreating with adjusted stake
+        if (existingIdx >= 0){
           const b = p.bets[existingIdx];
-          let newStake = clamp(b.stake + delta, 0, p.bankroll);
-          newStake = Math.floor(newStake/10)*10;
-          if (newStake<=0){ p.bets.splice(existingIdx,1); }
-          else { p.bets[existingIdx] = { ...b, stake: newStake }; }
-        } else if (delta>0){
-          const stake = Math.min(10, max);
-          if (stake>0) p.bets.push({ id: uid(), type:'WIN', pick:[horseId], stake });
-        }
-        render(); // refresh balances and odds display
-        updateBankrollDisplays();
-        syncHasBet();
-      }
-      function adjustPlaceBet(delta, horseId){
-        if (GAME.state.phase !== 'BETTING_OPEN') return;
-        const max = p.bankroll - currentCommittedStake(p);
-        if (delta>0 && max<=0) return;
-        const existingIdx = p.bets.findIndex(b=>b.type==='PLACE' && b.pick[0]===horseId && !b.result);
-        if (existingIdx>=0){
-          const b = p.bets[existingIdx];
-          let newStake = clamp(b.stake + delta, 0, p.bankroll);
-          newStake = Math.floor(newStake/10)*10;
-          if (newStake<=0){ p.bets.splice(existingIdx,1); }
-          else { p.bets[existingIdx] = { ...b, stake: newStake }; }
-        } else if (delta>0){
-          const stake = Math.min(10, max);
-          if (stake>0) p.bets.push({ id: uid(), type:'PLACE', pick:[horseId], stake });
+          const newStake = b.stake + 10;
+          if (newStake > p.bankroll - currentCommittedStake(p) + b.stake){
+            return;
+          }
+          p.bets[existingIdx] = { ...b, stake: newStake };
+        } else {
+          const max = p.bankroll - currentCommittedStake(p);
+          if (max < 10) return;
+          p.bets.push({ id: uid(), type:'WIN', pick:[horseId], stake: 10 });
         }
         render();
         updateBankrollDisplays();
-        syncHasBet();
+        syncBetButtons();
       }
       const mybets = document.createElement('div');
       mybets.className = 'mybets';
@@ -896,7 +1059,6 @@ img{ display:block; }
       }
 
       wrap.appendChild(header);
-      wrap.appendChild(betrow);
       wrap.appendChild(qb);
       wrap.appendChild(mybets);
       wrap.appendChild(brokeWrap);
@@ -904,8 +1066,9 @@ img{ display:block; }
       els.players.appendChild(wrap);
 
       // post-build quickbet state
-      syncHasBet();
+      syncBetButtons();
     });
+    syncPlayerBar();
   }
 
   function oddsChipsHTML(){
@@ -951,7 +1114,7 @@ img{ display:block; }
   }
 
   function updateBankrollDisplays(){
-    GAME.players.forEach(p => {
+    activePlayers().forEach(p => {
       const committed = currentCommittedStake(p);
       const available = Math.max(0, p.bankroll - committed);
       const el = document.querySelector(`[data-bind="bank${p.id}"]`);
@@ -1267,14 +1430,11 @@ img{ display:block; }
       const p = pointForMode(hs.x, laneIndex);
       const x = p.x * sx;
       const y = p.y * sy;
-      const deg = (p.rot * 180/Math.PI);
       hEl.style.left = x + 'px';
       hEl.style.top  = y + 'px';
       hEl.style.transform = `translate(-50%, -50%)`;
       const rotWrap = hEl.querySelector('.rot');
-      if (rotWrap) rotWrap.style.transform = `rotate(${deg}deg)`;
-      const bob = Math.sin(performance.now()/80 + id)*2;
-      // keep constant drop shadow on sprite; static oval shadow element handles ground
+      if (rotWrap) applyHorseTransform(rotWrap, p);
     });
   }
 
@@ -1297,7 +1457,7 @@ img{ display:block; }
     }
 
       // payouts
-    GAME.players.forEach(p=>{
+    activePlayers().forEach(p=>{
       let delta = 0;
       p.bets.forEach(b=>{
         const payout = settleBet(b, order);
@@ -1378,7 +1538,7 @@ img{ display:block; }
     }
 
     // Flash payout buttons for winners
-    GAME.players.forEach((p, pi)=>{
+    activePlayers().forEach((p, pi)=>{
       const paid = p.bets.filter(b => b.result && b.result.win);
       const layer = document.getElementById('players');
       if (!layer) return;
@@ -1446,7 +1606,7 @@ img{ display:block; }
 
   function setupHeat(){
     const entrants = entrantsForHeat();
-    // randomize lane order per heat to avoid consistent positional advantage
+    // randomize lane order per heat for variety
     GAME.state.entered = shuffle(entrants);
     computeOdds();
     buildTrack();
@@ -1477,6 +1637,7 @@ img{ display:block; }
     // Update top odds chips
     const topOdds = document.getElementById('topOdds');
     if (topOdds){ topOdds.innerHTML = oddsChipsHTML(); }
+    scheduleFitTopBar();
   }
 
   function renderPlayersControls(){
@@ -1494,7 +1655,9 @@ img{ display:block; }
       const p = pointForMode(GAME.state.trackTOffset, laneIndex);
       hEl.style.left = (p.x * sx) + 'px';
       hEl.style.top  = (p.y * sy) + 'px';
-      hEl.style.transform = `translate(-50%, -50%) rotate(${(p.rot*180/Math.PI)}deg)`;
+      hEl.style.transform = `translate(-50%, -50%)`;
+      const rotWrap = hEl.querySelector('.rot');
+      if (rotWrap) applyHorseTransform(rotWrap, p);
     });
   }
 
@@ -1517,6 +1680,34 @@ img{ display:block; }
     });
   }
 
+  function getLaneGeom(laneIndex){
+    const cx = 500, cy = 300;
+    const outerStraight = 440;
+    const baseR = 220;
+    const laneSpacing = 14;
+    const r = baseR - laneIndex * laneSpacing * 0.75;
+    const perimeter = 2 * outerStraight + 2 * Math.PI * baseR;
+    const straight = (perimeter - 2 * Math.PI * r) / 2;
+    return { cx, cy, r, straight };
+  }
+
+  function orientFromTangent(angle){
+    // Sprite default faces right (0 rad). Mirror when heading left to stay upright.
+    if (Math.cos(angle) < -0.05) {
+      return { rot: Math.PI - angle, flipX: true };
+    }
+    return { rot: angle, flipX: false };
+  }
+
+  function applyHorseTransform(rotWrap, p){
+    const deg = (p.rot || 0) * 180 / Math.PI;
+    if (p.flipX) {
+      rotWrap.style.transform = `scaleX(-1) rotate(${deg}deg)`;
+    } else {
+      rotWrap.style.transform = `rotate(${deg}deg)`;
+    }
+  }
+
   function pointForMode(t, laneIndex){
     const tt = ((t % 1) + 1) % 1; // normalize to [0,1)
     if (GAME.state.trackMode === 'course') {
@@ -1529,45 +1720,40 @@ img{ display:block; }
       const laneSpacing=20;
       const y = yBase + (laneIndex - 3.5) * laneSpacing;
       const x = startX + (endX - startX) * tt;
-      const rot = 0;
-      return { x,y,rot };
+      return { x, y, rot: 0, flipX: false };
     }
   }
 
   function stadiumPoint(t, laneIndex){
-    // Stadium with horizontal straights (top and bottom) and semicircles at left/right
-    const cx=500, cy=300;
-    const outerStraight = 440; // straight length horizontally (x=280 to x=720)
-    const baseR = 220; // radius of semicircle turns (y from 80 to 520)
-    const laneSpacing = 14;
-    const r = baseR - laneIndex*laneSpacing*0.75;
-    const straight = outerStraight - laneIndex*laneSpacing*2; // adjust straights inward slightly
+    const { cx, cy, r, straight } = getLaneGeom(laneIndex);
     // Segments: 0) top straight L->R, 1) right turn top->bottom, 2) bottom straight R->L, 3) left turn bottom->top
     let seg = t * 4;
     if (seg < 1){
-      const u = seg; // 0..1
+      const u = seg;
       const x = cx - straight/2 + straight*u;
       const y = cy - r;
-      return { x, y, rot: 0 };
+      return { x, y, rot: 0, flipX: false };
     } else if (seg < 2){
-      const u = seg - 1; // 0..1
-      const a = -Math.PI/2 + Math.PI*u; // right turn clockwise from top->bottom
+      const u = seg - 1;
+      const a = -Math.PI/2 + Math.PI*u;
       const x = cx + straight/2 + r*Math.cos(a);
       const y = cy + r*Math.sin(a);
-      const rot = a + Math.PI/2; // tangent
-      return { x, y, rot };
+      const angle = Math.atan2(r*Math.cos(a), -r*Math.sin(a));
+      const o = orientFromTangent(angle);
+      return { x, y, rot: o.rot, flipX: o.flipX };
     } else if (seg < 3){
-      const u = seg - 2; // 0..1
+      const u = seg - 2;
       const x = cx + straight/2 - straight*u;
       const y = cy + r;
-      return { x, y, rot: Math.PI };
+      return { x, y, rot: 0, flipX: true };
     } else {
-      const u = seg - 3; // 0..1
-      const a = Math.PI/2 + Math.PI*u; // left turn bottom->top
+      const u = seg - 3;
+      const a = Math.PI/2 + Math.PI*u;
       const x = cx - straight/2 + r*Math.cos(a);
       const y = cy + r*Math.sin(a);
-      const rot = a + Math.PI/2;
-      return { x, y, rot };
+      const angle = Math.atan2(r*Math.cos(a), -r*Math.sin(a));
+      const o = orientFromTangent(angle);
+      return { x, y, rot: o.rot, flipX: o.flipX };
     }
   }
 
@@ -1582,12 +1768,28 @@ img{ display:block; }
     flag.style.top  = (p.y * sy) + 'px';
   }
 
+  // Player count toggle
+  if (els.btnTogglePlayer){
+    els.btnTogglePlayer.onclick = () => {
+      if (GAME.state.activePlayerCount > 3){
+        const p4 = GAME.players[3];
+        if (p4) p4.bets = [];
+        GAME.state.activePlayerCount = 3;
+      } else {
+        GAME.state.activePlayerCount = 4;
+      }
+      render();
+      updateBankrollDisplays();
+    };
+  }
+
   // ---------- Admin buttons ----------
   els.courseSelect.addEventListener('change', e => {
     // Allow course change whenever betting is open; block otherwise
     if (GAME.state.phase !== 'BETTING_OPEN') return;
     GAME.state.course = e.target.value;
     applyCourseSkin(GAME.state.course);
+    scheduleFitTopBar();
   });
   // Betting toggle
   if (els.btnBetToggle){
@@ -1599,14 +1801,18 @@ img{ display:block; }
   }
   function updateBetToggleLabel(){
     if (!els.btnBetToggle) return;
-    els.btnBetToggle.textContent = GAME.state.phase === 'BETTING_OPEN' ? 'Close Betting' : 'Open Betting';
+    const text = GAME.state.phase === 'BETTING_OPEN' ? 'Close Betting' : 'Open Betting';
+    setControlLabel(els.btnBetToggle, text);
+    scheduleFitTopBar();
   }
 
   // Championship toggle button
   if (els.btnChamp){
     const syncChampBtn = () => {
-      els.btnChamp.textContent = `Championship: ${GAME.state.championship ? 'On' : 'Off'}`;
+      const text = `Championship: ${GAME.state.championship ? 'On' : 'Off'}`;
+      setControlLabel(els.btnChamp, text);
       els.btnChamp.classList.toggle('active', !!GAME.state.championship);
+      scheduleFitTopBar();
     };
     syncChampBtn();
     els.btnChamp.onclick = () => {
@@ -1642,7 +1848,8 @@ img{ display:block; }
     if (GAME.state.phase === 'RACING') return;
     GAME.state.trackMode = GAME.state.trackMode === 'course' ? 'straight' : 'course';
     const btn = document.getElementById('btnToggleTrack');
-    if (btn) btn.textContent = `Track: ${GAME.state.trackMode === 'course' ? 'Course' : 'Straight'}`;
+    setControlLabel(btn, `Track: ${GAME.state.trackMode === 'course' ? 'Course' : 'Straight'}`);
+    scheduleFitTopBar();
     GAME.state.trackTOffset = GAME.state.trackMode === 'course' ? 0.125 : 0;
     const stg = document.getElementById('stadiumGroup');
     const sgg = document.getElementById('straightGroup');
@@ -1752,18 +1959,30 @@ img{ display:block; }
     // First heat setup
     GAME.state.course = 'grass';
     applyCourseSkin(GAME.state.course);
+    buildTrackVisuals();
     setupHeat();
     openBetting(CONFIG.settings.betCountdownSec);
     renderRacePositionsInitial();
     placeFinishFlag();
     const btn = document.getElementById('btnToggleTrack');
-    if (btn) btn.textContent = `Track: ${GAME.state.trackMode === 'course' ? 'Course' : 'Straight'}`;
+    setControlLabel(btn, `Track: ${GAME.state.trackMode === 'course' ? 'Course' : 'Straight'}`);
     // ensure SVG reflects current mode
     const stg = document.getElementById('stadiumGroup');
     const sgg = document.getElementById('straightGroup');
     if (stg && sgg){ stg.style.display = GAME.state.trackMode==='course' ? 'block' : 'none'; sgg.style.display = GAME.state.trackMode==='course' ? 'none' : 'block'; }
     updateBetToggleLabel();
     setupCommentary();
+    initControlLabels();
+    scheduleFitTopBar();
+    const topLeft = document.querySelector('.top-left');
+    if (topLeft){
+      new ResizeObserver(scheduleFitTopBar).observe(topLeft);
+    }
+    const controlsBar = document.querySelector('.controls');
+    if (controlsBar){
+      new ResizeObserver(scheduleFitTopBar).observe(controlsBar);
+    }
+    window.addEventListener('resize', scheduleFitTopBar);
   }
 
   init();
