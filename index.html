@@ -199,9 +199,9 @@ img{ display:block; }
   box-shadow: inset 0 0 0 2px #0b1626, 0 10px 30px var(--shadow);
 }
 
-/* Course skins */
-.track.grass{ background: linear-gradient(#476d2d 0%, #2f4f1a 100%); }
-.track.dirt{ background: linear-gradient(#6d5137 0%, #4b3622 100%); }
+/* Course skins — peek through stadium SVG infield / edges */
+.track.grass{ background: radial-gradient(ellipse at 50% 50%, #3d5c28 0%, #2a4418 55%, #152018 100%); }
+.track.dirt{ background: radial-gradient(ellipse at 50% 50%, #6a4e32 0%, #4a341f 55%, #1a1410 100%); }
 .track.night{ background: radial-gradient(120% 150% at 50% -20%, #0c1f3d, #060a12 70%); }
 .track.cyber{ background: radial-gradient(120% 150% at 50% -20%, #001018, #00060c 70%); }
 
@@ -240,38 +240,90 @@ img{ display:block; }
 .svg-track{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; }
 .horses-layer{ position:absolute; inset:0; z-index:2; }
 .finish-flag{
-  position:absolute; width:18px; height:80px;
+  position:absolute; width:14px; height:56px; z-index:3; pointer-events:none;
   background:
     linear-gradient(0deg, var(--finish) 0 6px, transparent 6px 12px,
                           var(--finish) 12px 18px, transparent 18px 24px,
                           var(--finish) 24px 30px, transparent 30px 36px,
                           var(--finish) 36px 42px, transparent 42px 48px);
   box-shadow: 0 0 10px rgba(255,255,255,0.45);
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -100%);
+  display:none;
 }
+.finish-flag.show{ display:block; }
+
+/* Infield feature board (course / oval only) */
+.infield-board{
+  position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
+  width:min(24%, 230px); z-index:3; pointer-events:none;
+  background: linear-gradient(160deg, rgba(8,18,32,0.92), rgba(12,28,48,0.88));
+  border:2px solid rgba(23,240,255,0.35);
+  border-radius:14px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.06);
+  padding:10px 12px; color:#e8f1ff;
+  display:none;
+}
+.infield-board.show{ display:block; }
+.infield-board .infield-label{
+  font-size:10px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
+  color:#7ef9ff; margin-bottom:8px; text-align:center;
+}
+.infield-board .infield-feat{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  animation: infieldIn 420ms ease;
+}
+.infield-board .infield-feat img{
+  width:72px; height:54px; object-fit:contain; image-rendering:pixelated;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+}
+.infield-board .infield-feat .nm{ font-size:12px; font-weight:700; text-align:center; color:#bfe0ff; }
+.infield-board .infield-feat .meta{ font-size:11px; color:#9fd3ff; }
+.infield-board .live-row{
+  display:grid; grid-template-columns: 22px 1fr auto; gap:4px 6px; align-items:center;
+  font-size:11px; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.infield-board .live-row:last-child{ border-bottom:none; }
+.infield-board .live-row .pos{ font-weight:800; color:#ffd166; }
+.infield-board .live-row .nm{ color:#d7ecff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.infield-board .live-row .od{ color:#9fd3ff; font-variant-numeric:tabular-nums; }
+.infield-board .podium-row{ display:flex; align-items:center; gap:8px; padding:4px 0; }
+.infield-board .podium-row img{ width:36px; height:28px; object-fit:contain; image-rendering:pixelated; }
+.infield-board .infield-actions{
+  margin-top:8px; display:flex; flex-direction:column; align-items:stretch; gap:6px;
+  pointer-events:auto;
+}
+.infield-board .infield-actions .next-timer{
+  text-align:center; color:#ffd166; font-weight:700; font-size:11px;
+}
+.infield-board .infield-actions button{
+  background:#0f2037; border:1px solid #2b4f86; color:#e6f1ff;
+  padding:7px 10px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px;
+}
+.infield-board .infield-actions button:hover{ border-color:#17f0ff; }
+@keyframes infieldIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
 
 /* Track lanes */
 .track{ position:absolute; inset:0; }
 
-/* Horse */
+/* Horse — sized to fit between course rails */
 .horse{
   position:absolute; left:0; top:0; transform: translate(-50%, -50%);
   display:flex; align-items:center; gap:8px;
   transition: filter 0.2s;
 }
 .horse .rot{ display:flex; align-items:center; gap:8px; transform-origin: 50% 50%; }
-.horse .shadow{ position:absolute; left:50%; bottom:6px; width:42px; height:10px; transform: translateX(-50%); border-radius:50%; background: rgba(0,0,0,0.35); filter: blur(2px); }
+.horse .shadow{ position:absolute; left:50%; bottom:4px; width:28px; height:7px; transform: translateX(-50%); border-radius:50%; background: rgba(0,0,0,0.35); filter: blur(2px); }
 .horse .badge{
-  position:absolute; top:-18px; left:50%; transform: translateX(-50%);
-  font-size:16px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6));
+  position:absolute; top:-14px; left:50%; transform: translateX(-50%);
+  font-size:12px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6));
 }
 .horse .spr{
-  width: 64px; height: 48px; image-rendering: pixelated; object-fit: contain;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.45));
+  width: 44px; height: 34px; image-rendering: pixelated; object-fit: contain;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.45));
 }
 .horse .fallback{
-  width: 64px; height: 48px; border-radius:8px; display:flex; align-items:center; justify-content:center;
-  background:#142438; border:2px solid #2b4a72; color:#8ec8ff; font-weight:800;
+  width: 44px; height: 34px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+  background:#142438; border:2px solid #2b4a72; color:#8ec8ff; font-weight:800; font-size:10px;
 }
 .horse .tag{
   background: #0f2744; border:1px solid #26507d; border-radius:6px; padding:2px 6px; font-size:12px; color:#9fcaff;
@@ -490,7 +542,7 @@ img{ display:block; }
         <button class="admin warn" id="btnSkipAnim">Skip Animation</button>
         <button class="admin" id="btnCommentary">Commentary</button>
         <button class="admin" id="btnRules">📜 Rules</button>
-        <button class="admin" id="btnSim60">Simulate ×60</button>
+        <button class="admin" id="btnOddsMode">Odds: Fixed</button>
       </div>
     </div>
 
@@ -511,18 +563,50 @@ img{ display:block; }
           <svg class="svg-track" id="svgTrack" viewBox="0 0 1000 600" preserveAspectRatio="none">
             <defs>
               <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <pattern id="crowdPat" width="12" height="8" patternUnits="userSpaceOnUse">
+                <rect x="1" y="2" width="3" height="3" rx="0.8" fill="rgba(255,210,180,0.55)"/>
+                <rect x="7" y="3" width="3" height="3" rx="0.8" fill="rgba(190,210,255,0.5)"/>
+              </pattern>
+              <linearGradient id="seatGradA" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6b3348"/>
+                <stop offset="100%" stop-color="#4a2233"/>
+              </linearGradient>
+              <linearGradient id="seatGradB" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3d5a7a"/>
+                <stop offset="100%" stop-color="#2a3f58"/>
+              </linearGradient>
+              <linearGradient id="bowlGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1e2b40"/>
+                <stop offset="50%" stop-color="#141d2c"/>
+                <stop offset="100%" stop-color="#0c1320"/>
+              </linearGradient>
+              <linearGradient id="trackSurface" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6fad45"/>
+                <stop offset="40%" stop-color="#5a9438"/>
+                <stop offset="100%" stop-color="#45782c"/>
+              </linearGradient>
+              <pattern id="finishCheck" width="10" height="10" patternUnits="userSpaceOnUse">
+                <rect width="5" height="5" fill="#fff"/>
+                <rect x="5" y="5" width="5" height="5" fill="#fff"/>
+                <rect x="5" y="0" width="5" height="5" fill="#111"/>
+                <rect x="0" y="5" width="5" height="5" fill="#111"/>
+              </pattern>
+              <linearGradient id="roofGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4a607c"/>
+                <stop offset="100%" stop-color="#2a3a50"/>
+              </linearGradient>
             </defs>
-            <!-- Stadium: horizontal straights with outward left/right curves (match path math) -->
-            <g id="stadiumGroup">
-              <path data-lane="outer" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="6" filter="url(#glow)"/>
-            </g>
-            <g id="straightGroup" style="display:none">
-              <path d="M 80 200 L 920 200" stroke="rgba(255,255,255,0.35)" stroke-width="6" filter="url(#glow)"/>
-              <path d="M 80 400 L 920 400" stroke="rgba(255,255,255,0.35)" stroke-width="6" filter="url(#glow)"/>
-            </g>
+            <!-- Oval stadium + track (built in JS) -->
+            <g id="stadiumGroup"></g>
+            <!-- Straight stadium + track (built in JS) -->
+            <g id="straightGroup" style="display:none"></g>
           </svg>
           <div class="finish-flag" id="finishFlag"></div>
           <div class="horses-layer" id="horsesLayer"></div>
+          <div class="infield-board" id="infieldBoard" aria-live="polite">
+            <div class="infield-label" id="infieldLabel">ENTRIES</div>
+            <div class="infield-body" id="infieldBody"></div>
+          </div>
           <div class="count-overlay" id="countOverlay" style="display:none;">
             <div class="count-num" id="countNum">3</div>
           </div>
@@ -668,7 +752,8 @@ img{ display:block; }
       trackTOffset: 0.125,
       activePlayerCount: 3,
       championship: false,
-      autoTimer: null
+      autoTimer: null,
+      oddsMode: 'fixed' // 'fixed' | 'random' | 'mixed'
     },
     history: [] // list of race summaries for ticker
   };
@@ -723,18 +808,304 @@ img{ display:block; }
 
   function getVisualLane(level){
     const cx = 500, cy = 300;
-    const baseR = 220, outerStraight = 440;
-    const inset = 34 * level;
-    return { cx, cy, r: baseR - inset, straight: outerStraight - inset * 2 };
+    // Sized to leave room for stadium stands outside the rails
+    const baseR = 168, outerStraight = 340;
+    const inset = 26 * level;
+    return { cx, cy, r: baseR - inset, straight: Math.max(40, outerStraight - inset * 2) };
+  }
+
+  function svgEl(name, attrs){
+    const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+    if (attrs) Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, String(v)));
+    return el;
+  }
+
+  function stadiumRingD(outer, inner){
+    return stadiumPathD(outer.cx, outer.cy, outer.r, outer.straight) + ' ' +
+           stadiumPathD(inner.cx, inner.cy, inner.r, inner.straight);
+  }
+
+  function buildOvalStadium(group){
+    group.innerHTML = '';
+    // Bowl outside the racing line (track outer = level 0)
+    const shell = getVisualLane(-2.8);
+    const roof = getVisualLane(-2.45);
+    const seats1 = getVisualLane(-2.1);
+    const seats2 = getVisualLane(-1.5);
+    const seats3 = getVisualLane(-0.95);
+    const seats4 = getVisualLane(-0.4);
+    const trackOuter = getVisualLane(0);
+    const trackInner = getVisualLane(2.6);
+    const infield = getVisualLane(2.75);
+
+    // Fill the rectangular frame so corners aren't bare course green
+    group.appendChild(svgEl('rect', {
+      x: 0, y: 0, width: 1000, height: 600,
+      fill: '#0d1520'
+    }));
+    // Plaza ring around the bowl
+    group.appendChild(svgEl('rect', {
+      x: 8, y: 8, width: 984, height: 584, rx: 18,
+      fill: '#162033', stroke: '#3d5573', 'stroke-width': 3
+    }));
+
+    // Outer bowl / building mass
+    group.appendChild(svgEl('path', {
+      d: stadiumPathD(shell.cx, shell.cy, shell.r, shell.straight),
+      fill: 'url(#bowlGrad)', stroke: '#5a7aa0', 'stroke-width': 4
+    }));
+
+    // Roof lip
+    group.appendChild(svgEl('path', {
+      d: stadiumRingD(shell, roof),
+      fill: 'url(#roofGrad)', 'fill-rule': 'evenodd',
+      stroke: 'rgba(200,220,255,0.25)', 'stroke-width': 1
+    }));
+
+    // Seating tiers — alternating burgundy / blue so the bowl reads as stands
+    const seatBands = [
+      { o: roof, i: seats1, fill: 'url(#seatGradA)' },
+      { o: seats1, i: seats2, fill: 'url(#seatGradB)' },
+      { o: seats2, i: seats3, fill: 'url(#seatGradA)' },
+      { o: seats3, i: seats4, fill: 'url(#seatGradB)' },
+      // Dark apron between last seats and outer rail (not part of the racing surface)
+      { o: seats4, i: trackOuter, fill: '#152418' }
+    ];
+    seatBands.forEach(band => {
+      group.appendChild(svgEl('path', {
+        d: stadiumRingD(band.o, band.i),
+        fill: band.fill, 'fill-rule': 'evenodd',
+        stroke: 'rgba(255,255,255,0.12)', 'stroke-width': 1.25
+      }));
+    });
+
+    // Crowd speckles on upper tiers only
+    group.appendChild(svgEl('path', {
+      d: stadiumRingD(roof, seats3),
+      fill: 'url(#crowdPat)', 'fill-rule': 'evenodd', opacity: 0.55
+    }));
+
+    // A few section aisles (long sides + ends)
+    const aisleAngles = [-0.55, -0.2, 0.2, 0.55, Math.PI-0.55, Math.PI-0.2, Math.PI+0.2, Math.PI+0.55];
+    aisleAngles.forEach(a => {
+      const cos = Math.cos(a), sin = Math.sin(a);
+      const x1 = shell.cx + cos * (shell.straight * 0.42) + cos * shell.r * 0.15;
+      const y1 = shell.cy + sin * shell.r * 0.98;
+      const x2 = trackOuter.cx + cos * (trackOuter.straight * 0.38) + cos * trackOuter.r * 0.12;
+      const y2 = trackOuter.cy + sin * trackOuter.r * 0.98;
+      group.appendChild(svgEl('line', {
+        x1, y1, x2, y2,
+        stroke: 'rgba(10,16,28,0.45)', 'stroke-width': 3.5
+      }));
+    });
+
+    // Green racing surface between outer & inner rails
+    group.appendChild(svgEl('path', {
+      id: 'courseTrackBand',
+      d: stadiumRingD(trackOuter, trackInner),
+      fill: 'url(#trackSurface)', 'fill-rule': 'evenodd',
+      stroke: 'none'
+    }));
+    // Subtle turf striping
+    for (let lv = 0.45; lv <= 2.2; lv += 0.45){
+      const lane = getVisualLane(lv);
+      group.appendChild(svgEl('path', {
+        d: stadiumPathD(lane.cx, lane.cy, lane.r, lane.straight),
+        fill: 'none', stroke: 'rgba(255,255,255,0.14)', 'stroke-width': 1.25
+      }));
+    }
+
+    // Outer rail (outside track)
+    group.appendChild(svgEl('path', {
+      'data-lane': 'outer',
+      d: stadiumPathD(trackOuter.cx, trackOuter.cy, trackOuter.r, trackOuter.straight),
+      fill: 'none', stroke: '#e8f0ff', 'stroke-width': 6, filter: 'url(#glow)'
+    }));
+    // Inner rail (inside track)
+    group.appendChild(svgEl('path', {
+      'data-lane': 'inner',
+      d: stadiumPathD(trackInner.cx, trackInner.cy, trackInner.r, trackInner.straight),
+      fill: 'none', stroke: '#d7e6ff', 'stroke-width': 5, filter: 'url(#glow)'
+    }));
+
+    // Checkered finish line across the green band (top straight midpoint = race start/finish)
+    const finishT = 0.125;
+    const pOut = stadiumPointAt(finishT, trackOuter);
+    const pIn = stadiumPointAt(finishT, trackInner);
+    group.appendChild(svgEl('line', {
+      id: 'courseFinishLine',
+      x1: pOut.x, y1: pOut.y, x2: pIn.x, y2: pIn.y,
+      stroke: 'url(#finishCheck)', 'stroke-width': 10, 'stroke-linecap': 'butt'
+    }));
+    group.appendChild(svgEl('line', {
+      x1: pOut.x, y1: pOut.y, x2: pIn.x, y2: pIn.y,
+      stroke: 'rgba(255,255,255,0.85)', 'stroke-width': 2
+    }));
+
+    // Infield grass
+    group.appendChild(svgEl('path', {
+      d: stadiumPathD(infield.cx, infield.cy, infield.r, infield.straight),
+      fill: 'rgba(36,70,28,0.85)', stroke: 'rgba(120,170,90,0.35)', 'stroke-width': 2
+    }));
+
+    // Light towers at the four corners of the bowl
+    const towers = [
+      [shell.cx - shell.straight/2 - 8, shell.cy - shell.r * 0.72],
+      [shell.cx + shell.straight/2 + 8, shell.cy - shell.r * 0.72],
+      [shell.cx - shell.straight/2 - 8, shell.cy + shell.r * 0.72],
+      [shell.cx + shell.straight/2 + 8, shell.cy + shell.r * 0.72]
+    ];
+    towers.forEach(([x,y]) => {
+      group.appendChild(svgEl('rect', { x: x-4, y: y-34, width: 8, height: 34, rx: 2, fill: '#6a809c' }));
+      group.appendChild(svgEl('circle', { cx: x, cy: y-36, r: 9, fill: '#ffe6a3', opacity: 0.85, filter: 'url(#glow)' }));
+    });
+  }
+
+  function stadiumPointAt(t, geom){
+    const { cx, cy, r, straight } = geom;
+    let seg = (((t % 1) + 1) % 1) * 4;
+    if (seg < 1){
+      const u = seg;
+      return { x: cx - straight/2 + straight*u, y: cy - r };
+    } else if (seg < 2){
+      const u = seg - 1;
+      const a = -Math.PI/2 + Math.PI*u;
+      return { x: cx + straight/2 + r*Math.cos(a), y: cy + r*Math.sin(a) };
+    } else if (seg < 3){
+      const u = seg - 2;
+      return { x: cx + straight/2 - straight*u, y: cy + r };
+    } else {
+      const u = seg - 3;
+      const a = Math.PI/2 + Math.PI*u;
+      return { x: cx - straight/2 + r*Math.cos(a), y: cy + r*Math.sin(a) };
+    }
+  }
+
+  function buildStraightStadium(group){
+    group.innerHTML = '';
+    const trackTop = 195, trackBot = 405;
+    const startX = 70, endX = 930;
+
+    // Outer bowl
+    group.appendChild(svgEl('rect', {
+      x: 16, y: 16, width: 968, height: 568, rx: 26,
+      fill: 'url(#bowlGrad)', stroke: '#5a7aa0', 'stroke-width': 4
+    }));
+
+    // Roof strips above each stand
+    group.appendChild(svgEl('rect', {
+      x: 28, y: 24, width: 944, height: 22, rx: 8, fill: 'url(#roofGrad)'
+    }));
+    group.appendChild(svgEl('rect', {
+      x: 28, y: 554, width: 944, height: 22, rx: 8, fill: 'url(#roofGrad)'
+    }));
+
+    // Top & bottom grandstands with alternating seat rows
+    const stands = [
+      { y: 48, h: 138 },
+      { y: 414, h: 138 }
+    ];
+    stands.forEach((s) => {
+      group.appendChild(svgEl('rect', {
+        x: 32, y: s.y, width: 936, height: s.h, rx: 10,
+        fill: '#243246', stroke: 'rgba(255,255,255,0.12)', 'stroke-width': 1
+      }));
+      for (let row = 0; row < 6; row++){
+        const yy = s.y + 6 + row * 21;
+        const hh = 18;
+        group.appendChild(svgEl('rect', {
+          x: 40, y: yy, width: 920, height: hh, rx: 3,
+          fill: row % 2 === 0 ? 'url(#seatGradA)' : 'url(#seatGradB)'
+        }));
+      }
+      group.appendChild(svgEl('rect', {
+        x: 40, y: s.y + 6, width: 920, height: s.h - 14, rx: 4,
+        fill: 'url(#crowdPat)', opacity: 0.45
+      }));
+      // aisles
+      for (let a = 0; a < 7; a++){
+        const xx = 110 + a * 120;
+        group.appendChild(svgEl('rect', {
+          x: xx - 4, y: s.y + 4, width: 8, height: s.h - 8, rx: 2,
+          fill: 'rgba(10,16,28,0.5)'
+        }));
+      }
+    });
+
+    // End terraces
+    group.appendChild(svgEl('rect', {
+      x: 24, y: trackTop - 10, width: 40, height: trackBot - trackTop + 20, rx: 8,
+      fill: 'url(#seatGradB)', stroke: 'rgba(255,255,255,0.12)', 'stroke-width': 1
+    }));
+    group.appendChild(svgEl('rect', {
+      x: 936, y: trackTop - 10, width: 40, height: trackBot - trackTop + 20, rx: 8,
+      fill: 'url(#seatGradB)', stroke: 'rgba(255,255,255,0.12)', 'stroke-width': 1
+    }));
+
+    // Scoreboard
+    group.appendChild(svgEl('rect', {
+      x: 390, y: 54, width: 220, height: 40, rx: 8,
+      fill: '#0a1524', stroke: '#17f0ff', 'stroke-width': 1.5, opacity: 0.95
+    }));
+    const scoreTxt = svgEl('text', {
+      x: 500, y: 80, fill: '#7ef9ff', 'font-size': 15, 'font-family': 'ui-monospace, monospace',
+      'text-anchor': 'middle', 'font-weight': 700
+    });
+    scoreTxt.textContent = 'STRAIGHT COURSE';
+    group.appendChild(scoreTxt);
+
+    // Track surface
+    group.appendChild(svgEl('rect', {
+      x: startX - 10, y: trackTop, width: endX - startX + 20, height: trackBot - trackTop,
+      fill: 'url(#trackSurface)', stroke: 'rgba(255,255,255,0.28)', 'stroke-width': 2
+    }));
+
+    // Lane lines
+    for (let i = 1; i < 8; i++){
+      const y = trackTop + (trackBot - trackTop) * (i / 8);
+      group.appendChild(svgEl('line', {
+        x1: startX, y1: y, x2: endX, y2: y,
+        stroke: 'rgba(255,255,255,0.16)', 'stroke-width': 1.5
+      }));
+    }
+
+    // Rails
+    group.appendChild(svgEl('path', {
+      d: `M ${startX} ${trackTop} L ${endX} ${trackTop}`,
+      stroke: 'rgba(255,255,255,0.7)', 'stroke-width': 5, fill: 'none', filter: 'url(#glow)'
+    }));
+    group.appendChild(svgEl('path', {
+      d: `M ${startX} ${trackBot} L ${endX} ${trackBot}`,
+      stroke: 'rgba(255,255,255,0.7)', 'stroke-width': 5, fill: 'none', filter: 'url(#glow)'
+    }));
+
+    // Finish line at start (t=0) — horses run left→right to the far post
+    group.appendChild(svgEl('line', {
+      x1: endX, y1: trackTop, x2: endX, y2: trackBot,
+      stroke: 'url(#finishCheck)', 'stroke-width': 10
+    }));
+    group.appendChild(svgEl('line', {
+      x1: endX, y1: trackTop, x2: endX, y2: trackBot,
+      stroke: 'rgba(255,255,255,0.85)', 'stroke-width': 2
+    }));
+
+    // Start / finish posts
+    group.appendChild(svgEl('rect', { x: startX - 4, y: trackTop + 8, width: 8, height: trackBot - trackTop - 16, fill: '#c9d6e8', opacity: 0.75 }));
+    group.appendChild(svgEl('rect', { x: endX - 4, y: trackTop + 8, width: 8, height: trackBot - trackTop - 16, fill: '#fff', opacity: 0.9 }));
+
+    // Floodlights along stand edges
+    [130, 320, 500, 680, 870].forEach(x => {
+      [trackTop - 8, trackBot + 8].forEach(y => {
+        group.appendChild(svgEl('circle', { cx: x, cy: y, r: 7, fill: '#ffe6a3', opacity: 0.8, filter: 'url(#glow)' }));
+      });
+    });
   }
 
   function buildTrackVisuals(){
-    const group = document.getElementById('stadiumGroup');
-    if (!group) return;
-    const path = group.querySelector('path[data-lane="outer"]');
-    if (!path) return;
-    const outer = getVisualLane(0);
-    path.setAttribute('d', stadiumPathD(outer.cx, outer.cy, outer.r, outer.straight));
+    const stadiumGroup = document.getElementById('stadiumGroup');
+    const straightGroup = document.getElementById('straightGroup');
+    if (stadiumGroup) buildOvalStadium(stadiumGroup);
+    if (straightGroup) buildStraightStadium(straightGroup);
   }
 
   let fitTopBarFrame = 0;
@@ -840,14 +1211,29 @@ img{ display:block; }
   }
 
   // ---------- Odds generation ----------
+  const ODDS_MODES = ['fixed', 'random', 'mixed'];
+  const ODDS_MODE_LABEL = { fixed: 'Fixed', random: 'Random', mixed: 'Mixed' };
+
   function computeOdds(){
     const entered = GAME.state.entered;
     const margin = GAME.settings.houseMargin;
     const minO = GAME.settings.oddsClampMin;
     const maxO = GAME.settings.oddsClampMax;
-    // Fixed weight distribution totaling 60: [3,5,6,8,7,9,7,15]
-    const weightById = { 1:3, 2:5, 3:6, 4:8, 5:7, 6:9, 7:7, 8:15 };
-    // Sum weights for currently entered horses (handles finals with 4 entrants)
+    const mode = GAME.state.oddsMode || 'fixed';
+
+    const weightById = {};
+    if (mode === 'random'){
+      // Equal chance for every horse
+      entered.forEach(id => { weightById[id] = 1; });
+    } else if (mode === 'mixed'){
+      // Fresh random weights each heat — favorites shift every race
+      entered.forEach(id => { weightById[id] = 0.6 + Math.random() * 10; });
+    } else {
+      // Fixed weight distribution totaling 60: [3,5,6,8,7,9,7,15]
+      const fixed = { 1:3, 2:5, 3:6, 4:8, 5:7, 6:9, 7:7, 8:15 };
+      entered.forEach(id => { weightById[id] = fixed[id] || 1; });
+    }
+
     const totalWeight = entered.reduce((acc,id)=> acc + (weightById[id] || 1), 0) || 1;
     const impliedProb = {};
     const odds = {};
@@ -859,6 +1245,30 @@ img{ display:block; }
     });
     GAME.state.impliedProb = impliedProb;
     GAME.state.odds = odds;
+  }
+
+  function oddsModeLabel(){
+    return `Odds: ${ODDS_MODE_LABEL[GAME.state.oddsMode] || 'Fixed'}`;
+  }
+
+  function syncOddsModeButton(){
+    const btn = document.getElementById('btnOddsMode');
+    setControlLabel(btn, oddsModeLabel());
+    scheduleFitTopBar();
+  }
+
+  function cycleOddsMode(){
+    if (GAME.state.phase === 'RACING') return;
+    const i = ODDS_MODES.indexOf(GAME.state.oddsMode);
+    GAME.state.oddsMode = ODDS_MODES[(i + 1) % ODDS_MODES.length];
+    computeOdds();
+    syncOddsModeButton();
+    render();
+    // Refresh featured horse odds on infield if idle
+    if (GAME.state.phase !== 'RESULTS'){
+      infieldLastMode = '';
+      updateInfieldBoard();
+    }
   }
 
   // ---------- Entrants by heat ----------
@@ -1201,6 +1611,8 @@ img{ display:block; }
   function openBetting(countdownSec = GAME.settings.betCountdownSec){
     if (GAME.state.phase === 'RACING') return;
     GAME.state.phase = 'BETTING_OPEN';
+    infieldLastMode = '';
+    updateInfieldBoard();
     const now = Date.now();
     GAME.state.countdownEndAt = now + countdownSec*1000;
     if (countdownTimer) clearInterval(countdownTimer);
@@ -1268,6 +1680,42 @@ img{ display:block; }
   let rafId = 0;
   let race = null;
 
+  // Pace styles reshape mid-race order while still finishing at planned times.
+  // amp is kept modest so surge speed stays readable (also hard-capped in stepRace).
+  function assignPaceProfile(rng){
+    const roll = rng();
+    let style;
+    if (roll < 0.30) style = 'frontRunner';      // flies early, fades late
+    else if (roll < 0.60) style = 'closer';      // holds back, dashes home
+    else if (roll < 0.82) style = 'stalker';     // sits mid, moves in stretch
+    else style = 'even';
+    const amp = 0.03 + rng() * 0.04; // ~0.03–0.07 lap swing (was up to 0.14)
+    return { style, amp };
+  }
+
+  function paceProgress(u, style, amp){
+    u = clamp(u, 0, 1);
+    // sin(2πu): + in first half, − in second; 0 at both ends → finish time preserved
+    const wave = Math.sin(2 * Math.PI * u);
+    if (style === 'frontRunner'){
+      return clamp(u + amp * wave, 0, 1);
+    }
+    if (style === 'closer'){
+      return clamp(u - amp * wave, 0, 1);
+    }
+    if (style === 'stalker'){
+      // mild early lag, stronger kick after halfway
+      const lateKick = Math.sin(Math.PI * Math.pow(u, 1.4));
+      const midRef = Math.sin(Math.PI * u);
+      return clamp(u - amp * 0.5 * wave + amp * 0.4 * (lateKick - midRef), 0, 1);
+    }
+    // even: small breathing only
+    return clamp(u + amp * 0.28 * wave * Math.sin(3 * Math.PI * u), 0, 1);
+  }
+
+  const MAX_LAP_PER_SEC = 1 / 26; // hard speed cap (~even pace for a 26s lap)
+  const MAX_LAP_PER_SEC_STRETCH = 1 / 20; // slight lift in final stretch to hit planned times
+
   function startRace(){
     if (GAME.state.phase === 'RACING') return;
     if (countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; }
@@ -1277,18 +1725,24 @@ img{ display:block; }
 
     // Build runtime horse state
     const entered = GAME.state.entered;
-    const horses = entered.map((id, idx)=>({
-      id,
-      laneIndex: idx,
-      x: GAME.state.trackTOffset, // start at finish line midpoint
-      vx: 0,
-      finished: false,
-      finishTime: null,
-      name: GAME.horses.find(h=>h.id===id).name,
-      base: GAME.horses.find(h=>h.id===id).base * (0.95 + 0.1 * rng()) // per-heat variance
-    }));
+    const horses = entered.map((id, idx)=>{
+      const pace = assignPaceProfile(rng);
+      return {
+        id,
+        laneIndex: idx,
+        x: GAME.state.trackTOffset, // start at finish line midpoint
+        vx: 0,
+        finished: false,
+        finishTime: null,
+        name: GAME.horses.find(h=>h.id===id).name,
+        base: GAME.horses.find(h=>h.id===id).base * (0.95 + 0.1 * rng()), // per-heat variance
+        style: pace.style,
+        amp: pace.amp,
+        prevX: GAME.state.trackTOffset
+      };
+    });
 
-    // Pre-compute outcome and target finish times so order is known before race
+    // Pre-compute outcome and target finish times so betting odds still drive results
     const plan = precomputeOutcome(entered, GAME.state.impliedProb, rng);
 
     race = {
@@ -1305,6 +1759,7 @@ img{ display:block; }
       plannedOrder: plan.order
     };
     // race start should not restart commentary; it already started on countdown
+    updateInfieldBoard();
 
     stepRace(0);
     rafId = requestAnimationFrame(tickRace);
@@ -1330,28 +1785,30 @@ img{ display:block; }
       if (h.finished) return;
 
       const target = r.targets[h.id] || 12; // seconds to finish
-      // fraction per second to traverse unit lap
-      const fracPerSec = 1 / target;
-      // dynamic surges and slowdowns to add pack variability
-      const surge = (r.rng() < 0.03) ? 0.003 * (0.5 + r.rng()) : 0; // occasional burst
-      const slow = (r.rng() < 0.02) ? -0.002 * (0.5 + r.rng()) : 0; // occasional dip
-      const packBoost = (()=>{
-        // if 2+ horses are within 0.08 lap of each other, slightly increase pace
-        const nearby = r.horses.filter(o=>!o.finished && Math.abs(o.x - h.x) < 0.08).length;
-        return nearby>=2 ? 0.0015 : 0;
-      })();
-      const dx = Math.max(0, (fracPerSec + surge + slow + packBoost)) * dt;
-      h.vx = dx / Math.max(dt, 1e-6);
-      h.x += dx;
+      const u = clamp(r.elapsed / target, 0, 1);
+      // Style curve drives track position; planned target still decides when they finish
+      const progress = paceProgress(u, h.style || 'even', h.amp || 0.05);
+      const desiredX = GAME.state.trackTOffset + progress;
+      // Cap instantaneous speed so surges stay readable; allow a bit more in the stretch
+      const maxSpeed = u > 0.88 ? MAX_LAP_PER_SEC_STRETCH : MAX_LAP_PER_SEC;
+      let nextX = desiredX;
+      if (dt > 0){
+        const dx = desiredX - h.x;
+        if (dx > maxSpeed * dt) nextX = h.x + maxSpeed * dt;
+        if (dx < 0) nextX = h.x; // never reverse
+      }
+      h.vx = dt > 0 ? (nextX - h.x) / dt : 0;
+      h.prevX = h.x;
+      h.x = nextX;
 
-      // puffs
-      if (r.rng() < 0.01){
+      // dust puffs when surging (accelerating)
+      if (r.rng() < 0.012 || (h.vx > 0.04 && r.rng() < 0.04)){
         r.puffs.push({ laneIndex:h.laneIndex, x: h.x, born: performance.now() });
       }
 
-      if (h.x >= GAME.state.trackTOffset + 1){
+      if (u >= 1){
         h.x = GAME.state.trackTOffset + 1; // end exactly at finish line
-        h.finished = true; h.finishTime = r.targets[h.id];
+        h.finished = true; h.finishTime = target;
         r.order.push(h.id);
         // place badge for 1st/2nd/3rd
         const pos = r.order.length;
@@ -1374,6 +1831,7 @@ img{ display:block; }
 
     // update DOM
     renderRacePositions();
+    updateInfieldBoard();
 
     if (r.horses.every(h=>h.finished) || r.skip){
       r.done = true;
@@ -1407,12 +1865,17 @@ img{ display:block; }
     }
     // assign target finish times
     // Race total duration ~30–35s window
-    const base = 30 + rng()*5 - 2; // first place around 28–33s (we add small per-position gaps)
-    const gap = 0.6; // seconds per position gap
+    const base = 30 + rng()*5 - 2; // first place around 28–33s
+    // Variable gaps: tight pack early positions, stretch can still reshuffle visually via pace styles
     const targets = {};
+    let t = base;
     order.forEach((id, i)=>{
-      const jitter = (rng()-0.5) * 0.15;
-      targets[id] = Math.max(6, base + i*gap + jitter);
+      if (i > 0){
+        const gap = 0.35 + rng() * 0.55; // 0.35–0.9s between places
+        t += gap;
+      }
+      const jitter = (rng()-0.5) * 0.12;
+      targets[id] = Math.max(6, t + jitter);
     });
     return { order, targets };
   }
@@ -1481,75 +1944,100 @@ img{ display:block; }
     if (GAME.state.autoTimer){ clearTimeout(GAME.state.autoTimer); GAME.state.autoTimer = null; }
     render();
 
-    // Arcade results overlay
+    // Course: results live on the infield board (no blocking overlay)
+    // Straight: keep the classic Official Results overlay
     const overlay = document.getElementById('resultsOverlay');
-    const card = document.getElementById('resultsCard');
-    if (overlay && card){
-      const rows = order.slice(0,3).map((id,i)=>{
-        const h = GAME.horses.find(x=>x.id===id);
-        const tms = Math.round((sorted[i].finishTime || 0)*1000);
-        const t = `${Math.floor(tms/60000)}:${to2(Math.floor((tms%60000)/1000))}.${(tms%1000).toString().padStart(3,'0')}`;
-        const medal = i===0?'🥇':i===1?'🥈':'🥉';
-        return `<div class="pos">${i+1}</div><div class="name">H${id} — ${h?.name||''}</div><div class="time">${t} <span class="badge">${medal}</span></div>`;
-      }).join('');
-      card.innerHTML = `<div class="hdr">Official Results</div><div class="grid">${rows}</div><div class="next-timer" id="ovTimer"></div><div class="btns"><button id="ovNext">${GAME.state.championship? 'Next Heat' : 'New Race'}</button></div>`;
-      overlay.style.display = 'flex';
-      const ovNext = document.getElementById('ovNext');
-      const ovTimer = document.getElementById('ovTimer');
-      let proceeded = false;
-      const proceed = () => {
-        if (proceeded) return; proceeded = true;
-        overlay.style.display='none';
-        if (GAME.state.championship){
-          advanceHeat();
-        } else {
-          GAME.state.heat = 'trialA';
-          GAME.state.qualifiers = { trialA: [], trialB: [] };
-          setupHeat();
-          openBetting();
-        }
-      };
-      if (ovNext){ ovNext.onclick = proceed; }
-      // countdown to next
-      const total = (CONFIG.settings.resultsNextCountdownSec||10);
-      let endAt = Date.now() + total*1000;
-      const updateTimer = () => {
-        const ms = endAt - Date.now();
-        const s = Math.max(0, Math.ceil(ms/1000));
-        if (ovTimer) ovTimer.textContent = `Next ${GAME.state.championship? 'heat' : 'race'} in 00:${(s<10?'0':'')+s}`;
-        if (ms <= 0) {
-          clearInterval(tid);
-          proceed();
-        }
-      };
-      updateTimer();
-      const tid = setInterval(updateTimer, 200);
-      // also stop the timer if user proceeds manually
-      if (ovNext){ ovNext.addEventListener('click', ()=>clearInterval(tid), { once:true }); }
-      overlay.addEventListener('click', (e)=>{ if (e.target===overlay) { clearInterval(tid); proceed(); } });
-      // Reset horses visually to start after countdown hits zero or user proceeds
-      const resetToStart = () => {
-        renderRacePositionsInitial();
-        placeFinishFlag();
-      };
-      if (ovNext){ ovNext.addEventListener('click', resetToStart, { once:true }); }
-      setTimeout(resetToStart, total*1000 + 50);
-      
+    if (overlay) overlay.style.display = 'none';
+
+    if (GAME.state.trackMode === 'course'){
+      infieldLastMode = '';
+      updateInfieldBoard();
+      beginResultsCountdown(null); // timer + Next Race wired on infield
+    } else {
+      showStraightResultsOverlay(sorted, order);
     }
 
-    // Flash payout buttons for winners
-    activePlayers().forEach((p, pi)=>{
-      const paid = p.bets.filter(b => b.result && b.result.win);
-      const layer = document.getElementById('players');
-      if (!layer) return;
-      paid.forEach(b=>{
-        const btn = layer.querySelector(`.player[data-player-id="${p.id}"] .horse-btn[data-horse-id="${b.pick[0]}"]`);
-        if (btn){
-          btn.classList.add('payout');
-          setTimeout(()=>btn.classList.remove('payout'), 3000);
-        }
-      });
+    // Flash winning horse buttons briefly
+    document.querySelectorAll('.horse-btn').forEach(btn=>{
+      const id = Number(btn.dataset.horseId);
+      if (id === order[0]) btn.classList.add('payout');
     });
+    setTimeout(()=>{
+      document.querySelectorAll('.horse-btn.payout').forEach(b=>b.classList.remove('payout'));
+    }, 2500);
+  }
+
+  let resultsCountdownTid = null;
+  let resultsProceeded = false;
+
+  function clearResultsCountdown(){
+    if (resultsCountdownTid){ clearInterval(resultsCountdownTid); resultsCountdownTid = null; }
+  }
+
+  function proceedAfterResults(){
+    if (resultsProceeded) return;
+    resultsProceeded = true;
+    clearResultsCountdown();
+    const overlay = document.getElementById('resultsOverlay');
+    if (overlay) overlay.style.display = 'none';
+    renderRacePositionsInitial();
+    placeFinishFlag();
+    if (GAME.state.championship){
+      advanceHeat();
+    } else {
+      GAME.state.heat = 'trialA';
+      GAME.state.qualifiers = { trialA: [], trialB: [] };
+      setupHeat();
+      openBetting();
+    }
+  }
+
+  function beginResultsCountdown(externalTimerEl){
+    clearResultsCountdown();
+    resultsProceeded = false;
+    const total = (CONFIG.settings.resultsNextCountdownSec||10);
+    let endAt = Date.now() + total*1000;
+    const nextLabel = GAME.state.championship ? 'heat' : 'race';
+    const updateTimer = () => {
+      const ms = endAt - Date.now();
+      const s = Math.max(0, Math.ceil(ms/1000));
+      const text = `Next ${nextLabel} in 00:${(s<10?'0':'')+s}`;
+      const ovTimer = externalTimerEl || document.getElementById('ovTimer') || document.getElementById('infieldNextTimer');
+      if (ovTimer) ovTimer.textContent = text;
+      if (ms <= 0) {
+        clearResultsCountdown();
+        proceedAfterResults();
+      }
+    };
+    updateTimer();
+    resultsCountdownTid = setInterval(updateTimer, 200);
+    setTimeout(() => {
+      if (!resultsProceeded){
+        renderRacePositionsInitial();
+        placeFinishFlag();
+      }
+    }, total*1000 + 50);
+  }
+
+  function showStraightResultsOverlay(sorted, order){
+    const overlay = document.getElementById('resultsOverlay');
+    const card = document.getElementById('resultsCard');
+    if (!overlay || !card) return;
+    const rows = order.slice(0,3).map((id,i)=>{
+      const h = GAME.horses.find(x=>x.id===id);
+      const tms = Math.round((sorted[i].finishTime || 0)*1000);
+      const t = `${Math.floor(tms/60000)}:${to2(Math.floor((tms%60000)/1000))}.${(tms%1000).toString().padStart(3,'0')}`;
+      const medal = i===0?'🥇':i===1?'🥈':'🥉';
+      return `<div class="pos">${i+1}</div><div class="name">H${id} — ${h?.name||''}</div><div class="time">${t} <span class="badge">${medal}</span></div>`;
+    }).join('');
+    card.innerHTML = `<div class="hdr">Official Results</div><div class="grid">${rows}</div><div class="next-timer" id="ovTimer"></div><div class="btns"><button id="ovNext">${GAME.state.championship? 'Next Heat' : 'New Race'}</button></div>`;
+    overlay.style.display = 'flex';
+    const ovNext = document.getElementById('ovNext');
+    if (ovNext){
+      ovNext.onclick = () => proceedAfterResults();
+    }
+    overlay.onclick = (e)=>{ if (e.target===overlay) proceedAfterResults(); };
+    beginResultsCountdown(document.getElementById('ovTimer'));
   }
 
   function settleBet(bet, order){
@@ -1680,15 +2168,18 @@ img{ display:block; }
     });
   }
 
+  function currentLaneCount(){
+    return (GAME.state.heat === 'final') ? Math.max(1, GAME.state.entered.length || 4) : 8;
+  }
+
   function getLaneGeom(laneIndex){
-    const cx = 500, cy = 300;
-    const outerStraight = 440;
-    const baseR = 220;
-    const laneSpacing = 14;
-    const r = baseR - laneIndex * laneSpacing * 0.75;
-    const perimeter = 2 * outerStraight + 2 * Math.PI * baseR;
-    const straight = (perimeter - 2 * Math.PI * r) / 2;
-    return { cx, cy, r, straight };
+    // Keep every horse between the visible outer & inner rails (same shape as SVG track)
+    const laneCount = currentLaneCount();
+    const levelOuter = 0.4;   // inset from outer rail
+    const levelInner = 2.2;   // inset from inner rail
+    const u = laneCount <= 1 ? 0 : clamp(laneIndex, 0, laneCount - 1) / (laneCount - 1);
+    const level = levelOuter + (levelInner - levelOuter) * u;
+    return getVisualLane(level);
   }
 
   function orientFromTangent(angle){
@@ -1714,18 +2205,19 @@ img{ display:block; }
       return stadiumPoint(tt, laneIndex);
     } else {
       // straight horizontal track in svg space across width
-      const cx=500, cy=300;
       const startX = 80; const endX = 920;
-      const yBase = cy; // middle
-      const laneSpacing=20;
-      const y = yBase + (laneIndex - 3.5) * laneSpacing;
+      const trackTop = 205, trackBot = 395;
+      const laneCount = currentLaneCount();
+      const u = laneCount <= 1 ? 0.5 : laneIndex / (laneCount - 1);
+      const y = trackTop + 14 + u * ((trackBot - trackTop) - 28);
       const x = startX + (endX - startX) * tt;
       return { x, y, rot: 0, flipX: false };
     }
   }
 
   function stadiumPoint(t, laneIndex){
-    const { cx, cy, r, straight } = getLaneGeom(laneIndex);
+    const geom = getLaneGeom(laneIndex);
+    const { cx, cy, r, straight } = geom;
     // Segments: 0) top straight L->R, 1) right turn top->bottom, 2) bottom straight R->L, 3) left turn bottom->top
     let seg = t * 4;
     if (seg < 1){
@@ -1759,13 +2251,155 @@ img{ display:block; }
 
   function placeFinishFlag(){
     const flag = document.getElementById('finishFlag');
+    if (!flag) return;
     const tFinish = GAME.state.trackTOffset;
-    const p = pointForMode(tFinish, 0);
+    // Place flag just outside the outer rail at the finish
+    let p;
+    if (GAME.state.trackMode === 'course'){
+      const outer = getVisualLane(-0.15);
+      p = stadiumPointAt(tFinish, outer);
+      flag.classList.add('show');
+    } else {
+      p = pointForMode(tFinish, 0);
+      p = { x: p.x, y: 195 };
+      flag.classList.add('show');
+    }
     const trackRect = document.getElementById('track').getBoundingClientRect();
     const sx = trackRect.width / 1000;
     const sy = trackRect.height / 600;
     flag.style.left = (p.x * sx) + 'px';
     flag.style.top  = (p.y * sy) + 'px';
+  }
+
+  // ---------- Infield board (course mode) ----------
+  let infieldCarouselTimer = null;
+  let infieldCarouselIdx = 0;
+  let infieldLastMode = '';
+  let infieldLiveKey = '';
+
+  function infieldHorseIds(){
+    if (GAME.state.heat === 'final' && GAME.state.entered.length){
+      return GAME.state.entered.slice();
+    }
+    return GAME.horses.map(h => h.id);
+  }
+
+  function stopInfieldCarousel(){
+    if (infieldCarouselTimer){
+      clearInterval(infieldCarouselTimer);
+      infieldCarouselTimer = null;
+    }
+  }
+
+  function startInfieldCarousel(){
+    stopInfieldCarousel();
+    infieldCarouselTimer = setInterval(() => {
+      if (GAME.state.phase === 'RACING' || GAME.state.phase === 'RESULTS') return;
+      const ids = infieldHorseIds();
+      if (!ids.length) return;
+      infieldCarouselIdx = (infieldCarouselIdx + 1) % ids.length;
+      renderInfieldFeature(ids[infieldCarouselIdx]);
+    }, 5000);
+  }
+
+  function renderInfieldFeature(horseId){
+    const body = document.getElementById('infieldBody');
+    const label = document.getElementById('infieldLabel');
+    if (!body || !label) return;
+    const h = GAME.horses.find(x => x.id === horseId);
+    if (!h) return;
+    label.textContent = 'NOW FEATURING';
+    const odds = GAME.state.odds[h.id];
+    const od = typeof odds === 'number' ? decimalOddsToFraction(odds) : '—';
+    body.innerHTML = `<div class="infield-feat">
+      <img src="${h.sprite}" alt="H${h.id}" onerror="this.style.display='none'"/>
+      <div class="nm">H${h.id} — ${h.name}</div>
+      <div class="meta">Odds ${od}</div>
+    </div>`;
+  }
+
+  function renderInfieldLiveTop5(){
+    const body = document.getElementById('infieldBody');
+    const label = document.getElementById('infieldLabel');
+    if (!body || !label || !race) return;
+    const sorted = race.horses.slice().sort((a,b) => {
+      if (a.finished && b.finished) return a.finishTime - b.finishTime;
+      if (a.finished) return -1;
+      if (b.finished) return 1;
+      return b.x - a.x;
+    }).slice(0, 5);
+    const key = sorted.map(h => h.id).join(',');
+    if (infieldLastMode === 'live' && key === infieldLiveKey) return;
+    infieldLiveKey = key;
+    label.textContent = 'LIVE TOP 5';
+    body.innerHTML = sorted.map((hs, i) => {
+      const h = GAME.horses.find(x => x.id === hs.id);
+      const odds = GAME.state.odds[hs.id];
+      const od = typeof odds === 'number' ? decimalOddsToFraction(odds) : '';
+      return `<div class="live-row"><span class="pos">${i+1}</span><span class="nm">H${hs.id} ${h?.name||''}</span><span class="od">${od}</span></div>`;
+    }).join('');
+  }
+
+  function renderInfieldPodium(){
+    const body = document.getElementById('infieldBody');
+    const label = document.getElementById('infieldLabel');
+    if (!body || !label || !race) return;
+    label.textContent = 'PODIUM';
+    const sorted = race.horses.slice().sort((a,b) => a.finishTime - b.finishTime).slice(0, 3);
+    const medals = ['🥇','🥈','🥉'];
+    const nextText = GAME.state.championship ? 'Next Heat' : 'New Race';
+    body.innerHTML = sorted.map((hs, i) => {
+      const h = GAME.horses.find(x => x.id === hs.id);
+      return `<div class="podium-row"><span>${medals[i]}</span>
+        <img src="${h?.sprite||''}" alt="H${hs.id}"/>
+        <div><div class="nm">H${hs.id} — ${h?.name||''}</div></div></div>`;
+    }).join('') + `
+      <div class="infield-actions">
+        <div class="next-timer" id="infieldNextTimer"></div>
+        <button type="button" id="infieldNextBtn">${nextText}</button>
+      </div>`;
+    const btn = document.getElementById('infieldNextBtn');
+    if (btn) btn.onclick = () => proceedAfterResults();
+  }
+
+  function updateInfieldBoard(){
+    const board = document.getElementById('infieldBoard');
+    if (!board) return;
+    const show = GAME.state.trackMode === 'course';
+    board.classList.toggle('show', show);
+    if (!show){
+      stopInfieldCarousel();
+      infieldLastMode = '';
+      return;
+    }
+
+    if (GAME.state.phase === 'RACING' && race && !race.done){
+      if (infieldLastMode !== 'live'){
+        stopInfieldCarousel();
+        infieldLastMode = 'live';
+        infieldLiveKey = '';
+      }
+      renderInfieldLiveTop5();
+      return;
+    }
+
+    if (GAME.state.phase === 'RESULTS' && race){
+      if (infieldLastMode !== 'podium'){
+        stopInfieldCarousel();
+        infieldLastMode = 'podium';
+        renderInfieldPodium();
+      }
+      return;
+    }
+
+    // Idle / betting — rotate featured horses every 5s
+    if (infieldLastMode !== 'carousel'){
+      infieldLastMode = 'carousel';
+      const ids = infieldHorseIds();
+      infieldCarouselIdx = 0;
+      if (ids.length) renderInfieldFeature(ids[0]);
+      startInfieldCarousel();
+    }
   }
 
   // Player count toggle
@@ -1824,24 +2458,10 @@ img{ display:block; }
       syncChampBtn();
     };
   }
-  // Simulate 60 races with current odds distribution and report counts
-  const btnSim60 = document.getElementById('btnSim60');
-  if (btnSim60){
-    btnSim60.onclick = () => {
-      if (GAME.state.phase === 'RACING') return;
-      const N = 60;
-      const counts = new Map(GAME.state.entered.map(id=>[id,0]));
-      // simulate by drawing order based on implied probabilities repeatedly
-      for (let i=0;i<N;i++){
-        const rng = mulberry32((Math.random()*0xFFFFFFFF)>>>0);
-        const plan = precomputeOutcome(GAME.state.entered, GAME.state.impliedProb, rng);
-        const winner = plan.order[0];
-        counts.set(winner, (counts.get(winner)||0)+1);
-      }
-      // build report
-      const lines = [...counts.entries()].sort((a,b)=>a[0]-b[0]).map(([id,c])=>`H${id}: ${c}`);
-      alert(`60-race simulation (winners count)\n` + lines.join('\n'));
-    };
+  // Odds mode: Fixed → Random → Mixed
+  const btnOddsMode = document.getElementById('btnOddsMode');
+  if (btnOddsMode){
+    btnOddsMode.onclick = () => cycleOddsMode();
   }
   document.getElementById('btnToggleTrack').onclick = () => {
     // Allow toggling track shape whenever betting is open; block during racing
@@ -1857,6 +2477,7 @@ img{ display:block; }
     buildTrack();
     renderRacePositionsInitial();
     placeFinishFlag();
+    updateInfieldBoard();
   };
   els.btnStartRace.onclick = () => {
     if (GAME.state.phase === 'BETTING_OPEN') closeBetting();
@@ -1870,8 +2491,12 @@ img{ display:block; }
   els.btnSkipAnim.onclick = () => {
     if (race && GAME.state.phase==='RACING'){
       race.skip = true;
-      // fast-forward: set random tiny offsets to break ties
-      race.horses.forEach(h => { h.x = 1; h.finished = true; h.finishTime = Math.random(); });
+      // fast-forward using planned finish times so results match odds
+      race.horses.forEach(h => {
+        h.x = GAME.state.trackTOffset + 1;
+        h.finished = true;
+        h.finishTime = race.targets[h.id] ?? Math.random();
+      });
       finishRace();
     }
   };
@@ -1964,6 +2589,7 @@ img{ display:block; }
     openBetting(CONFIG.settings.betCountdownSec);
     renderRacePositionsInitial();
     placeFinishFlag();
+    updateInfieldBoard();
     const btn = document.getElementById('btnToggleTrack');
     setControlLabel(btn, `Track: ${GAME.state.trackMode === 'course' ? 'Course' : 'Straight'}`);
     // ensure SVG reflects current mode
@@ -1973,6 +2599,7 @@ img{ display:block; }
     updateBetToggleLabel();
     setupCommentary();
     initControlLabels();
+    syncOddsModeButton();
     scheduleFitTopBar();
     const topLeft = document.querySelector('.top-left');
     if (topLeft){
@@ -1982,7 +2609,11 @@ img{ display:block; }
     if (controlsBar){
       new ResizeObserver(scheduleFitTopBar).observe(controlsBar);
     }
-    window.addEventListener('resize', scheduleFitTopBar);
+    window.addEventListener('resize', () => {
+      scheduleFitTopBar();
+      placeFinishFlag();
+      if (GAME.state.phase !== 'RACING') renderRacePositionsInitial();
+    });
   }
 
   init();
