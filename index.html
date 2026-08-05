@@ -252,52 +252,65 @@ img{ display:block; }
 }
 .finish-flag.show{ display:block; }
 
-/* Infield feature board (course / oval only) */
+/* Infield feature board (course / oval only) — capped to the grass oval */
 .infield-board{
   position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
-  width:min(24%, 230px); z-index:3; pointer-events:none;
+  width:min(24%, 230px);
+  max-width:min(32%, 230px);
+  /* Inner oval ≈ 32% of track height; keep clear of the racing band */
+  max-height:28%;
+  z-index:3; pointer-events:none;
   background: linear-gradient(160deg, rgba(8,18,32,0.92), rgba(12,28,48,0.88));
   border:2px solid rgba(23,240,255,0.35);
   border-radius:14px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.06);
-  padding:10px 12px; color:#e8f1ff;
+  padding:8px 10px; color:#e8f1ff;
   display:none;
+  box-sizing:border-box;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
 }
-.infield-board.show{ display:block; }
+.infield-board.show{ display:flex; flex-direction:column; min-height:0; }
 .infield-board .infield-label{
-  font-size:10px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
-  color:#7ef9ff; margin-bottom:8px; text-align:center;
+  font-size:clamp(8px, 1.4vw, 10px); font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
+  color:#7ef9ff; margin-bottom:6px; text-align:center; flex:0 0 auto;
+}
+.infield-board .infield-body{
+  flex:1 1 auto; min-height:0; overflow:auto;
 }
 .infield-board .infield-feat{
-  display:flex; flex-direction:column; align-items:center; gap:6px;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
   animation: infieldIn 420ms ease;
 }
 .infield-board .infield-feat img{
-  width:72px; height:54px; object-fit:contain; image-rendering:pixelated;
+  width:clamp(40px, 8vw, 72px); height:auto; max-height:54px;
+  object-fit:contain; image-rendering:pixelated;
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
 }
-.infield-board .infield-feat .nm{ font-size:12px; font-weight:700; text-align:center; color:#bfe0ff; }
-.infield-board .infield-feat .meta{ font-size:11px; color:#9fd3ff; }
+.infield-board .infield-feat .nm{ font-size:clamp(10px, 1.5vw, 12px); font-weight:700; text-align:center; color:#bfe0ff; }
+.infield-board .infield-feat .meta{ font-size:clamp(9px, 1.3vw, 11px); color:#9fd3ff; }
 .infield-board .live-row{
-  display:grid; grid-template-columns: 22px 1fr auto; gap:4px 6px; align-items:center;
-  font-size:11px; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.06);
+  display:grid; grid-template-columns: 20px 1fr auto; gap:2px 6px; align-items:center;
+  font-size:clamp(9px, 1.3vw, 11px); padding:2px 0; border-bottom:1px solid rgba(255,255,255,0.06);
 }
 .infield-board .live-row:last-child{ border-bottom:none; }
 .infield-board .live-row .pos{ font-weight:800; color:#ffd166; }
 .infield-board .live-row .nm{ color:#d7ecff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .infield-board .live-row .od{ color:#9fd3ff; font-variant-numeric:tabular-nums; }
-.infield-board .podium-row{ display:flex; align-items:center; gap:8px; padding:4px 0; }
-.infield-board .podium-row img{ width:36px; height:28px; object-fit:contain; image-rendering:pixelated; }
+.infield-board .podium-row{ display:flex; align-items:center; gap:6px; padding:2px 0; }
+.infield-board .podium-row img{ width:clamp(24px, 4vw, 36px); height:auto; max-height:28px; object-fit:contain; image-rendering:pixelated; }
 .infield-board .infield-actions{
-  margin-top:8px; display:flex; flex-direction:column; align-items:stretch; gap:6px;
-  pointer-events:auto;
+  margin-top:6px; display:flex; flex-direction:column; align-items:stretch; gap:4px;
+  pointer-events:auto; flex:0 0 auto;
 }
 .infield-board .infield-actions .next-timer{
-  text-align:center; color:#ffd166; font-weight:700; font-size:11px;
+  text-align:center; color:#ffd166; font-weight:700; font-size:clamp(9px, 1.3vw, 11px);
 }
 .infield-board .infield-actions button{
   background:#0f2037; border:1px solid #2b4f86; color:#e6f1ff;
-  padding:7px 10px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px;
+  padding:6px 8px; border-radius:8px; cursor:pointer; font-weight:700; font-size:clamp(10px, 1.4vw, 12px);
 }
 .infield-board .infield-actions button:hover{ border-color:#17f0ff; }
 @keyframes infieldIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
@@ -1758,7 +1771,8 @@ img{ display:block; }
       targets: plan.targets,
       plannedOrder: plan.order
     };
-    // race start should not restart commentary; it already started on countdown
+    // Start commentary if armed (covers Start Race Now skipping the 3-2-1 cue)
+    startCommentaryIfEnabled();
     updateInfieldBoard();
 
     stepRace(0);
@@ -2370,8 +2384,11 @@ img{ display:block; }
     if (!show){
       stopInfieldCarousel();
       infieldLastMode = '';
+      board.style.maxHeight = '';
+      board.style.maxWidth = '';
       return;
     }
+    fitInfieldBoard();
 
     if (GAME.state.phase === 'RACING' && race && !race.done){
       if (infieldLastMode !== 'live'){
@@ -2400,6 +2417,20 @@ img{ display:block; }
       if (ids.length) renderInfieldFeature(ids[0]);
       startInfieldCarousel();
     }
+  }
+
+  function fitInfieldBoard(){
+    const board = document.getElementById('infieldBoard');
+    const track = document.getElementById('track');
+    if (!board || !track || GAME.state.trackMode !== 'course') return;
+    const rect = track.getBoundingClientRect();
+    if (rect.height < 40 || rect.width < 40) return;
+    // Match SVG infield oval, with margin so the panel stays clear of the rails
+    const infield = getVisualLane(2.75);
+    const ovalH = (infield.r * 2 / 600) * rect.height;
+    const ovalW = ((infield.straight + infield.r * 2) / 1000) * rect.width;
+    board.style.maxHeight = Math.max(72, Math.floor(ovalH * 0.88)) + 'px';
+    board.style.maxWidth = Math.max(96, Math.floor(ovalW * 0.78)) + 'px';
   }
 
   // Player count toggle
@@ -2529,39 +2560,88 @@ img{ display:block; }
   let commentaryAudio = null;
   let commentaryEnabled = false;
   let commentaryStarted = false;
+  let commentaryUnlocked = false;
+
   function setupCommentary(){
     try {
       commentaryAudio = new Audio('assets/track.mp3');
+      commentaryAudio.preload = 'auto';
       commentaryAudio.loop = true;
-      commentaryAudio.volume = 0; // start muted until race starts
+      commentaryAudio.volume = 0;
     } catch(e) { commentaryAudio = null; }
     if (els.btnCommentary){
       const sync = () => els.btnCommentary.classList.toggle('active', commentaryEnabled);
       els.btnCommentary.onclick = async () => {
         commentaryEnabled = !commentaryEnabled;
         sync();
-        if (!commentaryEnabled && commentaryAudio){ commentaryAudio.pause(); }
+        if (!commentaryAudio) return;
+
+        if (!commentaryEnabled){
+          commentaryStarted = false;
+          fadeTo(commentaryAudio, 0, 200, () => {
+            try { commentaryAudio.pause(); } catch(e){}
+          });
+          return;
+        }
+
+        // Button click is a user gesture — unlock/play here so later race starts work
+        const racing = GAME.state.phase === 'RACING';
+        const inStartCountdown = GAME.state.phase === 'BETTING_OPEN' &&
+          (GAME.state.countdownEndAt - Date.now()) <= 3500;
+
+        try {
+          if (!commentaryUnlocked || commentaryAudio.paused){
+            commentaryAudio.volume = 0;
+            await commentaryAudio.play();
+            commentaryUnlocked = true;
+          }
+          if (racing || inStartCountdown){
+            commentaryStarted = true;
+            fadeTo(commentaryAudio, 0.8, 800);
+          } else {
+            // Keep element unlocked; stay silent until race countdown
+            commentaryAudio.pause();
+            commentaryAudio.currentTime = 0;
+            commentaryStarted = false;
+          }
+        } catch (err) {
+          commentaryEnabled = false;
+          commentaryStarted = false;
+          commentaryUnlocked = false;
+          sync();
+          console.warn('Commentary audio blocked or failed to load:', err);
+        }
       };
       sync();
     }
   }
-  function startCommentaryIfEnabled(){
+
+  async function startCommentaryIfEnabled(){
     if (!commentaryEnabled || !commentaryAudio || commentaryStarted) return;
     commentaryStarted = true;
     try {
-      // only start if not already playing
-      if (commentaryAudio.paused) {
+      commentaryAudio.volume = 0;
+      if (commentaryAudio.paused){
         commentaryAudio.currentTime = 0;
-        commentaryAudio.play();
+        await commentaryAudio.play();
+        commentaryUnlocked = true;
       }
-    } catch(e){}
-    fadeTo(commentaryAudio, 0.8, 800);
+      fadeTo(commentaryAudio, 0.8, 800);
+    } catch (err) {
+      // Autoplay may fail if unlock click never happened; allow retry next time
+      commentaryStarted = false;
+      console.warn('Commentary could not start:', err);
+    }
   }
+
   function fadeOutCommentary(){
     if (!commentaryAudio) return;
     commentaryStarted = false;
-    fadeTo(commentaryAudio, 0.0, 800, () => commentaryAudio.pause());
+    fadeTo(commentaryAudio, 0.0, 800, () => {
+      try { commentaryAudio.pause(); } catch(e){}
+    });
   }
+
   function fadeTo(audio, target, ms, onDone){
     if (!audio) { if (onDone) onDone(); return; }
     const start = Number.isFinite(audio.volume) ? audio.volume : 0;
@@ -2571,9 +2651,11 @@ img{ display:block; }
     const step = (t)=>{
       const dt = Math.max(0, t - t0);
       const a = Math.min(1, dt / dur);
-      const v = start + (safeTarget - start) * a;
-      audio.volume = Math.max(0, Math.min(1, v));
-      if (a < 1 && !audio.paused) requestAnimationFrame(step);
+      try {
+        audio.volume = Math.max(0, Math.min(1, start + (safeTarget - start) * a));
+      } catch(e){}
+      // Keep fading even if play() is still settling (paused briefly)
+      if (a < 1) requestAnimationFrame(step);
       else if (onDone) onDone();
     };
     requestAnimationFrame(step);
@@ -2612,6 +2694,7 @@ img{ display:block; }
     window.addEventListener('resize', () => {
       scheduleFitTopBar();
       placeFinishFlag();
+      fitInfieldBoard();
       if (GAME.state.phase !== 'RACING') renderRacePositionsInitial();
     });
   }
