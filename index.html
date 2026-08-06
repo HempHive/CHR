@@ -389,9 +389,10 @@ img{ display:block; }
   background:#0f2037; border:1px solid #244766; color:#e6f1ff;
   border-radius:8px; padding:5px 3px; min-width:0;
   display:flex; flex-direction:column; align-items:center; gap:2px;
-  cursor:default; user-select:none;
+  cursor:pointer; user-select:none;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, order 180ms ease;
 }
+.horse-strip-btn:hover{ border-color:#17f0ff; }
 .horse-strip-btn img{
   width:28px; height:22px; object-fit:contain; image-rendering:pixelated;
   filter: drop-shadow(0 2px 2px rgba(0,0,0,0.45));
@@ -631,6 +632,69 @@ img{ display:block; }
   filter: blur(1px);
 }
 
+/* Horse edit dialog */
+dialog.horse-edit-dialog{
+  border:1px solid #2b4f86;
+  border-radius:14px;
+  padding:0;
+  background: linear-gradient(165deg, #0f1a2c, #0a1220);
+  color:#e8f1ff;
+  width:min(420px, calc(100vw - 24px));
+  box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+}
+dialog.horse-edit-dialog::backdrop{
+  background: rgba(4, 10, 18, 0.72);
+}
+.horse-edit-dialog .he-wrap{ padding:16px 18px 14px; display:flex; flex-direction:column; gap:12px; }
+.horse-edit-dialog h3{
+  margin:0; font-size:15px; letter-spacing:0.06em; text-transform:uppercase;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.horse-edit-dialog label{
+  display:flex; flex-direction:column; gap:5px;
+  font-size:11px; font-weight:700; color:#9fd3ff; letter-spacing:0.04em; text-transform:uppercase;
+}
+.horse-edit-dialog input[type="text"],
+.horse-edit-dialog select{
+  background:#0b1628; border:1px solid #2b4f86; color:#e8f1ff;
+  border-radius:8px; padding:8px 10px; font-size:14px; font-weight:600;
+}
+.horse-edit-dialog input[type="color"]{
+  width:100%; height:36px; border:1px solid #2b4f86; border-radius:8px;
+  background:#0b1628; padding:3px; cursor:pointer;
+}
+.horse-edit-dialog input[type="range"]{ width:100%; accent-color:#17f0ff; }
+.horse-edit-dialog .he-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.horse-edit-dialog .he-preview{
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:12px; border-radius:10px; border:1px solid #244766;
+  background:rgba(8,18,32,0.8);
+}
+.horse-edit-dialog .he-preview img{
+  object-fit:contain; image-rendering:pixelated;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45));
+}
+.horse-edit-dialog .he-preview .he-name{
+  font-weight:800; font-size:14px; max-width:100%;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.horse-edit-dialog .he-file{
+  font-size:12px; font-weight:600; text-transform:none; letter-spacing:0; color:#bfe0ff;
+}
+.horse-edit-dialog .he-hint{ font-size:11px; color:#94a3b8; font-weight:500; text-transform:none; letter-spacing:0; }
+.horse-edit-dialog .he-actions{
+  display:flex; gap:8px; justify-content:flex-end; margin-top:4px;
+}
+.horse-edit-dialog .he-actions button{
+  background:#0f2037; border:1px solid #2b4f86; color:#e6f1ff;
+  padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:700;
+}
+.horse-edit-dialog .he-actions button.primary{
+  border-color:#17f0ff; background:#123049;
+}
+.horse-edit-dialog .he-actions button:hover{ border-color:#17f0ff; }
+
 .results-overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:4; pointer-events:none; }
 .results-card{
   min-width: 360px; max-width: 70%;
@@ -798,7 +862,7 @@ img{ display:block; }
 <!-- RULES MODAL (simple) -->
 <dialog id="rulesDialog">
   <h3>Rules & Payouts</h3>
-  <p>Tap a horse button to bet $10 on WIN. Tap again to add $10 more. Clear Bets removes all wagers for that player.</p>
+  <p>Tap a horse button to bet 10 on WIN. Tap again to add 10 more. Clear Bets removes all wagers for that player.</p>
   <ul>
     <li><b>WIN</b>: stake × odds(winner)</li>
   </ul>
@@ -806,6 +870,50 @@ img{ display:block; }
   <div style="display:flex; gap:8px; justify-content:flex-end;">
     <button onclick="document.getElementById('rulesDialog').close()">Close</button>
   </div>
+</dialog>
+
+<dialog id="horseEditDialog" class="horse-edit-dialog">
+  <form method="dialog" class="he-wrap" id="horseEditForm">
+    <h3 id="heTitle">Edit Horse</h3>
+    <label>
+      Name
+      <input type="text" id="heName" maxlength="28" autocomplete="off" required />
+    </label>
+    <label>
+      Horse image
+      <input type="file" id="heImage" class="he-file" accept="image/*" />
+      <span class="he-hint">Upload replaces the sprite for this session</span>
+    </label>
+    <div class="he-row">
+      <label>
+        Text font
+        <select id="heFont">
+          <option value='system-ui, -apple-system, Segoe UI, sans-serif'>System</option>
+          <option value='Georgia, "Times New Roman", serif'>Serif</option>
+          <option value='ui-monospace, "Cascadia Code", Consolas, monospace'>Mono</option>
+          <option value='"Trebuchet MS", "Segoe UI", sans-serif'>Trebuchet</option>
+          <option value='Palatino, "Palatino Linotype", "Book Antiqua", serif'>Palatino</option>
+          <option value='Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif'>Impact</option>
+        </select>
+      </label>
+      <label>
+        Text colour
+        <input type="color" id="heColor" value="#bfe0ff" />
+      </label>
+    </div>
+    <label>
+      Size <span class="he-hint" id="heScaleLabel">(100% — aspect locked)</span>
+      <input type="range" id="heScale" min="75" max="135" value="100" step="1" />
+    </label>
+    <div class="he-preview">
+      <div class="he-name" id="hePreviewName">Horse</div>
+      <img id="hePreviewImg" alt="Preview" width="88" height="68" />
+    </div>
+    <div class="he-actions">
+      <button type="button" id="heCancel">Cancel</button>
+      <button type="submit" class="primary" id="heSave" value="save">Save</button>
+    </div>
+  </form>
 </dialog>
 
 <!-- CONFIG (inline JSON) -->
@@ -894,10 +1002,28 @@ img{ display:block; }
 
   // ---------- Config ----------
   const CONFIG = JSON.parse(document.getElementById('game-config').textContent);
+  const HORSE_SCALE_MIN = 0.75;
+  const HORSE_SCALE_MAX = 1.35;
+  const HORSE_BASE_W = 44;
+  const HORSE_BASE_H = 34; // locked aspect ~1.294
+  const HORSE_STRIP_BASE_W = 28;
+  const HORSE_STRIP_BASE_H = 22;
+
+  function normalizeHorse(h){
+    if (!h.style) h.style = {};
+    if (!h.style.fontFamily) h.style.fontFamily = 'system-ui, -apple-system, Segoe UI, sans-serif';
+    if (!h.style.color) h.style.color = '#bfe0ff';
+    if (typeof h.style.scale !== 'number' || !isFinite(h.style.scale)) h.style.scale = 1;
+    h.style.scale = clamp(h.style.scale, HORSE_SCALE_MIN, HORSE_SCALE_MAX);
+    if (!h.defaultSprite) h.defaultSprite = h.sprite;
+    if (!h.defaultName) h.defaultName = h.name;
+    return h;
+  }
+
   const GAME = {
     cups: CONFIG.cups,
     courses: CONFIG.courses,
-    horses: CONFIG.horses,
+    horses: CONFIG.horses.map(h => normalizeHorse({ ...h, style: h.style ? { ...h.style } : {} })),
     players: JSON.parse(JSON.stringify(CONFIG.players)),
     settings: CONFIG.settings,
     state: {
@@ -1509,8 +1635,10 @@ img{ display:block; }
       const rotWrap = document.createElement('div'); rotWrap.className = 'rot';
       const img = document.createElement('img');
       img.className = 'spr'; img.alt = `Horse ${h.id}`; img.src = h.sprite;
+      applyHorseSpriteSize(img, h, 'track');
       img.onerror = () => { img.style.display='none'; fb.style.display='flex'; };
       const fb = document.createElement('div'); fb.className = 'fallback'; fb.style.display='none'; fb.textContent = `H${h.id}`;
+      applyHorseTextStyle(fb, h);
       const tag = document.createElement('div'); tag.className = 'tag'; tag.style.display='none'; tag.textContent = '';
       const badge = document.createElement('div'); badge.className = 'badge'; badge.style.display='none';
       rotWrap.appendChild(img); rotWrap.appendChild(fb); rotWrap.appendChild(tag); rotWrap.appendChild(badge);
@@ -1577,6 +1705,7 @@ img{ display:block; }
         btn.className = 'horse-btn';
         btn.dataset.horseId = String(id);
         btn.innerHTML = `<span class="num">H${id}</span><span class="name">${h.name}</span><span class="stake"></span><span class="od">${fr}</span>`;
+        applyHorseTextStyle(btn.querySelector('.name'), h);
         btn.onclick = ()=> toggleWinBet(id);
         horseButtons.set(id, btn);
         grid.appendChild(btn);
@@ -1881,6 +2010,54 @@ img{ display:block; }
     updatePlayerBorders();
   }
 
+  let startCountdownTid = null;
+  function clearRaceStartCountdown(){
+    if (startCountdownTid){ clearInterval(startCountdownTid); startCountdownTid = null; }
+    const countOverlay = document.getElementById('countOverlay');
+    if (countOverlay) countOverlay.style.display = 'none';
+    document.querySelectorAll('.player').forEach(el => el.classList.remove('counting'));
+  }
+
+  /** Big 3-2-1 overlay, then start the race. Starts commentary at "3" if armed. */
+  function beginRaceStartCountdown(){
+    if (GAME.state.phase === 'RACING') return;
+    if (startCountdownTid) return; // already counting down
+    if (countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
+    GAME.state.phase = 'BETTING_CLOSED';
+    renderTopbar();
+    updateBetToggleLabel();
+    updatePlayerBorders();
+    updateInfieldBoard();
+
+    let n = 3;
+    const countOverlay = document.getElementById('countOverlay');
+    const countNum = document.getElementById('countNum');
+    const pulse = () => {
+      document.querySelectorAll('.player').forEach(el => el.classList.add('counting'));
+    };
+
+    const tick = () => {
+      if (n > 0){
+        if (countOverlay && countNum){
+          countOverlay.style.display = 'flex';
+          countNum.textContent = String(n);
+        }
+        if (n === 3){
+          startCommentaryIfEnabled();
+          renderRacePositionsInitial();
+          placeFinishFlag();
+        }
+        pulse();
+        n -= 1;
+      } else {
+        clearRaceStartCountdown();
+        startRace();
+      }
+    };
+    tick();
+    startCountdownTid = setInterval(tick, 1000);
+  }
+
   // ---------- Race simulation ----------
   let rafId = 0;
   let race = null;
@@ -1923,6 +2100,7 @@ img{ display:block; }
 
   function startRace(){
     if (GAME.state.phase === 'RACING') return;
+    clearRaceStartCountdown();
     if (countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; }
     GAME.state.phase = 'RACING';
     GAME.state.seed = seedFromCrypto();
@@ -2216,13 +2394,25 @@ img{ display:block; }
     renderRacePositionsInitial();
     placeFinishFlag();
     if (GAME.state.championship){
-      advanceHeat();
+      // Advance heat state without opening a long betting window
+      if (GAME.state.heat === 'trialA'){
+        GAME.state.heat = 'trialB';
+      } else if (GAME.state.heat === 'trialB'){
+        GAME.state.heat = 'final';
+      } else {
+        GAME.state.heat = 'trialA';
+        GAME.state.cupIndex = (GAME.state.cupIndex + 1) % GAME.cups.length;
+        GAME.state.qualifiers = { trialA: [], trialB: [] };
+      }
+      GAME.players.forEach(p => { p.bets = []; });
+      setupHeat();
     } else {
       GAME.state.heat = 'trialA';
       GAME.state.qualifiers = { trialA: [], trialB: [] };
       setupHeat();
-      openBetting();
     }
+    // Always 3-2-1 (and commentary at 3) before the next race
+    beginRaceStartCountdown();
   }
 
   function beginResultsCountdown(externalTimerEl){
@@ -2582,6 +2772,55 @@ img{ display:block; }
     });
   }
 
+  function horseScale(h){
+    return clamp((h && h.style && h.style.scale) || 1, HORSE_SCALE_MIN, HORSE_SCALE_MAX);
+  }
+
+  function applyHorseTextStyle(el, h){
+    if (!el || !h) return;
+    el.style.fontFamily = (h.style && h.style.fontFamily) || '';
+    el.style.color = (h.style && h.style.color) || '';
+  }
+
+  function applyHorseSpriteSize(img, h, kind){
+    if (!img || !h) return;
+    const s = horseScale(h);
+    let w = HORSE_BASE_W, ht = HORSE_BASE_H;
+    if (kind === 'strip'){ w = HORSE_STRIP_BASE_W; ht = HORSE_STRIP_BASE_H; }
+    else if (kind === 'feat'){ w = 56; ht = 42; }
+    img.style.width = `${Math.round(w * s)}px`;
+    img.style.height = `${Math.round(ht * s)}px`;
+  }
+
+  function refreshHorseAppearance(horseId){
+    const h = GAME.horses.find(x => x.id === horseId);
+    if (!h) return;
+    // Live race copy of name
+    if (race && race.horses){
+      const rh = race.horses.find(x => x.id === horseId);
+      if (rh) rh.name = h.name;
+    }
+    // Track sprites
+    document.querySelectorAll(`.horse[data-horse-id="${horseId}"]`).forEach(el => {
+      const img = el.querySelector('img.spr');
+      if (img){
+        img.src = h.sprite;
+        img.alt = h.name;
+        img.style.display = '';
+        applyHorseSpriteSize(img, h, 'track');
+      }
+      const fb = el.querySelector('.fallback');
+      if (fb) applyHorseTextStyle(fb, h);
+    });
+    // Betting buttons
+    document.querySelectorAll(`.horse-btn[data-horse-id="${horseId}"] .name`).forEach(el => {
+      el.textContent = h.name;
+      applyHorseTextStyle(el, h);
+    });
+    updateHorseStrip(true);
+    updateGraphicsBoard();
+  }
+
   function setGraphicsFeaturedHorse(horseId, show){
     const feat = document.getElementById('gbHorseFeat');
     const img = document.getElementById('gbHorseImg');
@@ -2597,10 +2836,14 @@ img{ display:block; }
     }
     if (iconEl) iconEl.style.display = 'none';
     if (feat) feat.classList.add('show');
-    if (img){ img.src = h.sprite; img.alt = h.name; }
+    if (img){
+      img.src = h.sprite; img.alt = h.name;
+      applyHorseSpriteSize(img, h, 'feat');
+    }
     if (nameEl){
       nameEl.textContent = `H${h.id} — ${h.name}`;
       nameEl.classList.add('show');
+      applyHorseTextStyle(nameEl, h);
     }
     graphicsLastFeatId = h.id;
   }
@@ -2678,7 +2921,7 @@ img{ display:block; }
         statusEl.onclick = () => {
           if (GAME.state.phase === 'RACING') return;
           if (GAME.state.phase === 'BETTING_OPEN') closeBetting();
-          if (GAME.state.phase !== 'RACING') startRace();
+          beginRaceStartCountdown();
         };
       } else {
         statusEl.onclick = null;
@@ -2836,7 +3079,144 @@ img{ display:block; }
         <img src="${h.sprite}" alt="H${h.id}" onerror="this.style.display='none'"/>
         <div class="hs-id">H${h.id}</div>
         <div class="hs-od">${od}</div>`;
+      const nameEl = btn.querySelector('.hs-name');
+      const imgEl = btn.querySelector('img');
+      applyHorseTextStyle(nameEl, h);
+      applyHorseSpriteSize(imgEl, h, 'strip');
+      btn.title = `Edit ${h.name}`;
+      btn.setAttribute('role', 'button');
+      btn.tabIndex = 0;
+      btn.onclick = (ev) => {
+        ev.preventDefault();
+        openHorseEditor(h.id);
+      };
+      btn.onkeydown = (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' '){
+          ev.preventDefault();
+          openHorseEditor(h.id);
+        }
+      };
       strip.appendChild(btn);
+    });
+  }
+
+  // ---------- Horse editor (session-persistent) ----------
+  let horseEditId = null;
+  let horseEditDraftSprite = null;
+
+  function openHorseEditor(horseId){
+    const h = GAME.horses.find(x => x.id === horseId);
+    const dlg = document.getElementById('horseEditDialog');
+    if (!h || !dlg) return;
+    normalizeHorse(h);
+    horseEditId = h.id;
+    horseEditDraftSprite = h.sprite;
+
+    const title = document.getElementById('heTitle');
+    const nameInput = document.getElementById('heName');
+    const fontSel = document.getElementById('heFont');
+    const colorInput = document.getElementById('heColor');
+    const scaleInput = document.getElementById('heScale');
+    const fileInput = document.getElementById('heImage');
+    if (title) title.textContent = `Edit Horse H${h.id}`;
+    if (nameInput) nameInput.value = h.name;
+    if (fontSel){
+      const want = h.style.fontFamily;
+      let matched = false;
+      [...fontSel.options].forEach(opt => {
+        if (opt.value === want){ fontSel.value = opt.value; matched = true; }
+      });
+      if (!matched) fontSel.selectedIndex = 0;
+    }
+    if (colorInput) colorInput.value = /^#[0-9a-fA-F]{6}$/.test(h.style.color) ? h.style.color : '#bfe0ff';
+    if (scaleInput) scaleInput.value = String(Math.round(horseScale(h) * 100));
+    if (fileInput) fileInput.value = '';
+    syncHorseEditPreview();
+    if (typeof dlg.showModal === 'function') dlg.showModal();
+    else dlg.setAttribute('open', '');
+  }
+
+  function syncHorseEditPreview(){
+    const nameInput = document.getElementById('heName');
+    const fontSel = document.getElementById('heFont');
+    const colorInput = document.getElementById('heColor');
+    const scaleInput = document.getElementById('heScale');
+    const scaleLabel = document.getElementById('heScaleLabel');
+    const prevName = document.getElementById('hePreviewName');
+    const prevImg = document.getElementById('hePreviewImg');
+    const scalePct = clamp(Number(scaleInput && scaleInput.value) || 100, 75, 135);
+    const scale = scalePct / 100;
+    if (scaleLabel) scaleLabel.textContent = `(${scalePct}% — aspect locked)`;
+    if (prevName){
+      prevName.textContent = (nameInput && nameInput.value.trim()) || 'Horse';
+      prevName.style.fontFamily = (fontSel && fontSel.value) || '';
+      prevName.style.color = (colorInput && colorInput.value) || '#bfe0ff';
+    }
+    if (prevImg){
+      prevImg.src = horseEditDraftSprite || '';
+      prevImg.style.width = `${Math.round(88 * scale)}px`;
+      prevImg.style.height = `${Math.round(68 * scale)}px`;
+    }
+  }
+
+  function setupHorseEditor(){
+    const dlg = document.getElementById('horseEditDialog');
+    const form = document.getElementById('horseEditForm');
+    const cancel = document.getElementById('heCancel');
+    const fileInput = document.getElementById('heImage');
+    if (!dlg || !form) return;
+
+    ['heName', 'heFont', 'heColor', 'heScale'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', syncHorseEditPreview);
+      el.addEventListener('change', syncHorseEditPreview);
+    });
+
+    if (fileInput){
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          horseEditDraftSprite = String(reader.result || '');
+          syncHorseEditPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    if (cancel){
+      cancel.onclick = () => {
+        horseEditId = null;
+        horseEditDraftSprite = null;
+        dlg.close();
+      };
+    }
+
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const h = GAME.horses.find(x => x.id === horseEditId);
+      if (!h){ dlg.close(); return; }
+      normalizeHorse(h);
+      const nameInput = document.getElementById('heName');
+      const fontSel = document.getElementById('heFont');
+      const colorInput = document.getElementById('heColor');
+      const scaleInput = document.getElementById('heScale');
+      const name = (nameInput && nameInput.value.trim()) || h.defaultName || h.name;
+      h.name = name.slice(0, 28);
+      h.sprite = horseEditDraftSprite || h.sprite;
+      h.style.fontFamily = (fontSel && fontSel.value) || h.style.fontFamily;
+      h.style.color = (colorInput && colorInput.value) || h.style.color;
+      h.style.scale = clamp((Number(scaleInput && scaleInput.value) || 100) / 100, HORSE_SCALE_MIN, HORSE_SCALE_MAX);
+      const editedId = h.id;
+      horseEditId = null;
+      horseEditDraftSprite = null;
+      dlg.close();
+      refreshHorseAppearance(editedId);
+      // Rebuild betting UI names if needed
+      if (GAME.state.phase !== 'RACING') buildPlayers();
     });
   }
 
@@ -2918,8 +3298,9 @@ img{ display:block; }
     updateInfieldBoard();
   };
   els.btnStartRace.onclick = () => {
+    if (GAME.state.phase === 'RACING') return;
     if (GAME.state.phase === 'BETTING_OPEN') closeBetting();
-    if (GAME.state.phase !== 'RACING') startRace();
+    beginRaceStartCountdown();
   };
   els.btnNextHeat.onclick = () => {
     if (GAME.state.phase !== 'RACING') {
@@ -2951,7 +3332,7 @@ img{ display:block; }
     } else if (e.key==='s' || e.key==='S'){
       if (GAME.state.phase!=='RACING') {
         if (GAME.state.phase==='BETTING_OPEN') closeBetting();
-        startRace();
+        beginRaceStartCountdown();
       }
     } else if (e.key==='n' || e.key==='N'){
       if (GAME.state.phase!=='RACING' && GAME.state.phase!=='BETTING_OPEN') advanceHeat();
@@ -3088,6 +3469,7 @@ img{ display:block; }
     if (stg && sgg){ stg.style.display = GAME.state.trackMode==='course' ? 'block' : 'none'; sgg.style.display = GAME.state.trackMode==='course' ? 'none' : 'block'; }
     updateBetToggleLabel();
     setupCommentary();
+    setupHorseEditor();
     initControlLabels();
     syncOddsModeButton();
     scheduleFitTopBar();
