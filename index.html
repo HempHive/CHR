@@ -251,69 +251,182 @@ img{ display:block; }
   display:none;
 }
 .finish-flag.show{ display:block; }
+.course-posts-layer{
+  position:absolute; inset:0; width:100%; height:100%;
+  pointer-events:none; z-index:4;
+  display:none;
+}
+.course-posts-layer.show{ display:block; }
 
-/* Infield feature board (course / oval only) — capped to the grass oval */
+/* Infield graphics board (course / oval only) */
 .infield-board{
   position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
-  width:min(24%, 230px);
-  max-width:min(32%, 230px);
-  /* Inner oval ≈ 32% of track height; keep clear of the racing band */
-  max-height:28%;
+  width:min(32%, 260px);
+  max-width:min(34%, 280px);
+  max-height:26%;
   z-index:3; pointer-events:none;
-  background: linear-gradient(160deg, rgba(8,18,32,0.92), rgba(12,28,48,0.88));
-  border:2px solid rgba(23,240,255,0.35);
-  border-radius:14px;
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(23,240,255,0.12), transparent 55%),
+    linear-gradient(165deg, rgba(8,18,32,0.94), rgba(12,24,44,0.9));
+  border:2px solid rgba(23,240,255,0.4);
+  border-radius:12px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.06);
-  padding:8px 10px; color:#e8f1ff;
+  padding:0;
+  color:#e8f1ff;
   display:none;
   box-sizing:border-box;
-  overflow-x:hidden;
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
+  overflow:hidden;
+  text-align:center;
 }
-.infield-board.show{ display:flex; flex-direction:column; min-height:0; }
-.infield-board .infield-label{
-  font-size:clamp(8px, 1.4vw, 10px); font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
-  color:#7ef9ff; margin-bottom:6px; text-align:center; flex:0 0 auto;
+.infield-board.show{
+  display:flex; align-items:center; justify-content:center;
 }
-.infield-board .infield-body{
-  flex:1 1 auto; min-height:0; overflow:auto;
+.infield-board .gb-inner{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; padding:10px 12px; box-sizing:border-box;
+  transform-origin:center center;
+  width:max-content; max-width:100%;
 }
-.infield-board .infield-feat{
-  display:flex; flex-direction:column; align-items:center; gap:4px;
-  animation: infieldIn 420ms ease;
+.infield-board .gb-brand{
+  font-weight:900; letter-spacing:0.12em; text-transform:uppercase;
+  font-size:13px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  line-height:1.1; white-space:nowrap;
 }
-.infield-board .infield-feat img{
-  width:clamp(40px, 8vw, 72px); height:auto; max-height:54px;
-  object-fit:contain; image-rendering:pixelated;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+.infield-board .gb-race{
+  font-size:11px; font-weight:700; color:#ffd166;
+  line-height:1.2; max-width:220px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-.infield-board .infield-feat .nm{ font-size:clamp(10px, 1.5vw, 12px); font-weight:700; text-align:center; color:#bfe0ff; }
-.infield-board .infield-feat .meta{ font-size:clamp(9px, 1.3vw, 11px); color:#9fd3ff; }
-.infield-board .live-row{
-  display:grid; grid-template-columns: 20px 1fr auto; gap:2px 6px; align-items:center;
-  font-size:clamp(9px, 1.3vw, 11px); padding:2px 0; border-bottom:1px solid rgba(255,255,255,0.06);
+.infield-board .gb-heat{
+  font-size:10px; color:#9fd3ff; text-transform:uppercase; letter-spacing:0.08em;
 }
-.infield-board .live-row:last-child{ border-bottom:none; }
-.infield-board .live-row .pos{ font-weight:800; color:#ffd166; }
-.infield-board .live-row .nm{ color:#d7ecff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.infield-board .live-row .od{ color:#9fd3ff; font-variant-numeric:tabular-nums; }
-.infield-board .podium-row{ display:flex; align-items:center; gap:6px; padding:2px 0; }
-.infield-board .podium-row img{ width:clamp(24px, 4vw, 36px); height:auto; max-height:28px; object-fit:contain; image-rendering:pixelated; }
-.infield-board .infield-actions{
-  margin-top:6px; display:flex; flex-direction:column; align-items:stretch; gap:4px;
-  pointer-events:auto; flex:0 0 auto;
+.infield-board .gb-stage{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px; width:100%; margin-top:2px;
 }
-.infield-board .infield-actions .next-timer{
-  text-align:center; color:#ffd166; font-weight:700; font-size:clamp(9px, 1.3vw, 11px);
+.infield-board .gb-icon{
+  font-size:36px; line-height:1;
+  filter: drop-shadow(0 0 10px rgba(23,240,255,0.35));
 }
-.infield-board .infield-actions button{
+.infield-board .gb-status{
+  font-size:14px; font-weight:900; letter-spacing:0.08em; text-transform:uppercase;
+  color:#fff;
+  text-shadow: 0 0 12px rgba(23,240,255,0.45);
+  line-height:1.1; white-space:nowrap;
+  background:none; border:none; padding:0; margin:0;
+  font-family:inherit; pointer-events:none; cursor:default;
+}
+.infield-board[data-stage="start"] .gb-status{
+  color:#00ffa3;
+  pointer-events:auto;
+  cursor:pointer;
+  padding:4px 10px;
+  border:1px solid rgba(0,255,163,0.45);
+  border-radius:8px;
+  background:rgba(0,255,163,0.08);
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.infield-board[data-stage="start"] .gb-status:hover{
+  background:rgba(0,255,163,0.18);
+  border-color:#00ffa3;
+  box-shadow: 0 0 12px rgba(0,255,163,0.35);
+}
+.infield-board[data-stage="start"] .gb-status:active{
+  background:rgba(0,255,163,0.28);
+}
+.infield-board[data-stage="underway"] .gb-status{ color:#17f0ff; }
+.infield-board[data-stage="leader"] .gb-status{ color:#ffd166; }
+.infield-board[data-stage="winner"] .gb-status{ color:#ffe566; }
+.infield-board .gb-horse{
+  display:none; flex-direction:column; align-items:center; gap:2px;
+}
+.infield-board .gb-horse.show{ display:flex; }
+.infield-board .gb-horse img{
+  width:56px; height:42px; object-fit:contain; image-rendering:pixelated;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+}
+.infield-board .gb-horse-name{
+  display:none; font-size:11px; font-weight:700; color:#e8f1ff;
+  max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.infield-board .gb-horse-name.show{ display:block; }
+.infield-board .gb-actions{
+  display:none; flex-direction:column; align-items:stretch; gap:4px;
+  width:100%; min-width:140px; pointer-events:auto; margin-top:4px;
+}
+.infield-board[data-stage="winner"] .gb-heat{ display:none; }
+.infield-board[data-stage="winner"] .gb-actions{ display:none; }
+.infield-board[data-stage="winner"].results-ready .gb-actions{ display:flex; }
+.infield-board .gb-actions button{
   background:#0f2037; border:1px solid #2b4f86; color:#e6f1ff;
-  padding:6px 8px; border-radius:8px; cursor:pointer; font-weight:700; font-size:clamp(10px, 1.4vw, 12px);
+  padding:6px 10px; border-radius:8px; cursor:pointer;
+  font-weight:700; font-size:12px;
+  font-variant-numeric: tabular-nums;
 }
-.infield-board .infield-actions button:hover{ border-color:#17f0ff; }
-@keyframes infieldIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+.infield-board .gb-actions button:hover{ border-color:#17f0ff; }
+@keyframes gbPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.88; }
+}
+.infield-board[data-stage="underway"] .gb-icon{ animation: gbPulse 1.2s ease-in-out infinite; }
+
+/* Horse position strip under course / track controls */
+.horse-strip-wrap{
+  width:100%; min-width:0; margin-top:6px;
+}
+.horse-strip{
+  display:grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap:4px;
+  width:100%;
+}
+.horse-strip.four{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.horse-strip-btn{
+  background:#0f2037; border:1px solid #244766; color:#e6f1ff;
+  border-radius:8px; padding:5px 3px; min-width:0;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  cursor:default; user-select:none;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, order 180ms ease;
+}
+.horse-strip-btn img{
+  width:28px; height:22px; object-fit:contain; image-rendering:pixelated;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.45));
+}
+.horse-strip-btn .hs-pos{
+  font-size:10px; font-weight:800; color:#ffd166; min-height:12px; line-height:1;
+}
+.horse-strip-btn .hs-id{ font-size:10px; font-weight:800; color:#17f0ff; }
+.horse-strip-btn .hs-name{
+  font-size:9px; color:#bfe0ff; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.horse-strip-btn .hs-od{ font-size:9px; color:#9fd3ff; }
+.horse-strip-btn.leader{ border-color:#ffd166; box-shadow: 0 0 0 1px rgba(255,209,102,0.25) inset; }
+.horse-strip-btn.placed-1{
+  background: linear-gradient(180deg, #ffe566 0%, #ffc107 45%, #f0a800 100%);
+  border-color:#fff3a0;
+  color:#2a1e00;
+  box-shadow: 0 0 10px rgba(255,200,40,0.45), inset 0 0 0 1px rgba(255,255,255,0.35);
+}
+.horse-strip-btn.placed-1 .hs-pos,
+.horse-strip-btn.placed-1 .hs-id,
+.horse-strip-btn.placed-1 .hs-name,
+.horse-strip-btn.placed-1 .hs-od{ color:#2a1e00; }
+.horse-strip-btn.placed-2{
+  background: linear-gradient(180deg, #f4f7fb 0%, #cfd8e6 45%, #a8b5c8 100%);
+  border-color:#e8eef6;
+  color:#1a2433;
+  box-shadow: 0 0 10px rgba(180,200,220,0.4), inset 0 0 0 1px rgba(255,255,255,0.45);
+}
+.horse-strip-btn.placed-2 .hs-pos,
+.horse-strip-btn.placed-2 .hs-id,
+.horse-strip-btn.placed-2 .hs-name,
+.horse-strip-btn.placed-2 .hs-od{ color:#1a2433; }
+.horse-strip-btn.placed-3{ background:#2a1a10; border-color:#d4956a; }
+@media (max-width: 900px){
+  .horse-strip{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 
 /* Track lanes */
 .track{ position:absolute; inset:0; }
@@ -530,7 +643,7 @@ img{ display:block; }
   <div class="topbar">
     <div class="top-left">
       <div class="brand">
-        <div class="title">Arcade Racing Parlor</div>
+        <div class="title">Arcade Racing</div>
         <div class="subtitle" id="subtitle">KINGDOMS OF TREASURE STAKES • Trial A • Grass Day</div>
       </div>
       <div class="info-chips">
@@ -556,6 +669,9 @@ img{ display:block; }
         <button class="admin" id="btnCommentary">Commentary</button>
         <button class="admin" id="btnRules">📜 Rules</button>
         <button class="admin" id="btnOddsMode">Odds: Fixed</button>
+      </div>
+      <div class="horse-strip-wrap">
+        <div class="horse-strip" id="horseStrip" aria-label="Horse standings"></div>
       </div>
     </div>
 
@@ -615,10 +731,25 @@ img{ display:block; }
             <g id="straightGroup" style="display:none"></g>
           </svg>
           <div class="finish-flag" id="finishFlag"></div>
+          <svg class="course-posts-layer" id="coursePostsLayer" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true"></svg>
           <div class="horses-layer" id="horsesLayer"></div>
-          <div class="infield-board" id="infieldBoard" aria-live="polite">
-            <div class="infield-label" id="infieldLabel">ENTRIES</div>
-            <div class="infield-body" id="infieldBody"></div>
+          <div class="infield-board" id="infieldBoard" data-stage="start" aria-live="polite">
+            <div class="gb-inner" id="gbInner">
+              <div class="gb-brand">Arcade Racing</div>
+              <div class="gb-race" id="gbRaceName">—</div>
+              <div class="gb-heat" id="gbHeatName">Trial A</div>
+              <div class="gb-stage">
+                <div class="gb-icon" id="gbIcon">🏁</div>
+                <div class="gb-horse" id="gbHorseFeat">
+                  <img id="gbHorseImg" alt="" />
+                </div>
+                <button type="button" class="gb-status" id="gbStatus">Race Start</button>
+                <div class="gb-horse-name" id="gbHorseName"></div>
+              </div>
+              <div class="gb-actions">
+                <button type="button" id="infieldNextBtn">Next Race: 00:10</button>
+              </div>
+            </div>
           </div>
           <div class="count-overlay" id="countOverlay" style="display:none;">
             <div class="count-num" id="countNum">3</div>
@@ -961,17 +1092,28 @@ img{ display:block; }
       fill: 'rgba(36,70,28,0.85)', stroke: 'rgba(120,170,90,0.35)', 'stroke-width': 2
     }));
 
-    // Light towers at the four corners of the bowl
-    const towers = [
-      [shell.cx - shell.straight/2 - 8, shell.cy - shell.r * 0.72],
-      [shell.cx + shell.straight/2 + 8, shell.cy - shell.r * 0.72],
-      [shell.cx - shell.straight/2 - 8, shell.cy + shell.r * 0.72],
-      [shell.cx + shell.straight/2 + 8, shell.cy + shell.r * 0.72]
+    // Light towers / sector posts at the four corners of the bowl
+    // Race order from finish-line start (t=0.125): top-right → bottom-right → bottom-left → top-left
+    const posts = [
+      { x: shell.cx + shell.straight/2 + 8, y: shell.cy - shell.r * 0.72, t: 0.25 }, // top-right
+      { x: shell.cx + shell.straight/2 + 8, y: shell.cy + shell.r * 0.72, t: 0.50 }, // bottom-right
+      { x: shell.cx - shell.straight/2 - 8, y: shell.cy + shell.r * 0.72, t: 0.75 }, // bottom-left
+      { x: shell.cx - shell.straight/2 - 8, y: shell.cy - shell.r * 0.72, t: 0.00 }  // top-left
     ];
-    towers.forEach(([x,y]) => {
-      group.appendChild(svgEl('rect', { x: x-4, y: y-34, width: 8, height: 34, rx: 2, fill: '#6a809c' }));
-      group.appendChild(svgEl('circle', { cx: x, cy: y-36, r: 9, fill: '#ffe6a3', opacity: 0.85, filter: 'url(#glow)' }));
+    posts.forEach((post, i) => {
+      group.appendChild(svgEl('rect', {
+        x: post.x-4, y: post.y-34, width: 8, height: 34, rx: 2, fill: '#6a809c'
+      }));
+      group.appendChild(svgEl('circle', {
+        id: `coursePostLight-${i}`,
+        class: 'course-post-light',
+        'data-post-t': String(post.t),
+        cx: post.x, cy: post.y-36, r: 9,
+        fill: '#ffe6a3', opacity: 0.9, filter: 'url(#glow)'
+      }));
     });
+
+    // Finish post is drawn in #coursePostsLayer (above the striped finish flag)
   }
 
   function stadiumPointAt(t, geom){
@@ -1114,11 +1256,46 @@ img{ display:block; }
     });
   }
 
+  function buildCourseFinishPostOverlay(){
+    const layer = document.getElementById('coursePostsLayer');
+    if (!layer) return;
+    layer.innerHTML = '';
+    const show = GAME.state.trackMode === 'course';
+    layer.classList.toggle('show', show);
+    if (!show) return;
+
+    // Local glow so the overlay SVG does not depend on defs in #svgTrack
+    const defs = svgEl('defs');
+    const filter = svgEl('filter', { id: 'finishPostGlow' });
+    filter.appendChild(svgEl('feGaussianBlur', { stdDeviation: '2', result: 'b' }));
+    const merge = svgEl('feMerge');
+    merge.appendChild(svgEl('feMergeNode', { in: 'b' }));
+    merge.appendChild(svgEl('feMergeNode', { in: 'SourceGraphic' }));
+    filter.appendChild(merge);
+    defs.appendChild(filter);
+    layer.appendChild(defs);
+
+    const finishT = GAME.state.trackTOffset || 0.125;
+    const finishPostGeom = getVisualLane(-0.2);
+    const finishPost = stadiumPointAt(finishT, finishPostGeom);
+
+    layer.appendChild(svgEl('rect', {
+      x: finishPost.x-4, y: finishPost.y-34, width: 8, height: 34, rx: 2, fill: '#6a809c'
+    }));
+    layer.appendChild(svgEl('circle', {
+      id: 'courseFinishLight',
+      class: 'course-finish-light',
+      cx: finishPost.x, cy: finishPost.y-36, r: 10,
+      fill: '#ff3b3b', opacity: 0.95, filter: 'url(#finishPostGlow)'
+    }));
+  }
+
   function buildTrackVisuals(){
     const stadiumGroup = document.getElementById('stadiumGroup');
     const straightGroup = document.getElementById('straightGroup');
     if (stadiumGroup) buildOvalStadium(stadiumGroup);
     if (straightGroup) buildStraightStadium(straightGroup);
+    buildCourseFinishPostOverlay();
   }
 
   let fitTopBarFrame = 0;
@@ -1277,9 +1454,7 @@ img{ display:block; }
     computeOdds();
     syncOddsModeButton();
     render();
-    // Refresh featured horse odds on infield if idle
     if (GAME.state.phase !== 'RESULTS'){
-      infieldLastMode = '';
       updateInfieldBoard();
     }
   }
@@ -1624,7 +1799,6 @@ img{ display:block; }
   function openBetting(countdownSec = GAME.settings.betCountdownSec){
     if (GAME.state.phase === 'RACING') return;
     GAME.state.phase = 'BETTING_OPEN';
-    infieldLastMode = '';
     updateInfieldBoard();
     const now = Date.now();
     GAME.state.countdownEndAt = now + countdownSec*1000;
@@ -1769,8 +1943,11 @@ img{ display:block; }
       order: [],
       puffs: [],
       targets: plan.targets,
-      plannedOrder: plan.order
+      plannedOrder: plan.order,
+      winnerAnnounced: false
     };
+    resetCoursePostLights();
+    setFinishLineLight('#2dff6a'); // green while race is underway
     // Start commentary if armed (covers Start Race Now skipping the 3-2-1 cue)
     startCommentaryIfEnabled();
     updateInfieldBoard();
@@ -1837,6 +2014,12 @@ img{ display:block; }
             }
           }
         }
+        // Announce winner as soon as the first horse finishes
+        if (pos === 1){
+          r.winnerAnnounced = true;
+          setFinishLineLight('#ff3b3b'); // red when winner crosses
+          updateGraphicsBoard();
+        }
       }
     });
 
@@ -1845,11 +2028,27 @@ img{ display:block; }
 
     // update DOM
     renderRacePositions();
-    updateInfieldBoard();
+    updateHorseStrip();
+    updateCoursePostLights();
+    // Sync graphics: underway → leader at halfway → winner on first finish
+    if (GAME.state.trackMode === 'course' && race && !race.done){
+      if (race.winnerAnnounced || (race.order && race.order.length >= 1)){
+        if (graphicsLastStage !== 'winner') updateGraphicsBoard();
+      } else {
+        const prog = raceLeaderProgress();
+        const lead = currentRaceLeader();
+        const wantStage = prog >= 0.5 ? 'leader' : 'underway';
+        const wantFeat = wantStage === 'leader' && lead ? lead.id : null;
+        if (graphicsLastStage !== wantStage || graphicsLastFeatId !== wantFeat){
+          updateGraphicsBoard();
+        }
+      }
+    }
 
     if (r.horses.every(h=>h.finished) || r.skip){
       r.done = true;
       cancelAnimationFrame(rafId);
+      resetCoursePostLights();
       finishRace();
     }
   }
@@ -1964,12 +2163,14 @@ img{ display:block; }
     if (overlay) overlay.style.display = 'none';
 
     if (GAME.state.trackMode === 'course'){
-      infieldLastMode = '';
       updateInfieldBoard();
       beginResultsCountdown(null); // timer + Next Race wired on infield
     } else {
       showStraightResultsOverlay(sorted, order);
     }
+
+    resetCoursePostLights();
+    setFinishLineLight('#ff3b3b');
 
     // Flash winning horse buttons briefly
     document.querySelectorAll('.horse-btn').forEach(btn=>{
@@ -2012,12 +2213,22 @@ img{ display:block; }
     const total = (CONFIG.settings.resultsNextCountdownSec||10);
     let endAt = Date.now() + total*1000;
     const nextLabel = GAME.state.championship ? 'heat' : 'race';
+    const useInfieldBtn = GAME.state.trackMode === 'course' && !externalTimerEl;
     const updateTimer = () => {
       const ms = endAt - Date.now();
       const s = Math.max(0, Math.ceil(ms/1000));
-      const text = `Next ${nextLabel} in 00:${(s<10?'0':'')+s}`;
-      const ovTimer = externalTimerEl || document.getElementById('ovTimer') || document.getElementById('infieldNextTimer');
-      if (ovTimer) ovTimer.textContent = text;
+      const clock = `00:${(s<10?'0':'')+s}`;
+      if (useInfieldBtn){
+        const btn = document.getElementById('infieldNextBtn');
+        if (btn){
+          const label = GAME.state.championship ? 'Next Heat' : 'Next Race';
+          btn.textContent = `${label}: ${clock}`;
+        }
+      } else {
+        const text = `Next ${nextLabel} in ${clock}`;
+        const ovTimer = externalTimerEl || document.getElementById('ovTimer');
+        if (ovTimer) ovTimer.textContent = text;
+      }
       if (ms <= 0) {
         clearResultsCountdown();
         proceedAfterResults();
@@ -2114,6 +2325,7 @@ img{ display:block; }
     buildTrack();
     buildPlayers();
     renderTopbar();
+    updateInfieldBoard();
   }
 
   // ---------- Rendering ----------
@@ -2171,6 +2383,8 @@ img{ display:block; }
     updateBetToggleLabel();
     updatePlayerBorders();
     updateBankrollDisplays();
+    updateHorseStrip(true);
+    updateGraphicsBoard();
   }
 
   function updatePlayerBorders(){
@@ -2285,152 +2499,315 @@ img{ display:block; }
     flag.style.top  = (p.y * sy) + 'px';
   }
 
-  // ---------- Infield board (course mode) ----------
-  let infieldCarouselTimer = null;
-  let infieldCarouselIdx = 0;
-  let infieldLastMode = '';
-  let infieldLiveKey = '';
+  // ---------- Graphics board (course infield) + horse strip ----------
+  let graphicsLastStage = '';
+  let graphicsLastFeatId = null;
+  let horseStripLastKey = '';
 
-  function infieldHorseIds(){
-    if (GAME.state.heat === 'final' && GAME.state.entered.length){
-      return GAME.state.entered.slice();
-    }
-    return GAME.horses.map(h => h.id);
+  function raceDisplayName(){
+    const cup = GAME.cups[GAME.state.cupIndex];
+    return cup ? cup.name : 'Arcade Racing';
   }
 
-  function stopInfieldCarousel(){
-    if (infieldCarouselTimer){
-      clearInterval(infieldCarouselTimer);
-      infieldCarouselTimer = null;
-    }
-  }
-
-  function startInfieldCarousel(){
-    stopInfieldCarousel();
-    infieldCarouselTimer = setInterval(() => {
-      if (GAME.state.phase === 'RACING' || GAME.state.phase === 'RESULTS') return;
-      const ids = infieldHorseIds();
-      if (!ids.length) return;
-      infieldCarouselIdx = (infieldCarouselIdx + 1) % ids.length;
-      renderInfieldFeature(ids[infieldCarouselIdx]);
-    }, 5000);
-  }
-
-  function renderInfieldFeature(horseId){
-    const body = document.getElementById('infieldBody');
-    const label = document.getElementById('infieldLabel');
-    if (!body || !label) return;
-    const h = GAME.horses.find(x => x.id === horseId);
-    if (!h) return;
-    label.textContent = 'NOW FEATURING';
-    const odds = GAME.state.odds[h.id];
-    const od = typeof odds === 'number' ? decimalOddsToFraction(odds) : '—';
-    body.innerHTML = `<div class="infield-feat">
-      <img src="${h.sprite}" alt="H${h.id}" onerror="this.style.display='none'"/>
-      <div class="nm">H${h.id} — ${h.name}</div>
-      <div class="meta">Odds ${od}</div>
-    </div>`;
-  }
-
-  function renderInfieldLiveTop5(){
-    const body = document.getElementById('infieldBody');
-    const label = document.getElementById('infieldLabel');
-    if (!body || !label || !race) return;
-    const sorted = race.horses.slice().sort((a,b) => {
+  function currentRaceLeader(){
+    if (!race || !race.horses || !race.horses.length) return null;
+    return race.horses.slice().sort((a,b) => {
       if (a.finished && b.finished) return a.finishTime - b.finishTime;
       if (a.finished) return -1;
       if (b.finished) return 1;
       return b.x - a.x;
-    }).slice(0, 5);
-    const key = sorted.map(h => h.id).join(',');
-    if (infieldLastMode === 'live' && key === infieldLiveKey) return;
-    infieldLiveKey = key;
-    label.textContent = 'LIVE TOP 5';
-    body.innerHTML = sorted.map((hs, i) => {
-      const h = GAME.horses.find(x => x.id === hs.id);
-      const odds = GAME.state.odds[hs.id];
-      const od = typeof odds === 'number' ? decimalOddsToFraction(odds) : '';
-      return `<div class="live-row"><span class="pos">${i+1}</span><span class="nm">H${hs.id} ${h?.name||''}</span><span class="od">${od}</span></div>`;
-    }).join('');
+    })[0] || null;
   }
 
-  function renderInfieldPodium(){
-    const body = document.getElementById('infieldBody');
-    const label = document.getElementById('infieldLabel');
-    if (!body || !label || !race) return;
-    label.textContent = 'PODIUM';
-    const sorted = race.horses.slice().sort((a,b) => a.finishTime - b.finishTime).slice(0, 3);
-    const medals = ['🥇','🥈','🥉'];
-    const nextText = GAME.state.championship ? 'Next Heat' : 'New Race';
-    body.innerHTML = sorted.map((hs, i) => {
-      const h = GAME.horses.find(x => x.id === hs.id);
-      return `<div class="podium-row"><span>${medals[i]}</span>
-        <img src="${h?.sprite||''}" alt="H${hs.id}"/>
-        <div><div class="nm">H${hs.id} — ${h?.name||''}</div></div></div>`;
-    }).join('') + `
-      <div class="infield-actions">
-        <div class="next-timer" id="infieldNextTimer"></div>
-        <button type="button" id="infieldNextBtn">${nextText}</button>
-      </div>`;
-    const btn = document.getElementById('infieldNextBtn');
-    if (btn) btn.onclick = () => proceedAfterResults();
+  function raceLeaderProgress(){
+    const lead = currentRaceLeader();
+    if (!lead) return 0;
+    return clamp(lead.x - GAME.state.trackTOffset, 0, 1);
   }
 
-  function updateInfieldBoard(){
+  function postProgressFromStart(postT){
+    const startT = GAME.state.trackTOffset || 0;
+    let p = postT - startT;
+    if (p <= 1e-9) p += 1;
+    return p;
+  }
+
+  function resetCoursePostLights(){
+    // Sector posts only — finish line light is managed separately
+    document.querySelectorAll('.course-post-light').forEach(el => {
+      el.setAttribute('fill', '#ffe6a3');
+      el.dataset.lit = '0';
+    });
+  }
+
+  function setFinishLineLight(color){
+    const el = document.getElementById('courseFinishLight');
+    if (el) el.setAttribute('fill', color);
+  }
+
+  function updateCoursePostLights(){
+    if (GAME.state.trackMode !== 'course' || !race || !race.horses) return;
+    // Furthest progress of any horse (first horse to reach each post)
+    let maxProg = 0;
+    race.horses.forEach(h => {
+      maxProg = Math.max(maxProg, clamp(h.x - GAME.state.trackTOffset, 0, 1));
+    });
+    document.querySelectorAll('.course-post-light').forEach(el => {
+      const postT = Number(el.getAttribute('data-post-t'));
+      const need = postProgressFromStart(postT);
+      if (maxProg >= need - 1e-4){
+        if (el.dataset.lit !== '1'){
+          el.setAttribute('fill', '#ff3b3b');
+          el.dataset.lit = '1';
+        }
+      }
+    });
+  }
+
+  function setGraphicsFeaturedHorse(horseId, show){
+    const feat = document.getElementById('gbHorseFeat');
+    const img = document.getElementById('gbHorseImg');
+    const nameEl = document.getElementById('gbHorseName');
+    const iconEl = document.getElementById('gbIcon');
+    const h = horseId != null ? GAME.horses.find(x => x.id === horseId) : null;
+    if (!show || !h){
+      if (feat) feat.classList.remove('show');
+      if (nameEl){ nameEl.classList.remove('show'); nameEl.textContent = ''; }
+      if (iconEl) iconEl.style.display = '';
+      graphicsLastFeatId = null;
+      return;
+    }
+    if (iconEl) iconEl.style.display = 'none';
+    if (feat) feat.classList.add('show');
+    if (img){ img.src = h.sprite; img.alt = h.name; }
+    if (nameEl){
+      nameEl.textContent = `H${h.id} — ${h.name}`;
+      nameEl.classList.add('show');
+    }
+    graphicsLastFeatId = h.id;
+  }
+
+  function updateGraphicsBoard(){
     const board = document.getElementById('infieldBoard');
     if (!board) return;
     const show = GAME.state.trackMode === 'course';
     board.classList.toggle('show', show);
     if (!show){
-      stopInfieldCarousel();
-      infieldLastMode = '';
+      graphicsLastStage = '';
+      graphicsLastFeatId = null;
       board.style.maxHeight = '';
       board.style.maxWidth = '';
+      board.style.width = '';
+      board.style.height = '';
       return;
     }
-    fitInfieldBoard();
+
+    const raceEl = document.getElementById('gbRaceName');
+    const heatEl = document.getElementById('gbHeatName');
+    const iconEl = document.getElementById('gbIcon');
+    const statusEl = document.getElementById('gbStatus');
+    const nextBtn = document.getElementById('infieldNextBtn');
+    if (raceEl) raceEl.textContent = raceDisplayName();
+    if (heatEl) heatEl.textContent = heatLabel(GAME.state.heat);
+
+    let stage = 'start';
+    let icon = '🏁';
+    let status = 'Race Start';
+    let featId = null;
 
     if (GAME.state.phase === 'RACING' && race && !race.done){
-      if (infieldLastMode !== 'live'){
-        stopInfieldCarousel();
-        infieldLastMode = 'live';
-        infieldLiveKey = '';
+      const firstFinisher = (race.order && race.order.length) ? race.order[0] : null;
+      if (firstFinisher != null){
+        stage = 'winner';
+        icon = '🏆';
+        status = 'Winner';
+        featId = firstFinisher;
+      } else {
+        const prog = raceLeaderProgress();
+        const lead = currentRaceLeader();
+        if (prog >= 0.5 && lead){
+          stage = 'leader';
+          icon = '🥇';
+          status = 'Leader';
+          featId = lead.id;
+        } else {
+          stage = 'underway';
+          icon = '🏇';
+          status = 'Race Underway';
+        }
       }
-      renderInfieldLiveTop5();
-      return;
+    } else if (GAME.state.phase === 'RESULTS' && race){
+      const winner = (race.order && race.order[0] != null)
+        ? race.order[0]
+        : (race.horses.slice().sort((a,b) => a.finishTime - b.finishTime)[0] || {}).id;
+      stage = 'winner';
+      icon = '🏆';
+      status = 'Winner';
+      featId = winner != null ? winner : null;
+    } else if (GAME.state.phase === 'BETTING_CLOSED'){
+      stage = 'start';
+      icon = '🚦';
+      status = 'Race Start';
     }
 
-    if (GAME.state.phase === 'RESULTS' && race){
-      if (infieldLastMode !== 'podium'){
-        stopInfieldCarousel();
-        infieldLastMode = 'podium';
-        renderInfieldPodium();
+    board.dataset.stage = stage;
+    board.classList.toggle('results-ready', GAME.state.phase === 'RESULTS' && stage === 'winner');
+    if (iconEl) iconEl.textContent = icon;
+    if (statusEl){
+      statusEl.textContent = status;
+      statusEl.setAttribute('aria-label', stage === 'start' ? 'Start race' : status);
+      if (stage === 'start'){
+        statusEl.onclick = () => {
+          if (GAME.state.phase === 'RACING') return;
+          if (GAME.state.phase === 'BETTING_OPEN') closeBetting();
+          if (GAME.state.phase !== 'RACING') startRace();
+        };
+      } else {
+        statusEl.onclick = null;
       }
-      return;
     }
+    setGraphicsFeaturedHorse(featId, featId != null);
+    if (nextBtn){
+      // On winner stage the countdown owns the button label
+      if (stage !== 'winner'){
+        nextBtn.textContent = GAME.state.championship ? 'Next Heat' : 'New Race';
+      }
+      nextBtn.onclick = () => proceedAfterResults();
+    }
+    graphicsLastStage = stage;
+    // Fit after stage DOM (e.g. winner actions / horse art) has applied
+    requestAnimationFrame(() => fitInfieldBoard());
+  }
 
-    // Idle / betting — rotate featured horses every 5s
-    if (infieldLastMode !== 'carousel'){
-      infieldLastMode = 'carousel';
-      const ids = infieldHorseIds();
-      infieldCarouselIdx = 0;
-      if (ids.length) renderInfieldFeature(ids[0]);
-      startInfieldCarousel();
-    }
+  function updateInfieldBoard(){
+    updateGraphicsBoard();
+    updateHorseStrip();
   }
 
   function fitInfieldBoard(){
     const board = document.getElementById('infieldBoard');
+    const inner = document.getElementById('gbInner');
     const track = document.getElementById('track');
-    if (!board || !track || GAME.state.trackMode !== 'course') return;
+    if (!board || !inner || !track || GAME.state.trackMode !== 'course') return;
+    if (!board.classList.contains('show')) return;
     const rect = track.getBoundingClientRect();
     if (rect.height < 40 || rect.width < 40) return;
-    // Match SVG infield oval, with margin so the panel stays clear of the rails
     const infield = getVisualLane(2.75);
     const ovalH = (infield.r * 2 / 600) * rect.height;
     const ovalW = ((infield.straight + infield.r * 2) / 1000) * rect.width;
-    board.style.maxHeight = Math.max(72, Math.floor(ovalH * 0.88)) + 'px';
-    board.style.maxWidth = Math.max(96, Math.floor(ovalW * 0.78)) + 'px';
+    // Comfortable size inside the grass oval
+    const boxW = Math.max(140, Math.floor(ovalW * 0.72));
+    const boxH = Math.max(110, Math.floor(ovalH * 0.82));
+    board.style.width = boxW + 'px';
+    board.style.height = boxH + 'px';
+    board.style.maxWidth = boxW + 'px';
+    board.style.maxHeight = boxH + 'px';
+
+    // Scale inner content to fill the panel without clipping
+    inner.style.transform = 'scale(1)';
+    const pad = 8;
+    const availW = Math.max(40, boxW - pad * 2);
+    const availH = Math.max(40, boxH - pad * 2);
+    const iw = Math.max(1, inner.scrollWidth);
+    const ih = Math.max(1, inner.scrollHeight);
+    const scale = Math.max(0.55, Math.min(availW / iw, availH / ih, 1.35));
+    inner.style.transform = `scale(${scale})`;
+  }
+
+  function stripHorseIds(){
+    if (GAME.state.entered && GAME.state.entered.length) return GAME.state.entered.slice();
+    return GAME.horses.map(h => h.id);
+  }
+
+  function orderedStripEntries(){
+    const ids = stripHorseIds();
+    if (GAME.state.phase === 'RACING' && race && race.horses){
+      return race.horses.slice().sort((a,b) => {
+        if (a.finished && b.finished) return a.finishTime - b.finishTime;
+        if (a.finished) return -1;
+        if (b.finished) return 1;
+        return b.x - a.x;
+      }).map((hs, i) => ({
+        id: hs.id,
+        pos: i + 1,
+        finished: !!hs.finished
+      }));
+    }
+    if (GAME.state.phase === 'RESULTS' && race && race.horses){
+      return race.horses.slice().sort((a,b) => a.finishTime - b.finishTime).map((hs, i) => ({
+        id: hs.id,
+        pos: i + 1,
+        finished: true
+      }));
+    }
+    // Betting / idle: order by odds (favorite first = lowest decimal)
+    return ids.slice().sort((a,b) => {
+      const oa = GAME.state.odds[a] ?? 99;
+      const ob = GAME.state.odds[b] ?? 99;
+      return oa - ob;
+    }).map((id, i) => ({ id, pos: i + 1, finished: false }));
+  }
+
+  function updateHorseStrip(force){
+    const strip = document.getElementById('horseStrip');
+    if (!strip) return;
+    const entries = orderedStripEntries();
+    const mode = GAME.state.phase === 'RACING' ? 'live'
+      : GAME.state.phase === 'RESULTS' ? 'results' : 'odds';
+    const key = mode + ':' + entries.map(e => e.id + (e.finished ? 'F' + e.pos : '')).join(',');
+
+    function applyStripPlaceVisuals(btn, e){
+      const placed = (mode === 'results' || (mode === 'live' && e.finished));
+      const posEl = btn.querySelector('.hs-pos');
+      if (posEl){
+        if (mode === 'odds') posEl.textContent = '';
+        else if (placed && e.pos <= 3) posEl.textContent = e.pos === 1 ? '🥇' : e.pos === 2 ? '🥈' : '🥉';
+        else if (mode === 'live' || mode === 'results') posEl.textContent = String(e.pos);
+        else posEl.textContent = '';
+      }
+      btn.classList.toggle('leader', mode === 'live' && !e.finished && e.pos === 1);
+      btn.classList.toggle('placed-1', placed && e.pos === 1);
+      btn.classList.toggle('placed-2', placed && e.pos === 2);
+      btn.classList.toggle('placed-3', placed && e.pos === 3);
+    }
+
+    if (!force && key === horseStripLastKey && strip.children.length === entries.length){
+      // Still refresh position labels / place classes without full rebuild if same order
+      entries.forEach((e, i) => {
+        const btn = strip.children[i];
+        if (!btn) return;
+        applyStripPlaceVisuals(btn, e);
+      });
+      return;
+    }
+    horseStripLastKey = key;
+    strip.classList.toggle('four', entries.length <= 4);
+    strip.innerHTML = '';
+    entries.forEach((e) => {
+      const h = GAME.horses.find(x => x.id === e.id);
+      if (!h) return;
+      const odds = GAME.state.odds[e.id];
+      const od = typeof odds === 'number' ? decimalOddsToFraction(odds) : '—';
+      const btn = document.createElement('div');
+      btn.className = 'horse-strip-btn';
+      btn.dataset.horseId = String(e.id);
+      const placed = (mode === 'results' || (mode === 'live' && e.finished));
+      if (mode === 'live' && !e.finished && e.pos === 1) btn.classList.add('leader');
+      if (placed && e.pos === 1) btn.classList.add('placed-1');
+      if (placed && e.pos === 2) btn.classList.add('placed-2');
+      if (placed && e.pos === 3) btn.classList.add('placed-3');
+      let posText = '';
+      if (mode === 'odds') posText = '';
+      else if (placed && e.pos <= 3) posText = e.pos === 1 ? '🥇' : e.pos === 2 ? '🥈' : '🥉';
+      else if (mode === 'live' || mode === 'results') posText = String(e.pos);
+      btn.innerHTML = `
+        <div class="hs-pos">${posText}</div>
+        <div class="hs-name">${h.name}</div>
+        <img src="${h.sprite}" alt="H${h.id}" onerror="this.style.display='none'"/>
+        <div class="hs-id">H${h.id}</div>
+        <div class="hs-od">${od}</div>`;
+      strip.appendChild(btn);
+    });
   }
 
   // Player count toggle
@@ -2528,6 +2905,7 @@ img{ display:block; }
         h.finished = true;
         h.finishTime = race.targets[h.id] ?? Math.random();
       });
+      setFinishLineLight('#ff3b3b');
       finishRace();
     }
   };
