@@ -277,6 +277,8 @@ img{ display:block; }
   box-sizing:border-box;
   overflow:hidden;
   text-align:center;
+  /* Hard caps updated by fitInfieldBoard to the inner-track oval */
+  contain: layout paint;
 }
 .infield-board.show{
   display:flex; align-items:center; justify-content:center;
@@ -424,8 +426,24 @@ img{ display:block; }
 .horse-strip-btn.placed-2 .hs-name,
 .horse-strip-btn.placed-2 .hs-od{ color:#1a2433; }
 .horse-strip-btn.placed-3{ background:#2a1a10; border-color:#d4956a; }
-@media (max-width: 900px){
-  .horse-strip{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* Stay on one row at small widths — shrink cells instead of wrapping to 2×4 */
+@media (max-width: 1100px){
+  .horse-strip{ gap:3px; }
+  .horse-strip-btn{ padding:4px 2px; border-radius:6px; gap:1px; }
+  .horse-strip-btn img{ width:24px; height:18px; }
+  .horse-strip-btn .hs-pos{ font-size:9px; min-height:10px; }
+  .horse-strip-btn .hs-id{ font-size:9px; }
+  .horse-strip-btn .hs-name{ font-size:8px; }
+  .horse-strip-btn .hs-od{ font-size:8px; }
+}
+@media (max-width: 700px){
+  .horse-strip{ gap:2px; }
+  .horse-strip-btn{ padding:3px 1px; }
+  .horse-strip-btn img{ width:20px; height:15px; }
+  .horse-strip-btn .hs-pos{ font-size:8px; min-height:9px; }
+  .horse-strip-btn .hs-id{ font-size:8px; }
+  .horse-strip-btn .hs-name{ font-size:7px; }
+  .horse-strip-btn .hs-od{ font-size:7px; }
 }
 
 /* Track lanes */
@@ -2692,25 +2710,37 @@ img{ display:block; }
     if (!board.classList.contains('show')) return;
     const rect = track.getBoundingClientRect();
     if (rect.height < 40 || rect.width < 40) return;
-    const infield = getVisualLane(2.75);
-    const ovalH = (infield.r * 2 / 600) * rect.height;
-    const ovalW = ((infield.straight + infield.r * 2) / 1000) * rect.width;
-    // Comfortable size inside the grass oval
-    const boxW = Math.max(140, Math.floor(ovalW * 0.72));
-    const boxH = Math.max(110, Math.floor(ovalH * 0.82));
+
+    // Grass infield stadium (inside the inner rail) — size a rectangle that fits inside it
+    const hole = getVisualLane(2.75);
+    const { r, straight } = hole;
+    const sx = rect.width / 1000;
+    const sy = rect.height / 600;
+
+    // Height first (leave margin from top/bottom of infield)
+    const boxHSvg = r * 2 * 0.78;
+    const halfH = boxHSvg / 2;
+    // At the rectangle's top/bottom corners, end-cap half-width is straight/2 + sqrt(r² − halfH²)
+    // (narrower than the AABB, so corners stay off the racing surface)
+    const halfW = straight / 2 + Math.sqrt(Math.max(0, r * r - halfH * halfH));
+    const safety = 10; // extra SVG-unit inset clear of the rail
+    const boxWSvg = Math.max(48, halfW * 2 - safety * 2);
+
+    const boxW = Math.max(48, Math.floor(boxWSvg * sx));
+    const boxH = Math.max(48, Math.floor(boxHSvg * sy));
     board.style.width = boxW + 'px';
     board.style.height = boxH + 'px';
     board.style.maxWidth = boxW + 'px';
     board.style.maxHeight = boxH + 'px';
 
-    // Scale inner content to fill the panel without clipping
+    // Scale inner content to fit inside the locked panel (never upscale past 1)
     inner.style.transform = 'scale(1)';
     const pad = 8;
-    const availW = Math.max(40, boxW - pad * 2);
-    const availH = Math.max(40, boxH - pad * 2);
+    const availW = Math.max(32, boxW - pad * 2);
+    const availH = Math.max(32, boxH - pad * 2);
     const iw = Math.max(1, inner.scrollWidth);
     const ih = Math.max(1, inner.scrollHeight);
-    const scale = Math.max(0.55, Math.min(availW / iw, availH / ih, 1.35));
+    const scale = Math.max(0.4, Math.min(availW / iw, availH / ih, 1));
     inner.style.transform = `scale(${scale})`;
   }
 
