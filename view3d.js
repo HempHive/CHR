@@ -130,6 +130,7 @@
       let orbitEase = false;
       let orbitAtFinish = false;
       let orbitFollowT = null;
+      let orbitLookT = null;
       const refs = { spots: [], bulbs: [] };
       const GEO = {};
       const MAT = {};
@@ -2298,25 +2299,41 @@
             desiredLook.set(anchor.pos.x, 0.8, anchor.pos.z);
             orbitAround(desiredLook);
           } else {
-            // Follow the middle of the field along the racing line. A new
-            // leader used to pull the look straight to that horse, which
-            // jumped the view across a bend.
+            // Middle of the field, on the racing line. A large step backwards
+            // means the next race has reset the horses to the gate: snap there.
+            // Walking the parameter down would send the camera the wrong way
+            // around the lap during the countdown.
+            const easeTrackT = (current, target) => {
+              if (current == null || target + 0.25 < current) return target;
+              const maxStep = dt * 0.12;
+              let step = target - current;
+              if (step > maxStep) step = maxStep;
+              else if (step < -maxStep) step = -maxStep;
+              return current + step;
+            };
             const entries = fieldEntries();
             let targetT = game.state.trackTOffset || 0;
             if (entries.length) {
               const ts = entries.map(e => e.t).sort((a, b) => a - b);
               targetT = ts[Math.floor((ts.length - 1) / 2)];
             }
-            if (orbitFollowT == null || (freshRace && Math.abs(targetT - orbitFollowT) > 0.5)) {
-              orbitFollowT = targetT;
-            } else {
-              const maxStep = dt * 0.12;
-              let step = targetT - orbitFollowT;
-              if (step > maxStep) step = maxStep;
-              else if (step < -maxStep) step = -maxStep;
-              orbitFollowT += step;
+            orbitFollowT = easeTrackT(orbitFollowT, targetT);
+            const midLane = (api.currentLaneCount() - 1) / 2;
+            const midPose = worldPose(orbitFollowT, midLane);
+            let wantT = orbitFollowT;
+            if (focus && game.state.phase === 'RACING') {
+              const leadPose = worldPose(focus.t, midLane);
+              const gap = Math.hypot(leadPose.x - midPose.x, leadPose.z - midPose.z);
+              const keep = Math.tan(THREE.MathUtils.degToRad(24)) * r * 0.72;
+              let ahead = focus.t - orbitFollowT;
+              if (ahead < 0) ahead = 0;
+              if (gap > keep && ahead > 0) {
+                const push = (gap - keep) / gap;
+                wantT = orbitFollowT + ahead * push;
+              }
             }
-            const along = worldPose(orbitFollowT, (api.currentLaneCount() - 1) / 2);
+            orbitLookT = easeTrackT(orbitLookT, wantT);
+            const along = worldPose(orbitLookT, midLane);
             desiredLook.set(along.x, 0.8, along.z);
             orbitGlide = true;
             if (game.state.phase === 'RACING') {
