@@ -108,8 +108,13 @@
       let fieldDirty = true;
       let lastTs = 0;
       let snapCam = true;
-      let camId = 'broadcast';
-      let zoom = 1;
+      let camId = 'orbit';
+      const ZOOM_MIN = 0.55;
+      const ZOOM_MAX = 2.15;
+      const zoomByCam = {
+        broadcast: 1, rail: 1, chase: 1, finish: 1, stands: 1, drone: 1, jockey: 1, orbit: ZOOM_MIN
+      };
+      let zoom = ZOOM_MIN;
       let gateOpen = 0;
       let droneAng = 0.4;
       let horses = [];
@@ -132,7 +137,7 @@
       const _pack = new THREE.Vector3();
 
       game.state.viewMode = game.state.viewMode || '3d';
-      game.state.camera = game.state.camera || 'broadcast';
+      game.state.camera = game.state.camera || 'orbit';
 
       function svgToWorld(x, y) {
         const stretch = game.state.trackMode === 'straight' ? STRAIGHT_STRETCH : 1;
@@ -976,33 +981,39 @@
         if (n < 2) return;
         const shirts = [0xc0392b, 0x2471a3, 0xf4d03f, 0x1e8449, 0xf7f9f9, 0x7d3c98, 0xe67e22, 0x148f77, 0x5d6d7e, 0xd35400, 0xf5b7b1, 0x1a5276];
         const spots = [];
-        const section = 6;
-        for (let s = 0; s < n; s += section) {
-          const roll = crowdHash(s * 13 + salt * 97) % 100;
-          let fill = 0.95;
-          if (roll < 14) fill = 0;
-          else if (roll < 34) fill = 0.28;
-          else if (roll < 62) fill = 0.62;
-          const rows = fill === 0 ? 0 : 1 + (crowdHash(s + 9 + salt) % 3);
-          const end = Math.min(n, s + section);
-          for (let i = s; i < end; i++) {
-            if ((crowdHash(i * 19 + salt * 3) % 100) / 100 > fill) continue;
-            for (let row = 0; row < rows; row++) {
-              const u = (row + 0.55) / (rows + 0.85);
-              const a = inner[i];
-              const b = outer[i];
-              const jx = ((crowdHash(i + row * 5 + salt) % 100) / 100 - 0.5) * 0.12;
-              const jz = ((crowdHash(i * 3 + row + salt) % 100) / 100 - 0.5) * 0.12;
-              const x = a.x + (b.x - a.x) * u + jx;
-              const z = a.z + (b.z - a.z) * u + jz;
-              spots.push({
-                x, z,
-                yaw: Math.atan2(-x, -z),
-                scale: 0.78 + (crowdHash(i + row * 11 + salt) % 45) / 100,
-                color: shirts[crowdHash(i + row + salt * 7) % shirts.length]
-              });
-            }
+        let i = 0;
+        while (i < n - 1) {
+          const g = crowdHash(i * 29 + salt * 7) % 100;
+          let size = 1;
+          if (g < 34) size = 2;
+          else if (g < 58) size = 3;
+          else if (g < 74) size = 4;
+          const anchor = Math.min(n - 1, i);
+          const family = size > 1 && crowdHash(anchor * 5 + salt) % 100 < 55;
+          const familyColor = shirts[crowdHash(anchor * 7 + salt) % shirts.length];
+          for (let k = 0; k < size; k++) {
+            const along = (k - (size - 1) / 2) * (0.28 + (crowdHash(anchor + k) % 20) / 100);
+            const idx = Math.min(n - 1, Math.max(0, anchor + Math.round(along)));
+            const j = Math.min(n - 1, Math.max(0, idx + (along >= 0 ? 1 : -1)));
+            const mix = Math.min(1, Math.abs(along - Math.round(along)));
+            const ax = inner[idx].x + (inner[j].x - inner[idx].x) * mix;
+            const az = inner[idx].z + (inner[j].z - inner[idx].z) * mix;
+            const bx = outer[idx].x + (outer[j].x - outer[idx].x) * mix;
+            const bz = outer[idx].z + (outer[j].z - outer[idx].z) * mix;
+            const u = size === 1
+              ? 0.15 + (crowdHash(idx + salt) % 70) / 100
+              : 0.18 + ((k + (crowdHash(idx + k + salt) % 3)) % size) * (0.62 / size);
+            const x = ax + (bx - ax) * Math.min(0.94, u);
+            const z = az + (bz - az) * Math.min(0.94, u);
+            const yawJ = ((crowdHash(idx + k * 9 + salt) % 100) / 100 - 0.5) * 0.7;
+            spots.push({
+              x, z,
+              yaw: Math.atan2(-x, -z) + yawJ,
+              scale: 0.7 + (crowdHash(idx + k * 11 + salt) % 55) / 100,
+              color: family ? familyColor : shirts[crowdHash(idx + k + salt * 7) % shirts.length]
+            });
           }
+          i += size + 2 + (crowdHash(i * 19 + salt) % 6);
         }
         if (!spots.length) return;
         const geo = stickPersonGeo();
@@ -1159,21 +1170,31 @@
         worldGroup.add(new THREE.Mesh(wallGeo(sampleOval(2.72, 72), 0.02, 0.36, 3), hedgeMat));
         refs.hedgeMat = hedgeMat;
 
-        const shrubGeo = new THREE.SphereGeometry(0.5, 7, 6);
+        const shrubGeo = new THREE.SphereGeometry(0.42, 7, 6);
         const shrubMat = new THREE.MeshStandardMaterial({ color: 0x2f8a3a, roughness: 0.85 });
-        for (let i = 0; i < 16; i++) {
-          const a = (i / 16) * Math.PI * 2;
-          const x = Math.cos(a) * 15.5;
-          const z = Math.sin(a) * 8.2;
-          if (Math.abs(x) < 11 && Math.abs(z) < 5.4) continue;
-          const s = new THREE.Mesh(shrubGeo, shrubMat);
-          s.position.set(x, 0.36, z);
-          s.scale.setScalar(0.85 + (i % 3) * 0.2);
-          worldGroup.add(s);
+        const shrubSpots = [];
+        const shrubCols = 16;
+        const shrubRows = 9;
+        for (let iz = 0; iz < shrubRows; iz++) {
+          for (let ix = 0; ix < shrubCols; ix++) {
+            const i = iz * shrubCols + ix;
+            const h = crowdHash(i * 23 + 11);
+            if (h % 100 < 42) continue;
+            const x = -24.5 + (ix + 0.5) * (49 / shrubCols) + ((crowdHash(i * 3 + 1) % 100) / 100 - 0.5) * 1.5;
+            const z = -11.2 + (iz + 0.5) * (22.4 / shrubRows) + ((crowdHash(i * 5 + 3) % 100) / 100 - 0.5) * 1.15;
+            if (!insideInfield(x, z, 2.92)) continue;
+            if (infieldBlocked(x, z)) continue;
+            if (shrubSpots.some(p => (p.x - x) * (p.x - x) + (p.z - z) * (p.z - z) < 2.4)) continue;
+            const s = new THREE.Mesh(shrubGeo, shrubMat);
+            s.position.set(x, 0.28, z);
+            s.scale.setScalar(0.6 + (h % 50) / 80);
+            worldGroup.add(s);
+            shrubSpots.push({ x, z });
+          }
         }
         refs.shrubMat = shrubMat;
 
-        addToteScreen(worldGroup, 0, 2.15, 6.2, Math.PI, 8.2, 3.1);
+        addToteScreen(worldGroup, 0, 5.2, 0, Math.PI, 16.4, 6.2);
 
         const tFin = game.state.trackTOffset || 0.125;
         const finMat = new THREE.MeshStandardMaterial({ map: checkerTex(), roughness: 0.5, side: THREE.DoubleSide });
@@ -1340,8 +1361,9 @@
         const S = 3.05;
         const wheelX = -5.15;
         const root = new THREE.Group();
-        root.position.set(0, 0.02, 0);
+        root.position.set(-19.05, 0.02, 0);
         root.userData.roulette = true;
+        root.userData.kind = 'roulette';
 
         const wood = new THREE.Mesh(
           new THREE.BoxGeometry(18.7, 0.28, 8.55),
@@ -1412,6 +1434,143 @@
         refs.rouletteRoot = root;
         refs.rouletteWheel = wheel;
         refs.rouletteBall = ballPivot;
+        addInfieldPitch(parent);
+        addInfieldChess(parent);
+      }
+
+      function insideInfield(x, z, level) {
+        const geom = api.getVisualLane(level);
+        const sx = x / WORLD + 500;
+        const sy = z / WORLD + 300;
+        const dx = sx - geom.cx;
+        const dy = sy - geom.cy;
+        const half = geom.straight / 2;
+        if (Math.abs(dx) <= half) return Math.abs(dy) <= geom.r;
+        const bendX = Math.sign(dx) * half;
+        return Math.hypot(dx - bendX, dy) <= geom.r;
+      }
+
+      function infieldBlocked(x, z) {
+        if (x > -29.1 && x < -9.2 && Math.abs(z) < 5.1) return true;
+        if (x > -5.4 && x < 5.4 && Math.abs(z) < 5.4) return true;
+        if (x > 9.1 && x < 25.8 && Math.abs(z) < 5.6) return true;
+        return false;
+      }
+
+      function pitchTex() {
+        if (refs.pitchTex) return refs.pitchTex;
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 320;
+        const g = c.getContext('2d');
+        for (let i = 0; i < 10; i++) {
+          g.fillStyle = i % 2 ? '#1f8a3c' : '#187432';
+          g.fillRect(i * 51.2, 0, 51.2, 320);
+        }
+        g.strokeStyle = '#f4f7fb';
+        g.lineWidth = 5;
+        g.strokeRect(16, 16, 480, 288);
+        g.beginPath();
+        g.moveTo(256, 16);
+        g.lineTo(256, 304);
+        g.stroke();
+        g.beginPath();
+        g.arc(256, 160, 42, 0, Math.PI * 2);
+        g.stroke();
+        g.fillStyle = '#f4f7fb';
+        g.beginPath();
+        g.arc(256, 160, 4, 0, Math.PI * 2);
+        g.fill();
+        g.strokeRect(16, 78, 78, 164);
+        g.strokeRect(418, 78, 78, 164);
+        g.strokeRect(16, 118, 36, 84);
+        g.strokeRect(460, 118, 36, 84);
+        refs.pitchTex = srgbTex(new THREE.CanvasTexture(c));
+        return refs.pitchTex;
+      }
+
+      function addGoal(parent, xSign) {
+        const white = new THREE.MeshStandardMaterial({ color: 0xf7f7f7, roughness: 0.35, metalness: 0.15 });
+        const postH = 1.05;
+        const halfW = 1.35;
+        const x = xSign * 7.7;
+        [-1, 1].forEach(side => {
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, postH, 8), white);
+          post.position.set(x, postH / 2, side * halfW);
+          post.castShadow = true;
+          parent.add(post);
+        });
+        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, halfW * 2, 8), white);
+        bar.rotation.x = Math.PI / 2;
+        bar.position.set(x, postH, 0);
+        parent.add(bar);
+      }
+
+      function addInfieldPitch(parent) {
+        const root = new THREE.Group();
+        root.position.set(17.4, 0.03, 0);
+        root.userData.kind = 'football';
+        const base = new THREE.Mesh(
+          new THREE.BoxGeometry(15.4, 0.1, 9.2),
+          new THREE.MeshStandardMaterial({ color: 0x1c7a34, roughness: 0.9 })
+        );
+        base.position.y = 0.05;
+        base.receiveShadow = true;
+        root.add(base);
+        const lines = new THREE.Mesh(
+          new THREE.PlaneGeometry(15.4, 9.2),
+          new THREE.MeshStandardMaterial({ map: pitchTex(), roughness: 0.86 })
+        );
+        lines.rotation.x = -Math.PI / 2;
+        lines.position.y = 0.11;
+        lines.receiveShadow = true;
+        root.add(lines);
+        addGoal(root, -1);
+        addGoal(root, 1);
+        parent.add(root);
+        refs.pitchRoot = root;
+      }
+
+      function chessTex() {
+        if (refs.chessTex) return refs.chessTex;
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 512;
+        const g = c.getContext('2d');
+        const cells = 8;
+        const cell = c.width / cells;
+        for (let y = 0; y < cells; y++) {
+          for (let x = 0; x < cells; x++) {
+            g.fillStyle = (x + y) % 2 ? '#2c241c' : '#f3ead8';
+            g.fillRect(x * cell, y * cell, cell, cell);
+          }
+        }
+        refs.chessTex = srgbTex(new THREE.CanvasTexture(c));
+        return refs.chessTex;
+      }
+
+      function addInfieldChess(parent) {
+        const root = new THREE.Group();
+        root.position.set(0, 0, 0);
+        root.userData.kind = 'chess';
+        const rim = new THREE.Mesh(
+          new THREE.BoxGeometry(9.7, 0.32, 9.7),
+          new THREE.MeshStandardMaterial({ color: 0x6b3e1e, roughness: 0.5, metalness: 0.12 })
+        );
+        rim.position.y = 0.22;
+        rim.castShadow = true;
+        rim.receiveShadow = true;
+        root.add(rim);
+        const top = new THREE.Mesh(
+          new THREE.PlaneGeometry(9.2, 9.2),
+          new THREE.MeshStandardMaterial({ map: chessTex(), roughness: 0.7 })
+        );
+        top.rotation.x = -Math.PI / 2;
+        top.position.y = 0.39;
+        top.receiveShadow = true;
+        root.add(top);
+        parent.add(root);
+        refs.chessRoot = root;
       }
 
       function updateRoulette(dt) {
@@ -1957,8 +2116,27 @@
         } else if (camId === 'orbit') {
           const r = orbit.radius * zoom;
           const sp = Math.sin(orbit.phi);
-          desiredLook.copy(pack);
-          desiredLook.y = 0.8;
+          const raceNow = api.getRace && api.getRace();
+          const winnerIn = game.state.phase === 'RESULTS' || (raceNow && raceNow.order && raceNow.order.length > 0);
+          if (winnerIn) {
+            const anchor = finishAnchor();
+            desiredLook.copy(anchor.pos);
+            desiredLook.y = 0.8;
+          } else {
+            desiredLook.copy(pack);
+            if (focus && game.state.phase === 'RACING') {
+              const dx = focus.pos.x - pack.x;
+              const dz = focus.pos.z - pack.z;
+              const gap = Math.hypot(dx, dz);
+              const keep = Math.tan(THREE.MathUtils.degToRad(24)) * r * 0.72;
+              if (gap > keep) {
+                const push = (gap - keep) / gap;
+                desiredLook.x += dx * push;
+                desiredLook.z += dz * push;
+              }
+            }
+            desiredLook.y = 0.8;
+          }
           desiredPos.set(
             desiredLook.x + sp * Math.cos(orbit.theta) * r,
             desiredLook.y + Math.cos(orbit.phi) * r,
@@ -1998,7 +2176,8 @@
           camera.fov = fov;
           snapCam = false;
         } else {
-          const blend = 1 - Math.exp(-dt * (camId === 'jockey' ? 10 : camId === 'broadcast' ? 9 : 6));
+          const follow = camId === 'jockey' ? 10 : camId === 'broadcast' ? 9 : 6;
+          const blend = 1 - Math.exp(-dt * follow);
           camPos.lerp(desiredPos, blend);
           camLook.lerp(desiredLook, blend);
           camera.fov += (fov - camera.fov) * (1 - Math.exp(-dt * 5));
@@ -2097,7 +2276,10 @@
 
       function setCamera(id) {
         if (!CAMS.some(c => c.id === id)) id = 'broadcast';
+        if (id !== camId) zoomByCam[camId] = zoom;
         camId = id;
+        zoom = zoomByCam[id] != null ? zoomByCam[id] : 1;
+        snapCam = true;
         game.state.camera = id;
         if (sel) sel.value = id;
         if (bar) bar.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.cam === id));
@@ -2122,25 +2304,41 @@
           b.onclick = () => setCamera(b.dataset.cam);
         });
       }
-      setCamera(game.state.camera || 'broadcast');
+      setCamera(game.state.camera || 'orbit');
 
       if (canvas) {
         canvas.addEventListener('wheel', (e) => {
           if (!active) return;
           e.preventDefault();
-          zoom = Math.min(2.15, Math.max(0.55, zoom * (e.deltaY > 0 ? 1.08 : 0.92)));
+          zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * (e.deltaY > 0 ? 1.08 : 0.92)));
+          zoomByCam[camId] = zoom;
         }, { passive: false });
         let drag = null;
         let press = null;
         const raycaster = new THREE.Raycaster();
         const pointerNdc = new THREE.Vector2();
-        function rouletteHit(e) {
-          if (!active || !camera || !refs.rouletteRoot || game.state.rouletteOpen) return false;
+        function pointerRay(e) {
           const rect = canvas.getBoundingClientRect();
           pointerNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
           pointerNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
           raycaster.setFromCamera(pointerNdc, camera);
-          return raycaster.intersectObject(refs.rouletteRoot, true).length > 0;
+        }
+        function infieldKind(e) {
+          if (!active || !camera || game.state.rouletteOpen) return '';
+          pointerRay(e);
+          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot].filter(Boolean);
+          const hits = raycaster.intersectObjects(roots, true);
+          if (!hits.length) return '';
+          let node = hits[0].object;
+          while (node && !node.userData.kind) node = node.parent;
+          return (node && node.userData.kind) || '';
+        }
+        function showComingSoon() {
+          const el = document.getElementById('comingSoon');
+          if (!el) return;
+          el.hidden = false;
+          clearTimeout(refs.soonTid);
+          refs.soonTid = setTimeout(() => { el.hidden = true; }, 1700);
         }
         canvas.addEventListener('pointerdown', (e) => {
           if (!active) return;
@@ -2155,7 +2353,8 @@
             orbit.phi = Math.min(1.35, Math.max(0.28, drag.phi + (e.clientY - drag.y) * 0.005));
             return;
           }
-          canvas.style.cursor = rouletteHit(e) ? 'pointer' : '';
+          const kind = infieldKind(e);
+          canvas.style.cursor = kind ? 'pointer' : '';
         });
         canvas.addEventListener('pointerup', (e) => {
           const start = press;
@@ -2165,7 +2364,9 @@
           const dx = e.clientX - start.x;
           const dy = e.clientY - start.y;
           if (dx * dx + dy * dy > 36) return;
-          if (rouletteHit(e) && api.openRoulette) api.openRoulette();
+          const kind = infieldKind(e);
+          if (kind === 'roulette' && api.openRoulette) api.openRoulette();
+          else if (kind === 'football' || kind === 'chess') showComingSoon();
         });
         canvas.addEventListener('pointercancel', () => { press = null; drag = null; });
       }

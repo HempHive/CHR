@@ -837,6 +837,20 @@ dialog.horse-edit-dialog::backdrop{
 .cam-bar button.active{
   background:#17f0ff; color:#041018; border-color:#17f0ff;
 }
+.coming-soon{
+  position:absolute; left:50%; top:42%; transform:translate(-50%, -50%);
+  z-index:7; pointer-events:none;
+  background:rgba(6,12,22,0.9);
+  border:2px solid #ffd166;
+  color:#ffe7a8;
+  font-weight:900;
+  letter-spacing:0.16em;
+  font-size:28px;
+  padding:14px 22px;
+  border-radius:12px;
+  text-shadow:0 2px 8px rgba(0,0,0,0.45);
+}
+.coming-soon[hidden]{ display:none !important; }
 body.view-3d .scanlines{ opacity:0.16; }
 
 .roulette-layer{
@@ -974,14 +988,14 @@ body.view-3d .scanlines{ opacity:0.16; }
           <option value="stands">Grandstand</option>
           <option value="drone">Drone</option>
           <option value="jockey">Jockey</option>
-          <option value="orbit">Orbit</option>
+          <option value="orbit" selected>Orbit</option>
         </select>
         <button class="admin" id="btnCourse" title="Course setting. Cycles Grass Day, Dirt Sunset, Night Neon, and Cyber Grid.">Grass Day</button>
         <button class="admin" id="btnToggleTrack">Track: Course</button>
         <button class="admin" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps.">Laps: 1</button>
         <button class="admin" id="btnChamp">Championship: Off</button>
-        <button class="admin" id="btnBetToggle">Open Betting</button>
         <button class="admin" id="btnStartRace">Start Race Now</button>
+        <button class="admin" id="btnBetToggle">Open Betting</button>
         <button class="admin" id="btnNextHeat">Next Heat</button>
         <button class="admin" id="btnCommentary">Commentary</button>
         <button class="admin" id="btnRules">📜 Rules</button>
@@ -1072,7 +1086,8 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" id="trackRouletteBtn" class="track-roulette" aria-label="Open roulette">
             <canvas id="trackRoulette" width="512" height="512"></canvas>
           </button>
-          <div class="count-overlay" id="countOverlay" style="display:none;">
+          <div id="comingSoon" class="coming-soon" hidden>COMING SOON</div>
+        <div class="count-overlay" id="countOverlay" style="display:none;">
             <div class="count-num" id="countNum">3</div>
           </div>
           <div class="results-overlay" id="resultsOverlay" style="display:none;">
@@ -2000,6 +2015,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (GAME.state.phase !== 'RESULTS'){
       updateInfieldBoard();
     }
+    resetActiveCountdown();
   }
 
   // ---------- Entrants by heat ----------
@@ -2116,7 +2132,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       qb.appendChild(qbCtrls);
 
       clearBets.onclick = ()=>{
-        if (GAME.state.phase !== 'BETTING_OPEN') return;
+        if (!betsAccepted()) return;
         p.bets = [];
         render();
         updateBankrollDisplays();
@@ -2137,7 +2153,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         });
       }
       function toggleWinBet(horseId){
-        if (GAME.state.phase !== 'BETTING_OPEN') return;
+        if (!betsAccepted()) return;
         const existingIdx = p.bets.findIndex(b=>b.type==='WIN' && b.pick[0]===horseId && !b.result);
         if (existingIdx >= 0){
           const b = p.bets[existingIdx];
@@ -2149,7 +2165,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         } else {
           const max = p.bankroll - currentCommittedStake(p);
           if (max < 10) return;
-          p.bets.push({ id: uid(), type:'WIN', pick:[horseId], stake: 10 });
+          p.bets.push({ id: uid(), type:'WIN', pick:[horseId], stake: 10, odds: GAME.state.odds[horseId] });
         }
         render();
         updateBankrollDisplays();
@@ -2177,7 +2193,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         trash.innerHTML = '🗑';
         trash.title = 'Remove';
         trash.onclick = () => {
-          if (GAME.state.phase !== 'BETTING_OPEN') return;
+          if (!betsAccepted()) return;
           p.bets.splice(bi,1);
           render();
         };
@@ -2252,8 +2268,14 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
 
   function currentCommittedStake(player){
-    // sum stakes of queued bets this heat
-    return player.bets.reduce((a,b)=>a+b.stake,0);
+    // Settled bets are already in the bankroll. Only open wagers are reserved.
+    return player.bets.reduce((a,b)=> a + (b.result ? 0 : b.stake), 0);
+  }
+
+  function betsAccepted(){
+    if (GAME.state.phase === 'RACING') return false;
+    if (startCountdownTid) return false;
+    return true;
   }
 
   function updateBankrollDisplays(){
@@ -2267,8 +2289,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 
   function collectBet(type, picksWrap, stake){
     if (stake <= 0) return null;
-    const bettingOpen = GAME.state.phase === 'BETTING_OPEN';
-    if (!bettingOpen) return null;
+    if (!betsAccepted()) return null;
 
     const opts = picksWrap.querySelectorAll('select');
     const entered = new Set(GAME.state.entered);
@@ -2665,8 +2686,9 @@ body.view-3d .scanlines{ opacity:0.16; }
         if (pos === 1){
           r.winnerAnnounced = true;
           setFinishLineLight('#ff3b3b'); // red when winner crosses
-          updateGraphicsBoard();
         }
+        if (pos <= 3) settleReadyBets();
+        updateGraphicsBoard();
       }
     });
 
@@ -2690,7 +2712,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     // Sync graphics: underway → leader at halfway → winner on first finish
     if (GAME.state.trackMode === 'course' && race && !race.done){
       if (race.winnerAnnounced || (race.order && race.order.length >= 1)){
-        if (graphicsLastStage !== 'winner') updateGraphicsBoard();
+        if (graphicsLastStage !== 'winner' || graphicsLastPlaceCount !== race.order.length) updateGraphicsBoard();
       } else {
         const prog = raceLeaderProgress();
         const lead = currentRaceLeader();
@@ -2789,19 +2811,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       GAME.state.qualifiers.trialB = order.slice(0,2).map((id,i)=>({ id, pos:i+1 }));
     }
 
-      // payouts
-    activePlayers().forEach(p=>{
-      let delta = 0;
-      p.bets.forEach(b=>{
-        const payout = settleBet(b, order);
-        b.result = { win: payout > 0, payout };
-        delta += payout - b.stake; // net change vs stake
-      });
-      if (delta > 0) p.totalWinnings += delta;
-      p.bankroll += delta;
-        // clear bets after results
-        p.bets = [];
-    });
+    settleReadyBets();
 
     // ticker entry
     const cup = GAME.cups[GAME.state.cupIndex];
@@ -2869,8 +2879,8 @@ body.view-3d .scanlines{ opacity:0.16; }
       GAME.state.heat = 'trialA';
       GAME.state.qualifiers = { trialA: [], trialB: [] };
     }
-    GAME.players.forEach(p => { p.bets = []; });
     GAME.state.phase = 'BETTING_CLOSED';
+    GAME.players.forEach(p => { p.bets = p.bets.filter(b => !b.result); });
     setupHeat();
     beginRaceStartCountdown();
   }
@@ -2936,7 +2946,8 @@ body.view-3d .scanlines{ opacity:0.16; }
     const stake = bet.stake;
     if (bet.type==='WIN'){
       const winId = order[0];
-      if (bet.pick[0] === winId) return stake * (odds[winId]||1);
+      const price = bet.odds || odds[winId] || 1;
+      if (bet.pick[0] === winId) return stake * price;
       return 0;
     }
     if (bet.type==='PLACE'){
@@ -2954,6 +2965,38 @@ body.view-3d .scanlines{ opacity:0.16; }
       return stake * sum * CONFIG.settings.quinellaFactor;
     }
     return 0;
+  }
+
+  function settleReadyBets(){
+    if (!race || !race.order) return;
+    const order = race.order;
+    let changed = false;
+    activePlayers().forEach(p => {
+      let delta = 0;
+      p.bets.forEach(b => {
+        if (b.result) return;
+        const ready = b.type === 'WIN' ? order.length >= 1
+          : (b.type === 'PLACE' || b.type === 'QUINELLA') ? order.length >= 2
+          : order.length >= 1;
+        if (!ready) return;
+        const payout = settleBet(b, order);
+        b.result = { win: payout > 0, payout };
+        delta += payout - b.stake;
+        changed = true;
+      });
+      if (delta > 0) p.totalWinnings += delta;
+      p.bankroll += delta;
+    });
+    if (!changed) return;
+    updateBankrollDisplays();
+    buildPlayers();
+    const winner = order[0];
+    document.querySelectorAll('.horse-btn').forEach(btn => {
+      if (Number(btn.dataset.horseId) === winner) btn.classList.add('payout');
+    });
+    setTimeout(() => {
+      document.querySelectorAll('.horse-btn.payout').forEach(b => b.classList.remove('payout'));
+    }, 2500);
   }
 
   // ---------- Flow control ----------
@@ -3056,11 +3099,10 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
 
   function updatePlayerBorders(){
-    const open = GAME.state.phase === 'BETTING_OPEN';
-    const racing = GAME.state.phase === 'RACING';
+    const open = betsAccepted();
     document.querySelectorAll('.player').forEach(el=>{
       el.classList.toggle('open', open);
-      el.classList.toggle('closed', !open || racing);
+      el.classList.toggle('closed', !open);
     });
   }
 
@@ -3146,6 +3188,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 
   // ---------- Graphics board (course infield) + horse strip ----------
   let graphicsLastStage = '';
+  let graphicsLastPlaceCount = 0;
   let graphicsLastFeatId = null;
   let horseStripLastKey = '';
 
@@ -3300,6 +3343,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     board.classList.toggle('show', show);
     if (!show){
       graphicsLastStage = '';
+      graphicsLastPlaceCount = 0;
       graphicsLastFeatId = null;
       board.style.maxHeight = '';
       board.style.maxWidth = '';
@@ -3329,7 +3373,8 @@ body.view-3d .scanlines{ opacity:0.16; }
       if (firstFinisher != null){
         stage = 'winner';
         icon = '🏆';
-        status = 'Winner';
+        const tags = ['1st', '2nd', '3rd'];
+        status = race.order.slice(0, 3).map((id, i) => `${tags[i]} H${id}`).join('  ');
         featId = firstFinisher;
       } else {
         const prog = raceLeaderProgress();
@@ -3346,13 +3391,14 @@ body.view-3d .scanlines{ opacity:0.16; }
         }
       }
     } else if (GAME.state.phase === 'RESULTS' && race){
-      const winner = (race.order && race.order[0] != null)
-        ? race.order[0]
-        : (race.horses.slice().sort((a,b) => a.finishTime - b.finishTime)[0] || {}).id;
+      const order = (race.order && race.order.length)
+        ? race.order
+        : race.horses.slice().sort((a,b) => a.finishTime - b.finishTime).map(h => h.id);
+      const tags = ['1st', '2nd', '3rd'];
       stage = 'winner';
       icon = '🏆';
-      status = 'Winner';
-      featId = winner != null ? winner : null;
+      status = order.slice(0, 3).map((id, i) => `${tags[i]} H${id}`).join('  ');
+      featId = order[0] != null ? order[0] : null;
     } else if (GAME.state.phase === 'BETTING_CLOSED'){
       stage = 'start';
       icon = '🚦';
@@ -3384,6 +3430,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       nextBtn.onclick = () => proceedAfterResults();
     }
     graphicsLastStage = stage;
+    graphicsLastPlaceCount = (race && race.order) ? race.order.length : 0;
     // Fit after stage DOM (e.g. winner actions / horse art) has applied
     requestAnimationFrame(() => fitInfieldBoard());
   }
@@ -3733,6 +3780,17 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
 
   // ---------- Admin buttons ----------
+  function resetActiveCountdown(){
+    if (GAME.state.phase === 'RACING' || startCountdownTid) return;
+    if (resultsCountdownTid){
+      beginResultsCountdown(GAME.state.trackMode === 'course' ? null : document.getElementById('ovTimer'));
+    }
+    if (GAME.state.phase === 'BETTING_OPEN' && countdownTimer){
+      GAME.state.countdownEndAt = Date.now() + countdownSec() * 1000;
+      renderTopbar();
+    }
+  }
+
   function cycleCourse(){
     const ids = GAME.courses.map(c => c.id);
     const i = Math.max(0, ids.indexOf(GAME.state.course));
@@ -3741,6 +3799,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     const course = GAME.courses.find(c => c.id === GAME.state.course);
     setControlLabel(els.btnCourse, course ? course.name : 'Grass Day');
     scheduleFitTopBar();
+    resetActiveCountdown();
   }
   els.btnCourse.onclick = () => cycleCourse();
   const courseChipBtn = document.getElementById('courseChipBtn');
@@ -3783,6 +3842,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         GAME.state.qualifiers = { trialA: [], trialB: [] };
       }
       syncChampBtn();
+      resetActiveCountdown();
     };
   }
   // Odds mode: Fixed → Random → Mixed
@@ -3800,6 +3860,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       const laps = GAME.state.laps;
       heatEl.textContent = laps > 1 ? `${heatLabel(GAME.state.heat)} · ${laps} laps` : heatLabel(GAME.state.heat);
     }
+    resetActiveCountdown();
   };
   document.getElementById('btnToggleTrack').onclick = () => {
     // Allow toggling track shape whenever betting is open; block during racing
@@ -3818,6 +3879,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     placeFinishFlag();
     updateInfieldBoard();
     syncTrackRoulette();
+    resetActiveCountdown();
   };
   els.btnStartRace.onclick = () => {
     if (GAME.state.phase === 'RACING') return;

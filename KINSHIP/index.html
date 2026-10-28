@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="KINSHIP is a private, local-first family archive. Your records stay on this device."
+    />
+    <title>KINSHIP — The Living Family Archive</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%238a5430'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia' font-size='16' fill='%23fff8f1'%3EK%3C/text%3E%3C/svg%3E"
+    />
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem('kinship-theme') || 'system';
+          var dark =
+            theme === 'dark' ||
+            (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var text = localStorage.getItem('kinship-text') || 'md';
+          var contrast = localStorage.getItem('kinship-contrast') || 'normal';
+          var motionPref = localStorage.getItem('kinship-motion') || 'system';
+          var reduce =
+            motionPref === 'reduce' ||
+            (motionPref !== 'full' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+          var root = document.documentElement;
+          root.dataset.theme = dark ? 'dark' : 'light';
+          root.dataset.text = text;
+          root.dataset.contrast = contrast;
+          root.dataset.motion = reduce ? 'reduce' : 'full';
+        } catch (error) {
+          /* Preferences are optional. The defaults in CSS still apply. */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>KINSHIP needs JavaScript to open the archive stored in this browser.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
