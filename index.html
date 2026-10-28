@@ -99,6 +99,13 @@ img{ display:block; }
   white-space:nowrap;
 }
 .chip strong{ color: var(--accent-3); text-transform:uppercase; letter-spacing:0.5px; }
+button.chip{
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: var(--odd-chip);
+}
+button.chip:hover{ border-color:#17f0ff; }
 
 .status{
   display:flex; align-items:center; gap:6px;
@@ -118,7 +125,8 @@ img{ display:block; }
 /* Course selector + Admin controls */
 .controls{
   display:grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  grid-template-rows: auto;
   align-items:stretch;
   gap:4px;
   width:100%;
@@ -165,6 +173,20 @@ img{ display:block; }
   border-radius:8px;
 }
 .controls button.admin{ border-color:#495a7a; background:#11243f;}
+.controls #btnStartRace{
+  background: linear-gradient(180deg, #ffe7a8 0%, #e2b34a 48%, #b8860b 100%);
+  border-color: #fff1c2;
+  color: #2a1c00;
+  box-shadow: 0 0 0 1px rgba(255, 220, 120, 0.5) inset, 0 0 14px rgba(224, 176, 74, 0.45);
+}
+.controls #btnStartRace .ctl-label{ color:#2a1c00; }
+.controls #btnStartRace.is-racing{
+  background:#11243f;
+  border-color:#495a7a;
+  color:var(--text);
+  box-shadow:none;
+}
+.controls #btnStartRace.is-racing .ctl-label{ color:var(--text); }
 .controls button.primary{ background:#0b3a2e; border-color:#0bbd7a; }
 .controls button.warn{ background:#3a0b0b; border-color:#bd0b0b; }
 
@@ -283,6 +305,25 @@ img{ display:block; }
 .infield-board.show{
   display:flex; align-items:center; justify-content:center;
 }
+.track-roulette{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:14%;
+  aspect-ratio:1;
+  transform:translate(-50%, -50%);
+  z-index:5;
+  padding:0;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  display:none;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,0.4));
+}
+.track-outer:not(.is-3d) .track-roulette.is-on{ display:block; }
+.track-roulette canvas{
+  width:100%; height:100%; display:block; pointer-events:none;
+}
 .infield-board .gb-inner{
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:6px; padding:10px 12px; box-sizing:border-box;
@@ -394,45 +435,63 @@ img{ display:block; }
 }
 .horse-strip-btn:hover{ border-color:#17f0ff; }
 .horse-strip-btn img{
-  width:28px; height:22px; object-fit:contain; image-rendering:pixelated;
+  width:72px; height:56px; object-fit:contain; image-rendering:pixelated;
   filter: drop-shadow(0 2px 2px rgba(0,0,0,0.45));
 }
 .horse-strip-btn .hs-pos{
-  font-size:10px; font-weight:800; color:#ffd166; min-height:12px; line-height:1;
+  flex:none;
+  font-size:12px; font-weight:800; color:#ffd166; line-height:1;
 }
+.horse-strip-btn .hs-pos:empty{ display:none; }
 .horse-strip-btn .hs-id{ font-size:10px; font-weight:800; color:#17f0ff; }
 .horse-strip-btn .hs-name{
+  min-width:0;
   font-size:9px; color:#bfe0ff; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .horse-strip-btn .hs-od{ font-size:9px; color:#9fd3ff; }
+.horse-strip-btn .hs-meta{
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  max-width:100%; min-width:0; line-height:1.1;
+}
 .horse-strip-btn.leader{ border-color:#ffd166; box-shadow: 0 0 0 1px rgba(255,209,102,0.25) inset; }
+.horse-strip-btn .hs-panel{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  width:fit-content;
+  max-width:100%;
+  min-width:0;
+  align-self:center;
+  box-sizing:border-box;
+  padding:2px 6px;
+  border-radius:7px;
+  background:#102033;
+  border:1px solid rgba(180,210,240,0.28);
+  text-align:center;
+  overflow:hidden;
+}
 .horse-strip-btn.placed-1{
   background: linear-gradient(180deg, #ffe566 0%, #ffc107 45%, #f0a800 100%);
   border-color:#fff3a0;
-  color:#2a1e00;
   box-shadow: 0 0 10px rgba(255,200,40,0.45), inset 0 0 0 1px rgba(255,255,255,0.35);
 }
-.horse-strip-btn.placed-1 .hs-pos,
 .horse-strip-btn.placed-1 .hs-id,
-.horse-strip-btn.placed-1 .hs-name,
 .horse-strip-btn.placed-1 .hs-od{ color:#2a1e00; }
 .horse-strip-btn.placed-2{
   background: linear-gradient(180deg, #f4f7fb 0%, #cfd8e6 45%, #a8b5c8 100%);
   border-color:#e8eef6;
-  color:#1a2433;
   box-shadow: 0 0 10px rgba(180,200,220,0.4), inset 0 0 0 1px rgba(255,255,255,0.45);
 }
-.horse-strip-btn.placed-2 .hs-pos,
 .horse-strip-btn.placed-2 .hs-id,
-.horse-strip-btn.placed-2 .hs-name,
 .horse-strip-btn.placed-2 .hs-od{ color:#1a2433; }
 .horse-strip-btn.placed-3{ background:#2a1a10; border-color:#d4956a; }
 /* Stay on one row at small widths — shrink cells instead of wrapping to 2×4 */
 @media (max-width: 1100px){
   .horse-strip{ gap:3px; }
   .horse-strip-btn{ padding:4px 2px; border-radius:6px; gap:1px; }
-  .horse-strip-btn img{ width:24px; height:18px; }
-  .horse-strip-btn .hs-pos{ font-size:9px; min-height:10px; }
+  .horse-strip-btn img{ width:60px; height:46px; }
+  .horse-strip-btn .hs-pos{ font-size:11px; }
   .horse-strip-btn .hs-id{ font-size:9px; }
   .horse-strip-btn .hs-name{ font-size:8px; }
   .horse-strip-btn .hs-od{ font-size:8px; }
@@ -440,8 +499,8 @@ img{ display:block; }
 @media (max-width: 700px){
   .horse-strip{ gap:2px; }
   .horse-strip-btn{ padding:3px 1px; }
-  .horse-strip-btn img{ width:20px; height:15px; }
-  .horse-strip-btn .hs-pos{ font-size:8px; min-height:9px; }
+  .horse-strip-btn img{ width:52px; height:40px; }
+  .horse-strip-btn .hs-pos{ font-size:10px; }
   .horse-strip-btn .hs-id{ font-size:8px; }
   .horse-strip-btn .hs-name{ font-size:7px; }
   .horse-strip-btn .hs-od{ font-size:7px; }
@@ -716,6 +775,176 @@ dialog.horse-edit-dialog::backdrop{
 
 .count-overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:5; pointer-events:none; }
 .count-num{ font-size: min(22vw, 220px); font-weight: 900; color:#ffffff; text-shadow: 0 0 14px rgba(23,240,255,0.6), 0 0 28px rgba(255,61,246,0.35); transform: scale(1); opacity:0.9; }
+
+/* 3D broadcast view — sits over the flat track, UI stays on top */
+.view3d-canvas{
+  position:absolute; inset:0; width:100%; height:100%;
+  display:none; z-index:2; touch-action:none;
+}
+.track-outer.is-3d .view3d-canvas{ display:block; }
+.track-outer.is-3d .svg-track,
+.track-outer.is-3d .horses-layer,
+.track-outer.is-3d .parallax,
+.track-outer.is-3d .finish-flag,
+.track-outer.is-3d .course-posts-layer{ visibility:hidden; }
+.track-outer.is-3d .infield-board.show{
+  left:auto; right:10px; top:10px; transform:none;
+  width:min(230px, 42%);
+  height:auto;
+  max-width:min(230px, 42%);
+  max-height:48%;
+  z-index:6;
+}
+.track-outer.is-3d .results-overlay{
+  align-items:flex-start; justify-content:flex-end;
+  padding:48px 10px 0 0;
+}
+.track-outer.is-3d .results-card{
+  min-width:220px; max-width:min(340px, 48%);
+}
+.cam-hud{
+  position:absolute; top:8px; left:10px; z-index:6;
+  display:none; flex-direction:column; gap:1px;
+  color:#e8f7ff; pointer-events:none;
+  background:rgba(6,12,22,0.5);
+  border:1px solid rgba(23,240,255,0.28);
+  border-radius:8px; padding:5px 8px;
+  text-shadow:0 1px 2px #000;
+}
+.track-outer.is-3d .cam-hud{ display:flex; }
+.cam-hud strong{
+  font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+}
+.cam-hud span{ font-size:10px; color:#9fd3ff; letter-spacing:0.02em; }
+.cam-bar{
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  display:none; gap:4px; justify-content:center; flex-wrap:wrap;
+  pointer-events:none;
+}
+.track-outer.is-3d .cam-bar{ display:flex; }
+.cam-bar button{
+  pointer-events:auto;
+  background:rgba(8,16,28,0.78);
+  border:1px solid rgba(36,71,102,0.95);
+  color:#d7e8ff;
+  border-radius:999px;
+  padding:4px 9px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.04em;
+  backdrop-filter:blur(6px);
+}
+.cam-bar button.active{
+  background:#17f0ff; color:#041018; border-color:#17f0ff;
+}
+body.view-3d .scanlines{ opacity:0.16; }
+
+.roulette-layer{
+  position:fixed; inset:0; z-index:10000;
+  display:flex; align-items:center; justify-content:center;
+  padding:16px;
+  background:rgba(3,8,16,0.78);
+}
+.roulette-layer[hidden]{ display:none !important; }
+.roulette-panel{
+  width:min(1120px, 100%);
+  max-height:calc(100vh - 28px);
+  overflow:auto;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #1a3a28 0%, #0c1a14 42%, #091018 100%);
+  border:1px solid #c6a15a;
+  border-radius:16px;
+  box-shadow:0 24px 70px rgba(0,0,0,0.55);
+  color:#e8f6ff;
+  padding:14px 14px 12px;
+}
+.rl-head, .rl-foot{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.rl-head h2{
+  margin:0; font-size:22px; letter-spacing:0.14em; text-transform:uppercase;
+  color:#f3d48a;
+}
+.rl-head p{ margin:2px 0 0; color:#9fd3ff; font-size:13px; }
+.rl-head button, .rl-actions button, .rl-player, .rl-chipbtn, .rl-extra button{
+  background:#0f2037; border:1px solid #244766; color:#e6f1ff;
+  border-radius:8px; padding:7px 10px; font-weight:700; cursor:pointer;
+}
+.rl-head button:hover, .rl-actions button:hover, .rl-extra button:hover{ border-color:#17f0ff; }
+.rl-actions button.primary, .rl-chipbtn.on, .rl-player.on{
+  background:#0b3a2e; border-color:#0bbd7a; color:#eafff6;
+}
+.rl-actions button:disabled, .rl-head button:disabled, .rl-extra button:disabled{
+  opacity:0.45; cursor:default;
+}
+.rl-main{
+  display:grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap:14px;
+  margin:12px 0;
+}
+.rl-wheel-col{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+#rouletteWheel{
+  width:260px; height:260px; border-radius:50%;
+  background:#1a1208;
+  box-shadow:0 0 0 6px #3a2a14, 0 10px 24px rgba(0,0,0,0.45);
+}
+.rl-call{
+  min-height:2.4em; text-align:center; font-weight:800; color:#ffd166; font-size:14px;
+}
+.rl-history{ display:flex; flex-wrap:wrap; gap:4px; justify-content:center; min-height:22px; }
+.rl-hist{
+  min-width:22px; height:22px; padding:0 4px; border-radius:11px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:800; color:#fff;
+}
+.rl-hist.red{ background:#c0392b; }
+.rl-hist.black{ background:#1b1b1b; border:1px solid #555; }
+.rl-hist.green{ background:#0b7a3a; }
+.rl-felt{
+  display:grid;
+  grid-template-columns: 52px repeat(12, minmax(0, 1fr)) 54px;
+  grid-template-rows: repeat(3, 46px) 34px 34px;
+  gap:3px;
+  background:#0e4d32;
+  border:2px solid #d4b36a;
+  border-radius:10px;
+  padding:8px;
+}
+.rl-cell{
+  position:relative;
+  display:flex; align-items:center; justify-content:center;
+  border:0; border-radius:4px; color:#fff; font-weight:800; font-size:13px;
+  cursor:pointer; padding:0;
+}
+.rl-cell:hover{ outline:2px solid #ffd166; }
+.rl-cell.red{ background:#b42318; }
+.rl-cell.black{ background:#1a1a1a; }
+.rl-cell.green{ background:#0b7a3a; }
+.rl-cell.out{ background:#146b45; font-size:11px; letter-spacing:0.02em; }
+.rl-stack{
+  position:absolute; left:50%; bottom:1px; transform:translateX(-50%);
+  display:flex; gap:1px; pointer-events:none;
+}
+.rl-token{
+  min-width:14px; height:14px; padding:0 2px; border-radius:50%;
+  border:1px dashed #fff; color:#041018; font-size:8px; font-weight:900;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+.rl-inside{
+  display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:34px;
+}
+.rl-inside p{ margin:0; color:#9fd3ff; font-size:12px; align-self:center; }
+.rl-foot{ flex-wrap:wrap; }
+.rl-players, .rl-chips, .rl-actions{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.rl-player{ display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:92px; }
+.rl-player b{ font-size:12px; }
+.rl-player span{ font-size:11px; color:#9fd3ff; }
+.rl-chipbtn{ min-width:42px; border-radius:999px; }
+@media (max-width: 860px){
+  .rl-main{ grid-template-columns: 1fr; }
+  #rouletteWheel{ width:200px; height:200px; }
+}
 </style>
 </head>
 <body>
@@ -731,26 +960,33 @@ dialog.horse-edit-dialog::backdrop{
       <div class="info-chips">
         <div class="chip"><strong>State</strong><span id="stateChip">BETTING OPEN</span></div>
         <div class="status" id="betStatus"><span class="dot"></span><span id="betText">BETTING OPEN</span> <span class="countdown" id="betCountdown">(00:20)</span></div>
-        <div class="chip"><strong>Countdown</strong><span id="countdown">20</span>s</div>
-        <div class="chip"><strong>Course</strong><span id="courseChip">Grass Day</span></div>
+        <button type="button" class="chip" id="countdownChip" title="Betting countdown and next-race wait. Cycles 10, 15, 20, 25, and 30 seconds."><strong>Countdown</strong><span id="countdown">15</span>s</button>
+        <button type="button" class="chip" id="courseChipBtn" title="Course. Cycles Grass Day, Dirt Sunset, Night Neon, and Cyber Grid."><strong>Course</strong><span id="courseChip">Grass Day</span></button>
         <div class="odds" id="topOdds"></div>
       </div>
       <div class="controls">
-        <select id="courseSelect" title="Course Skin">
-          <option value="grass">Grass Day</option>
-          <option value="dirt">Dirt Sunset</option>
-          <option value="night">Night Neon</option>
-          <option value="cyber">Cyber Grid</option>
+        <button class="admin active" id="btnToggleView" title="Swap flat track and 3D broadcast">View: 3D</button>
+        <select id="cameraSelect" title="Camera">
+          <option value="broadcast">Broadcast</option>
+          <option value="rail">Rail</option>
+          <option value="chase">Chase</option>
+          <option value="finish">Finish Line</option>
+          <option value="stands">Grandstand</option>
+          <option value="drone">Drone</option>
+          <option value="jockey">Jockey</option>
+          <option value="orbit">Orbit</option>
         </select>
+        <button class="admin" id="btnCourse" title="Course setting. Cycles Grass Day, Dirt Sunset, Night Neon, and Cyber Grid.">Grass Day</button>
         <button class="admin" id="btnToggleTrack">Track: Course</button>
+        <button class="admin" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps.">Laps: 1</button>
         <button class="admin" id="btnChamp">Championship: Off</button>
         <button class="admin" id="btnBetToggle">Open Betting</button>
         <button class="admin" id="btnStartRace">Start Race Now</button>
         <button class="admin" id="btnNextHeat">Next Heat</button>
-        <button class="admin warn" id="btnSkipAnim">Skip Animation</button>
         <button class="admin" id="btnCommentary">Commentary</button>
         <button class="admin" id="btnRules">📜 Rules</button>
         <button class="admin" id="btnOddsMode">Odds: Fixed</button>
+        <button class="admin" id="btnRoulette" title="Open roulette. Pauses the horse race.">Roulette</button>
       </div>
       <div class="horse-strip-wrap">
         <div class="horse-strip" id="horseStrip" aria-label="Horse standings"></div>
@@ -833,12 +1069,30 @@ dialog.horse-edit-dialog::backdrop{
               </div>
             </div>
           </div>
+          <button type="button" id="trackRouletteBtn" class="track-roulette" aria-label="Open roulette">
+            <canvas id="trackRoulette" width="512" height="512"></canvas>
+          </button>
           <div class="count-overlay" id="countOverlay" style="display:none;">
             <div class="count-num" id="countNum">3</div>
           </div>
           <div class="results-overlay" id="resultsOverlay" style="display:none;">
             <div class="results-card" id="resultsCard"></div>
           </div>
+        </div>
+        <canvas id="view3dCanvas" class="view3d-canvas" aria-label="Three dimensional race"></canvas>
+        <div class="cam-hud" id="camHud">
+          <strong id="camHudName">Broadcast</strong>
+          <span id="camHudHint">V view · C camera · scroll zoom</span>
+        </div>
+        <div class="cam-bar" id="camBar" role="toolbar" aria-label="Cameras">
+          <button type="button" data-cam="broadcast">Broadcast</button>
+          <button type="button" data-cam="rail">Rail</button>
+          <button type="button" data-cam="chase">Chase</button>
+          <button type="button" data-cam="finish">Finish</button>
+          <button type="button" data-cam="stands">Grandstand</button>
+          <button type="button" data-cam="drone">Drone</button>
+          <button type="button" data-cam="jockey">Jockey</button>
+          <button type="button" data-cam="orbit">Orbit</button>
         </div>
       </div>
     </div>
@@ -852,12 +1106,44 @@ dialog.horse-edit-dialog::backdrop{
 
   <!-- FOOTER -->
   <div class="footer">
-    <div>Shortcuts: B = Toggle Betting, S = Start Race, N = Next Heat</div>
+    <div>Shortcuts: B = Betting, S = Start, N = Next, R = Roulette, V = 2D/3D, C = Camera</div>
     <div>Course skins are cosmetic only. House margin applied to odds.</div>
   </div>
 </div>
 
 <div class="scanlines"></div>
+
+<div id="rouletteLayer" class="roulette-layer" hidden>
+  <div class="roulette-panel" role="dialog" aria-modal="true" aria-labelledby="rouletteTitle" tabindex="-1">
+    <header class="rl-head">
+      <div>
+        <h2 id="rouletteTitle">Roulette</h2>
+        <p id="roulettePause">Horse racing is paused</p>
+      </div>
+      <button type="button" id="rouletteClose">Back to the race</button>
+    </header>
+    <div class="rl-main">
+      <div class="rl-wheel-col">
+        <canvas id="rouletteWheel" width="640" height="640" aria-label="Roulette wheel"></canvas>
+        <div id="rouletteCall" class="rl-call">Pick a player, a chip, and a number.</div>
+        <div id="rouletteHistory" class="rl-history"></div>
+      </div>
+      <div>
+        <div id="rouletteFelt" class="rl-felt"></div>
+        <div id="rouletteInside" class="rl-inside"></div>
+      </div>
+    </div>
+    <footer class="rl-foot">
+      <div id="roulettePlayers" class="rl-players"></div>
+      <div id="rouletteChips" class="rl-chips"></div>
+      <div class="rl-actions">
+        <button type="button" id="rouletteUndo">Undo</button>
+        <button type="button" id="rouletteClear">Clear</button>
+        <button type="button" id="rouletteSpin" class="primary">Spin</button>
+      </div>
+    </footer>
+  </div>
+</div>
 
 <!-- RULES MODAL (simple) -->
 <dialog id="rulesDialog">
@@ -867,6 +1153,8 @@ dialog.horse-edit-dialog::backdrop{
     <li><b>WIN</b>: stake × odds(winner)</li>
   </ul>
   <p>Trials: Top 2 from Trial A and Top 2 from Trial B advance to the Final. Final bet menu shows each qualifier’s trial result tag.</p>
+  <p>View swaps the flat track for a 3D broadcast. Pick a camera along the bottom, drag in Orbit, and scroll to zoom. V and C do the same from the keyboard.</p>
+  <p>Roulette uses the same player banks. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and red, black, odd, even, 1–18 and 19–36 pay 1:1. The horse race stays paused while the table is open. The wheel on the flat course, and the roulette table in the 3D infield, both open that game. Laps sets the race to 1, 2, or 3 circuits and starts at 1.</p>
   <div style="display:flex; gap:8px; justify-content:flex-end;">
     <button onclick="document.getElementById('rulesDialog').close()">Close</button>
   </div>
@@ -948,21 +1236,24 @@ dialog.horse-edit-dialog::backdrop{
     { "id": 4, "name": "Player 4", "bankroll": 250, "totalWinnings": 0, "bets": [] }
   ],
   "settings": {
-    "betCountdownSec": 30,
+    "countdownSec": 15,
+    "betCountdownSec": 15,
     "houseMargin": 1.15,
     "oddsClampMin": 1.5,
     "oddsClampMax": 15.0,
     "placeFactor": 0.5,
     "quinellaFactor": 0.25,
-    "resultsNextCountdownSec": 10
+    "resultsNextCountdownSec": 15
   }
 }
 </script>
 
+<script src="assets/three.min.js"></script>
+<script src="view3d.js"></script>
 <script>
 /* ==========================================================
-   ARCADE HORSE RACING — Single-file implementation
-   Vanilla JS, no frameworks, no external assets beyond sprites
+   ARCADE HORSE RACING
+   Flat track plus a Three.js broadcast view (view3d.js)
    ========================================================== */
 (() => {
   'use strict';
@@ -1006,8 +1297,8 @@ dialog.horse-edit-dialog::backdrop{
   const HORSE_SCALE_MAX = 1.35;
   const HORSE_BASE_W = 44;
   const HORSE_BASE_H = 34; // locked aspect ~1.294
-  const HORSE_STRIP_BASE_W = 28;
-  const HORSE_STRIP_BASE_H = 22;
+  const HORSE_STRIP_BASE_W = 72;
+  const HORSE_STRIP_BASE_H = 56;
 
   function normalizeHorse(h){
     if (!h.style) h.style = {};
@@ -1038,10 +1329,13 @@ dialog.horse-edit-dialog::backdrop{
       countdownEndAt: 0,
       trackMode: 'course', // 'course' | 'straight'
       trackTOffset: 0.125,
+      laps: 1,
+      viewMode: '3d',
       activePlayerCount: 3,
       championship: false,
       autoTimer: null,
-      oddsMode: 'fixed' // 'fixed' | 'random' | 'mixed'
+      oddsMode: 'fixed', // 'fixed' | 'random' | 'mixed'
+      rouletteOpen: false
     },
     history: [] // list of race summaries for ticker
   };
@@ -1055,11 +1349,10 @@ dialog.horse-edit-dialog::backdrop{
     betStatus: document.getElementById('betStatus'),
     betText: document.getElementById('betText'),
     betCountdown: document.getElementById('betCountdown'),
-    courseSelect: document.getElementById('courseSelect'),
+    btnCourse: document.getElementById('btnCourse'),
     btnBetToggle: document.getElementById('btnBetToggle'),
     btnStartRace: document.getElementById('btnStartRace'),
     btnNextHeat: document.getElementById('btnNextHeat'),
-    btnSkipAnim: document.getElementById('btnSkipAnim'),
     btnRules: document.getElementById('btnRules'),
     btnChamp: document.getElementById('btnChamp'),
     btnCommentary: document.getElementById('btnCommentary'),
@@ -1096,10 +1389,19 @@ dialog.horse-edit-dialog::backdrop{
 
   function getVisualLane(level){
     const cx = 500, cy = 300;
-    // Sized to leave room for stadium stands outside the rails
+    // Sized to leave room for stadium stands outside the rails.
+    // Every lane gets the same extra straight length, so the bends stay
+    // nested and horses cannot cross into another lane. The added length
+    // is the middle lane's bend, so a straight is run at the bend's pace.
     const baseR = 168, outerStraight = 340;
     const inset = 26 * level;
-    return { cx, cy, r: baseR - inset, straight: Math.max(40, outerStraight - inset * 2) };
+    const r = baseR - inset;
+    const straight = Math.max(40, outerStraight - inset * 2);
+    const midInset = 26 * 1.3;
+    const midR = baseR - midInset;
+    const midStraight = Math.max(40, outerStraight - midInset * 2);
+    const extra = Math.PI * midR - midStraight;
+    return { cx, cy, r, straight: straight + extra };
   }
 
   function svgEl(name, attrs){
@@ -1129,12 +1431,13 @@ dialog.horse-edit-dialog::backdrop{
     // Fill the rectangular frame so corners aren't bare course green
     group.appendChild(svgEl('rect', {
       x: 0, y: 0, width: 1000, height: 600,
-      fill: '#0d1520'
+      fill: '#0d1520', 'data-skin': 'plaza'
     }));
     // Plaza ring around the bowl
     group.appendChild(svgEl('rect', {
       x: 8, y: 8, width: 984, height: 584, rx: 18,
-      fill: '#162033', stroke: '#3d5573', 'stroke-width': 3
+      fill: '#162033', stroke: '#3d5573', 'stroke-width': 3,
+      'data-skin': 'frame'
     }));
 
     // Outer bowl / building mass
@@ -1157,14 +1460,16 @@ dialog.horse-edit-dialog::backdrop{
       { o: seats2, i: seats3, fill: 'url(#seatGradA)' },
       { o: seats3, i: seats4, fill: 'url(#seatGradB)' },
       // Dark apron between last seats and outer rail (not part of the racing surface)
-      { o: seats4, i: trackOuter, fill: '#152418' }
+      { o: seats4, i: trackOuter, fill: '#152418', skin: 'apron' }
     ];
     seatBands.forEach(band => {
-      group.appendChild(svgEl('path', {
+      const attrs = {
         d: stadiumRingD(band.o, band.i),
         fill: band.fill, 'fill-rule': 'evenodd',
         stroke: 'rgba(255,255,255,0.12)', 'stroke-width': 1.25
-      }));
+      };
+      if (band.skin) attrs['data-skin'] = band.skin;
+      group.appendChild(svgEl('path', attrs));
     });
 
     // Crowd speckles on upper tiers only
@@ -1199,7 +1504,8 @@ dialog.horse-edit-dialog::backdrop{
       const lane = getVisualLane(lv);
       group.appendChild(svgEl('path', {
         d: stadiumPathD(lane.cx, lane.cy, lane.r, lane.straight),
-        fill: 'none', stroke: 'rgba(255,255,255,0.14)', 'stroke-width': 1.25
+        fill: 'none', stroke: 'rgba(255,255,255,0.14)', 'stroke-width': 1.25,
+        'data-skin': 'lane'
       }));
     }
 
@@ -1207,13 +1513,15 @@ dialog.horse-edit-dialog::backdrop{
     group.appendChild(svgEl('path', {
       'data-lane': 'outer',
       d: stadiumPathD(trackOuter.cx, trackOuter.cy, trackOuter.r, trackOuter.straight),
-      fill: 'none', stroke: '#e8f0ff', 'stroke-width': 6, filter: 'url(#glow)'
+      fill: 'none', stroke: '#e8f0ff', 'stroke-width': 6, filter: 'url(#glow)',
+      'data-skin': 'rail-out'
     }));
     // Inner rail (inside track)
     group.appendChild(svgEl('path', {
       'data-lane': 'inner',
       d: stadiumPathD(trackInner.cx, trackInner.cy, trackInner.r, trackInner.straight),
-      fill: 'none', stroke: '#d7e6ff', 'stroke-width': 5, filter: 'url(#glow)'
+      fill: 'none', stroke: '#d7e6ff', 'stroke-width': 5, filter: 'url(#glow)',
+      'data-skin': 'rail-in'
     }));
 
     // Checkered finish line across the green band (top straight midpoint = race start/finish)
@@ -1233,16 +1541,17 @@ dialog.horse-edit-dialog::backdrop{
     // Infield grass
     group.appendChild(svgEl('path', {
       d: stadiumPathD(infield.cx, infield.cy, infield.r, infield.straight),
-      fill: 'rgba(36,70,28,0.85)', stroke: 'rgba(120,170,90,0.35)', 'stroke-width': 2
+      fill: 'rgba(36,70,28,0.85)', stroke: 'rgba(120,170,90,0.35)', 'stroke-width': 2,
+      'data-skin': 'infield'
     }));
 
     // Light towers / sector posts at the four corners of the bowl
     // Race order from finish-line start (t=0.125): top-right → bottom-right → bottom-left → top-left
     const posts = [
-      { x: shell.cx + shell.straight/2 + 8, y: shell.cy - shell.r * 0.72, t: 0.25 }, // top-right
-      { x: shell.cx + shell.straight/2 + 8, y: shell.cy + shell.r * 0.72, t: 0.50 }, // bottom-right
-      { x: shell.cx - shell.straight/2 - 8, y: shell.cy + shell.r * 0.72, t: 0.75 }, // bottom-left
-      { x: shell.cx - shell.straight/2 - 8, y: shell.cy - shell.r * 0.72, t: 0.00 }  // top-left
+      { x: shell.cx + shell.straight/2 + 8, y: shell.cy - shell.r * 0.72, t: 0.25 },
+      { x: shell.cx + shell.straight/2 + 8, y: shell.cy + shell.r * 0.72, t: 0.50 },
+      { x: shell.cx - shell.straight/2 - 8, y: shell.cy + shell.r * 0.72, t: 0.75 },
+      { x: shell.cx - shell.straight/2 - 8, y: shell.cy - shell.r * 0.72, t: 0.00 }
     ];
     posts.forEach((post, i) => {
       group.appendChild(svgEl('rect', {
@@ -1260,24 +1569,56 @@ dialog.horse-edit-dialog::backdrop{
     // Finish post is drawn in #coursePostsLayer (above the striped finish flag)
   }
 
-  function stadiumPointAt(t, geom){
+  // Bend and straight take the same time, but their lengths differ by lane, so a
+  // raw join changes speed in one step. Ease the pace across each whole piece so
+  // the speed at the exit of a bend matches the straight it runs onto. Ends and
+  // midpoints stay put, so the posts and the finish line do not move.
+  function segmentWarp(u, k){
+    return u + (k - 1) * Math.sin(Math.PI * 2 * u) / (Math.PI * 2);
+  }
+
+  function laneSegmentKeys(geom){
+    const straight = geom.straight;
+    const bend = Math.PI * geom.r;
+    const meet = (straight + bend) * 0.5;
+    return {
+      straight: meet / Math.max(straight, 1),
+      bend: meet / Math.max(bend, 1)
+    };
+  }
+
+  function stadiumFrame(t, geom){
     const { cx, cy, r, straight } = geom;
-    let seg = (((t % 1) + 1) % 1) * 4;
+    const keys = laneSegmentKeys(geom);
+    const seg = t * 4;
     if (seg < 1){
-      const u = seg;
-      return { x: cx - straight/2 + straight*u, y: cy - r };
+      const u = segmentWarp(seg, keys.straight);
+      return { x: cx - straight/2 + straight * u, y: cy - r, rot: 0, flipX: false };
     } else if (seg < 2){
-      const u = seg - 1;
-      const a = -Math.PI/2 + Math.PI*u;
-      return { x: cx + straight/2 + r*Math.cos(a), y: cy + r*Math.sin(a) };
+      const u = segmentWarp(seg - 1, keys.bend);
+      const a = -Math.PI/2 + Math.PI * u;
+      const x = cx + straight/2 + r * Math.cos(a);
+      const y = cy + r * Math.sin(a);
+      const angle = Math.atan2(r * Math.cos(a), -r * Math.sin(a));
+      const o = orientFromTangent(angle);
+      return { x, y, rot: o.rot, flipX: o.flipX };
     } else if (seg < 3){
-      const u = seg - 2;
-      return { x: cx + straight/2 - straight*u, y: cy + r };
-    } else {
-      const u = seg - 3;
-      const a = Math.PI/2 + Math.PI*u;
-      return { x: cx - straight/2 + r*Math.cos(a), y: cy + r*Math.sin(a) };
+      const u = segmentWarp(seg - 2, keys.straight);
+      return { x: cx + straight/2 - straight * u, y: cy + r, rot: 0, flipX: true };
     }
+    const u = segmentWarp(seg - 3, keys.bend);
+    const a = Math.PI/2 + Math.PI * u;
+    const x = cx - straight/2 + r * Math.cos(a);
+    const y = cy + r * Math.sin(a);
+    const angle = Math.atan2(r * Math.cos(a), -r * Math.sin(a));
+    const o = orientFromTangent(angle);
+    return { x, y, rot: o.rot, flipX: o.flipX };
+  }
+
+  function stadiumPointAt(t, geom){
+    const tt = ((t % 1) + 1) % 1;
+    const p = stadiumFrame(tt, geom);
+    return { x: p.x, y: p.y };
   }
 
   function buildStraightStadium(group){
@@ -1364,18 +1705,21 @@ dialog.horse-edit-dialog::backdrop{
       const y = trackTop + (trackBot - trackTop) * (i / 8);
       group.appendChild(svgEl('line', {
         x1: startX, y1: y, x2: endX, y2: y,
-        stroke: 'rgba(255,255,255,0.16)', 'stroke-width': 1.5
+        stroke: 'rgba(255,255,255,0.16)', 'stroke-width': 1.5,
+        'data-skin': 'lane'
       }));
     }
 
     // Rails
     group.appendChild(svgEl('path', {
       d: `M ${startX} ${trackTop} L ${endX} ${trackTop}`,
-      stroke: 'rgba(255,255,255,0.7)', 'stroke-width': 5, fill: 'none', filter: 'url(#glow)'
+      stroke: 'rgba(255,255,255,0.7)', 'stroke-width': 5, fill: 'none', filter: 'url(#glow)',
+      'data-skin': 'rail-out'
     }));
     group.appendChild(svgEl('path', {
       d: `M ${startX} ${trackBot} L ${endX} ${trackBot}`,
-      stroke: 'rgba(255,255,255,0.7)', 'stroke-width': 5, fill: 'none', filter: 'url(#glow)'
+      stroke: 'rgba(255,255,255,0.7)', 'stroke-width': 5, fill: 'none', filter: 'url(#glow)',
+      'data-skin': 'rail-in'
     }));
 
     // Finish line at start (t=0) — horses run left→right to the far post
@@ -1440,6 +1784,7 @@ dialog.horse-edit-dialog::backdrop{
     if (stadiumGroup) buildOvalStadium(stadiumGroup);
     if (straightGroup) buildStraightStadium(straightGroup);
     buildCourseFinishPostOverlay();
+    paintFlatCourse(GAME.state.course);
   }
 
   let fitTopBarFrame = 0;
@@ -1536,12 +1881,66 @@ dialog.horse-edit-dialog::backdrop{
   }
 
   // ---------- Course skin visuals ----------
+  const COURSE_LOOK = {
+    grass: {
+      track: ['#6fad45', '#5a9438', '#45782c'],
+      infield: 'rgba(36,70,28,0.85)', infieldStroke: 'rgba(120,170,90,0.35)',
+      apron: '#152418', railOut: '#e8f0ff', railIn: '#d7e6ff',
+      lane: 'rgba(255,255,255,0.14)', frame: '#162033', frameStroke: '#3d5573', plaza: '#0d1520'
+    },
+    dirt: {
+      track: ['#e0a15a', '#c4844a', '#8d5a32'],
+      infield: '#6f7a32', infieldStroke: 'rgba(210,170,90,0.45)',
+      apron: '#4a3424', railOut: '#f6e7c8', railIn: '#e8c56b',
+      lane: 'rgba(255,236,200,0.22)', frame: '#3a2418', frameStroke: '#c4844a', plaza: '#1a100c'
+    },
+    night: {
+      track: ['#2f6a3e', '#1d4a2c', '#14361f'],
+      infield: '#102818', infieldStroke: 'rgba(120,170,255,0.28)',
+      apron: '#101820', railOut: '#d5e6ff', railIn: '#7eb6ff',
+      lane: 'rgba(160,200,255,0.24)', frame: '#0c1424', frameStroke: '#3d6a9a', plaza: '#060a12'
+    },
+    cyber: {
+      track: ['#0c4550', '#083038', '#041820'],
+      infield: '#03140e', infieldStroke: '#17f0ff',
+      apron: '#070812', railOut: '#17f0ff', railIn: '#ff3df6',
+      lane: 'rgba(23,240,255,0.45)', frame: '#041018', frameStroke: '#17f0ff', plaza: '#00060c'
+    }
+  };
+
+  function paintFlatCourse(id){
+    const look = COURSE_LOOK[id] || COURSE_LOOK.grass;
+    const stops = document.querySelectorAll('#trackSurface stop');
+    look.track.forEach((color, i) => {
+      if (stops[i]) stops[i].setAttribute('stop-color', color);
+    });
+    const paint = (skin, attr, value) => {
+      document.querySelectorAll(`[data-skin="${skin}"]`).forEach(el => el.setAttribute(attr, value));
+    };
+    paint('infield', 'fill', look.infield);
+    paint('infield', 'stroke', look.infieldStroke);
+    paint('apron', 'fill', look.apron);
+    paint('rail-out', 'stroke', look.railOut);
+    paint('rail-in', 'stroke', look.railIn);
+    paint('lane', 'stroke', look.lane);
+    paint('frame', 'fill', look.frame);
+    paint('frame', 'stroke', look.frameStroke);
+    paint('plaza', 'fill', look.plaza);
+  }
+
   function applyCourseSkin(id){
     els.track.classList.remove('grass','dirt','night','cyber');
     els.track.classList.add(id);
-    const grid = els.parallax.querySelector('.grid');
-    grid.style.display = id === 'cyber' ? 'block' : 'none';
-    document.getElementById('courseChip').textContent = GAME.courses.find(c=>c.id===id).name;
+    if (els.parallax){
+      els.parallax.classList.remove('grass','dirt','night','cyber');
+      els.parallax.classList.add(id);
+    }
+    const grid = els.parallax && els.parallax.querySelector('.grid');
+    if (grid) grid.style.display = id === 'cyber' ? 'block' : 'none';
+    paintFlatCourse(id);
+    const course = GAME.courses.find(c => c.id === id);
+    document.getElementById('courseChip').textContent = course ? course.name : id;
+    view3d.onCourse();
   }
 
   // ---------- Odds generation ----------
@@ -1621,12 +2020,10 @@ dialog.horse-edit-dialog::backdrop{
     // Build horses on path layer
     const layer = document.getElementById('horsesLayer');
     layer.innerHTML = '';
-    const laneCount = finalMode ? 4 : 8;
-    const ids = finalMode ? entered : GAME.horses.map(h=>h.id);
-    for (let i=0;i<laneCount;i++){
-      const horseId = finalMode ? ids[i] : i<ids.length ? ids[i] : null;
-      if (horseId == null) continue;
-      const h = GAME.horses.find(x=>x.id===horseId);
+    const ids = (entered && entered.length) ? entered.slice() : GAME.horses.map(h => h.id);
+    ids.forEach((horseId, i) => {
+      const h = GAME.horses.find(x => x.id === horseId);
+      if (!h) return;
       const horse = document.createElement('div');
       horse.className = 'horse';
       horse.dataset.horseId = String(horseId);
@@ -1645,7 +2042,7 @@ dialog.horse-edit-dialog::backdrop{
       const shadow = document.createElement('div'); shadow.className = 'shadow';
       horse.appendChild(shadow); horse.appendChild(rotWrap);
       layer.appendChild(horse);
-    }
+    });
     // Qualifier tags in Final
     if (finalMode){
       const tagMap = new Map();
@@ -1657,6 +2054,7 @@ dialog.horse-edit-dialog::backdrop{
         if (t){ const tagEl = hEl.querySelector('.tag'); tagEl.textContent = t; tagEl.style.display = 'block'; }
       });
     }
+    view3d.onField();
   }
 
   // ---------- Sidebar players ----------
@@ -1943,16 +2341,49 @@ dialog.horse-edit-dialog::backdrop{
 
   // ---------- Betting phases ----------
   let countdownTimer = null;
-  function openBetting(countdownSec = GAME.settings.betCountdownSec){
+  const COUNTDOWN_STEPS = [10, 15, 20, 25, 30];
+
+  function countdownSec(){
+    const n = GAME.settings.countdownSec || GAME.settings.betCountdownSec || 15;
+    return COUNTDOWN_STEPS.includes(n) ? n : COUNTDOWN_STEPS[0];
+  }
+
+  function showCountdownSetting(){
+    if (els.countdown) els.countdown.textContent = String(countdownSec());
+  }
+
+  function setCountdownSec(sec){
+    GAME.settings.countdownSec = sec;
+    GAME.settings.betCountdownSec = sec;
+    GAME.settings.resultsNextCountdownSec = sec;
+    showCountdownSetting();
+    if (GAME.state.phase === 'BETTING_OPEN'){
+      GAME.state.countdownEndAt = Date.now() + sec * 1000;
+      renderTopbar();
+    }
+    if (resultsCountdownTid) beginResultsCountdown(null);
+  }
+
+  function cycleCountdown(){
+    const i = Math.max(0, COUNTDOWN_STEPS.indexOf(countdownSec()));
+    setCountdownSec(COUNTDOWN_STEPS[(i + 1) % COUNTDOWN_STEPS.length]);
+  }
+
+  function openBetting(seconds){
     if (GAME.state.phase === 'RACING') return;
+    const span = (seconds == null) ? countdownSec() : seconds;
     GAME.state.phase = 'BETTING_OPEN';
     updateInfieldBoard();
     const now = Date.now();
-    GAME.state.countdownEndAt = now + countdownSec*1000;
+    GAME.state.countdownEndAt = now + span*1000;
     if (countdownTimer) clearInterval(countdownTimer);
     const countOverlay = document.getElementById('countOverlay');
     const countNum = document.getElementById('countNum');
     countdownTimer = setInterval(()=>{
+      if (GAME.state.rouletteOpen){
+        GAME.state.countdownEndAt += 200;
+        return;
+      }
       const ms = GAME.state.countdownEndAt - Date.now();
       if (ms <= 0){
         if (countOverlay) countOverlay.style.display = 'none';
@@ -1990,7 +2421,11 @@ dialog.horse-edit-dialog::backdrop{
     // setup auto 30s loop when not in championship mode
     if (!GAME.state.championship){
       if (GAME.state.autoTimer) clearTimeout(GAME.state.autoTimer);
-      GAME.state.autoTimer = setTimeout(()=>{
+      GAME.state.autoTimer = setTimeout(function autoRace(){
+        if (GAME.state.rouletteOpen){
+          GAME.state.autoTimer = setTimeout(autoRace, 1000);
+          return;
+        }
         if (GAME.state.phase !== 'RACING' && GAME.state.phase !== 'BETTING_OPEN'){
           // start a new single race
           GAME.state.heat = 'trialA';
@@ -2037,6 +2472,7 @@ dialog.horse-edit-dialog::backdrop{
     };
 
     const tick = () => {
+      if (GAME.state.rouletteOpen) return;
       if (n > 0){
         if (countOverlay && countNum){
           countOverlay.style.display = 'flex';
@@ -2098,6 +2534,12 @@ dialog.horse-edit-dialog::backdrop{
   const MAX_LAP_PER_SEC = 1 / 26; // hard speed cap (~even pace for a 26s lap)
   const MAX_LAP_PER_SEC_STRETCH = 1 / 20; // slight lift in final stretch to hit planned times
 
+  function raceLaps(){
+    const live = GAME.state.phase === 'RACING' || GAME.state.phase === 'RESULTS';
+    const n = (live && race && race.laps) ? race.laps : (GAME.state.laps || 1);
+    return Math.min(3, Math.max(1, n | 0));
+  }
+
   function startRace(){
     if (GAME.state.phase === 'RACING') return;
     clearRaceStartCountdown();
@@ -2110,9 +2552,11 @@ dialog.horse-edit-dialog::backdrop{
     const entered = GAME.state.entered;
     const horses = entered.map((id, idx)=>{
       const pace = assignPaceProfile(rng);
+      const gate = document.querySelector(`#horsesLayer .horse[data-horse-id="${id}"]`);
+      const drawn = gate && gate.dataset.laneOffset !== '' ? Number(gate.dataset.laneOffset) : idx;
       return {
         id,
-        laneIndex: idx,
+        laneIndex: Number.isFinite(drawn) ? drawn : idx,
         x: GAME.state.trackTOffset, // start at finish line midpoint
         vx: 0,
         finished: false,
@@ -2140,6 +2584,7 @@ dialog.horse-edit-dialog::backdrop{
       puffs: [],
       targets: plan.targets,
       plannedOrder: plan.order,
+      laps: Math.min(3, Math.max(1, (GAME.state.laps || 1) | 0)),
       winnerAnnounced: false
     };
     resetCoursePostLights();
@@ -2157,6 +2602,11 @@ dialog.horse-edit-dialog::backdrop{
 
   function tickRace(ts){
     if (!race) return;
+    if (race.paused){
+      race.lastTime = ts;
+      if (!race.done && !race.skip) rafId = requestAnimationFrame(tickRace);
+      return;
+    }
     const dt = (ts - race.lastTime)/1000 || 0;
     race.lastTime = ts;
     stepRace(dt);
@@ -2171,10 +2621,11 @@ dialog.horse-edit-dialog::backdrop{
     r.horses.forEach(h=>{
       if (h.finished) return;
 
-      const target = r.targets[h.id] || 12; // seconds to finish
+      const laps = r.laps || 1;
+      const target = (r.targets[h.id] || 12) * laps;
       const u = clamp(r.elapsed / target, 0, 1);
       // Style curve drives track position; planned target still decides when they finish
-      const progress = paceProgress(u, h.style || 'even', h.amp || 0.05);
+      const progress = paceProgress(u, h.style || 'even', h.amp || 0.05) * laps;
       const desiredX = GAME.state.trackTOffset + progress;
       // Cap instantaneous speed so surges stay readable; allow a bit more in the stretch
       const maxSpeed = u > 0.88 ? MAX_LAP_PER_SEC_STRETCH : MAX_LAP_PER_SEC;
@@ -2194,7 +2645,7 @@ dialog.horse-edit-dialog::backdrop{
       }
 
       if (u >= 1){
-        h.x = GAME.state.trackTOffset + 1; // end exactly at finish line
+        h.x = GAME.state.trackTOffset + laps;
         h.finished = true; h.finishTime = target;
         r.order.push(h.id);
         // place badge for 1st/2nd/3rd
@@ -2226,6 +2677,16 @@ dialog.horse-edit-dialog::backdrop{
     renderRacePositions();
     updateHorseStrip();
     updateCoursePostLights();
+    if ((r.laps || 1) > 1){
+      const heatEl = document.getElementById('gbHeatName');
+      if (heatEl){
+        const lead = currentRaceLeader();
+        const along = lead ? Math.max(0, lead.x - (GAME.state.trackTOffset || 0)) : 0;
+        const lapNow = Math.min(r.laps, Math.floor(along) + 1);
+        const text = `${heatLabel(GAME.state.heat)} · Lap ${lapNow}/${r.laps}`;
+        if (heatEl.textContent !== text) heatEl.textContent = text;
+      }
+    }
     // Sync graphics: underway → leader at halfway → winner on first finish
     if (GAME.state.trackMode === 'course' && race && !race.done){
       if (race.winnerAnnounced || (race.order && race.order.length >= 1)){
@@ -2296,9 +2757,9 @@ dialog.horse-edit-dialog::backdrop{
     const sy = trackRect.height / 600;
     layer.querySelectorAll('.horse').forEach(hEl=>{
       const id = Number(hEl.dataset.horseId);
-      const laneIndex = Number(hEl.dataset.laneOffset) || 0;
       const hs = race.horses.find(h=>h.id===id);
       if (!hs) return;
+      const laneIndex = Number.isFinite(hs.laneIndex) ? hs.laneIndex : (Number(hEl.dataset.laneOffset) || 0);
       const p = pointForMode(hs.x, laneIndex);
       const x = p.x * sx;
       const y = p.y * sy;
@@ -2391,10 +2852,10 @@ dialog.horse-edit-dialog::backdrop{
     clearResultsCountdown();
     const overlay = document.getElementById('resultsOverlay');
     if (overlay) overlay.style.display = 'none';
-    renderRacePositionsInitial();
-    placeFinishFlag();
+    // The finished race must not keep drawing horses. The new stalls
+    // are assigned and shown now, before the 3-2-1.
+    race = null;
     if (GAME.state.championship){
-      // Advance heat state without opening a long betting window
       if (GAME.state.heat === 'trialA'){
         GAME.state.heat = 'trialB';
       } else if (GAME.state.heat === 'trialB'){
@@ -2404,25 +2865,28 @@ dialog.horse-edit-dialog::backdrop{
         GAME.state.cupIndex = (GAME.state.cupIndex + 1) % GAME.cups.length;
         GAME.state.qualifiers = { trialA: [], trialB: [] };
       }
-      GAME.players.forEach(p => { p.bets = []; });
-      setupHeat();
     } else {
       GAME.state.heat = 'trialA';
       GAME.state.qualifiers = { trialA: [], trialB: [] };
-      setupHeat();
     }
-    // Always 3-2-1 (and commentary at 3) before the next race
+    GAME.players.forEach(p => { p.bets = []; });
+    GAME.state.phase = 'BETTING_CLOSED';
+    setupHeat();
     beginRaceStartCountdown();
   }
 
   function beginResultsCountdown(externalTimerEl){
     clearResultsCountdown();
     resultsProceeded = false;
-    const total = (CONFIG.settings.resultsNextCountdownSec||10);
+    const total = countdownSec();
     let endAt = Date.now() + total*1000;
     const nextLabel = GAME.state.championship ? 'heat' : 'race';
     const useInfieldBtn = GAME.state.trackMode === 'course' && !externalTimerEl;
     const updateTimer = () => {
+      if (GAME.state.rouletteOpen){
+        endAt += 200;
+        return;
+      }
       const ms = endAt - Date.now();
       const s = Math.max(0, Math.ceil(ms/1000));
       const clock = `00:${(s<10?'0':'')+s}`;
@@ -2444,12 +2908,6 @@ dialog.horse-edit-dialog::backdrop{
     };
     updateTimer();
     resultsCountdownTid = setInterval(updateTimer, 200);
-    setTimeout(() => {
-      if (!resultsProceeded){
-        renderRacePositionsInitial();
-        placeFinishFlag();
-      }
-    }, total*1000 + 50);
   }
 
   function showStraightResultsOverlay(sorted, order){
@@ -2527,12 +2985,15 @@ dialog.horse-edit-dialog::backdrop{
 
   function setupHeat(){
     const entrants = entrantsForHeat();
-    // randomize lane order per heat for variety
+    // Lane draw happens only when a race is reset. Changing the lap
+    // count afterwards must not move anyone.
     GAME.state.entered = shuffle(entrants);
     computeOdds();
     buildTrack();
     buildPlayers();
     renderTopbar();
+    renderRacePositionsInitial();
+    placeFinishFlag();
     updateInfieldBoard();
   }
 
@@ -2546,16 +3007,15 @@ dialog.horse-edit-dialog::backdrop{
     const open = GAME.state.phase === 'BETTING_OPEN';
     els.betStatus.classList.toggle('closed', !open);
     els.betText.textContent = open ? 'BETTING OPEN' : (GAME.state.phase==='RACING' ? 'RACING' : 'BETTING CLOSED');
+    showCountdownSetting();
     if (open){
       const ms = GAME.state.countdownEndAt - Date.now();
       els.betCountdown.textContent = `(${msToClock(ms)})`;
-      els.countdown.textContent = Math.max(0, Math.ceil(ms/1000));
     } else {
       els.betCountdown.textContent = '';
     }
     updateBetToggleLabel();
-    // Disable course select when not open
-    if (els.courseSelect){ els.courseSelect.disabled = !open; }
+    syncStartRaceButton();
     // Update top odds chips
     const topOdds = document.getElementById('topOdds');
     if (topOdds){ topOdds.innerHTML = oddsChipsHTML(); }
@@ -2636,53 +3096,30 @@ dialog.horse-edit-dialog::backdrop{
   }
 
   function pointForMode(t, laneIndex){
-    const tt = ((t % 1) + 1) % 1; // normalize to [0,1)
+    const offset = GAME.state.trackTOffset || 0;
+    let along = t - offset;
+    if (!Number.isFinite(along) || along < 0) along = 0;
     if (GAME.state.trackMode === 'course') {
+      // Closed loop. Lap count never changes which point, or which lane, is drawn.
+      const tt = ((t % 1) + 1) % 1;
       return stadiumPoint(tt, laneIndex);
     } else {
       // straight horizontal track in svg space across width
       const startX = 80; const endX = 920;
       const trackTop = 205, trackBot = 395;
       const laneCount = currentLaneCount();
-      const u = laneCount <= 1 ? 0.5 : laneIndex / (laneCount - 1);
-      const y = trackTop + 14 + u * ((trackBot - trackTop) - 28);
-      const x = startX + (endX - startX) * tt;
+      const laneU = laneCount <= 1 ? 0.5 : laneIndex / (laneCount - 1);
+      const y = trackTop + 14 + laneU * ((trackBot - trackTop) - 28);
+      const whole = Math.floor(along + 1e-9);
+      const frac = along - whole;
+      const prog = (frac < 1e-4 && whole > 0) ? 1 : frac;
+      const x = startX + (endX - startX) * prog;
       return { x, y, rot: 0, flipX: false };
     }
   }
 
   function stadiumPoint(t, laneIndex){
-    const geom = getLaneGeom(laneIndex);
-    const { cx, cy, r, straight } = geom;
-    // Segments: 0) top straight L->R, 1) right turn top->bottom, 2) bottom straight R->L, 3) left turn bottom->top
-    let seg = t * 4;
-    if (seg < 1){
-      const u = seg;
-      const x = cx - straight/2 + straight*u;
-      const y = cy - r;
-      return { x, y, rot: 0, flipX: false };
-    } else if (seg < 2){
-      const u = seg - 1;
-      const a = -Math.PI/2 + Math.PI*u;
-      const x = cx + straight/2 + r*Math.cos(a);
-      const y = cy + r*Math.sin(a);
-      const angle = Math.atan2(r*Math.cos(a), -r*Math.sin(a));
-      const o = orientFromTangent(angle);
-      return { x, y, rot: o.rot, flipX: o.flipX };
-    } else if (seg < 3){
-      const u = seg - 2;
-      const x = cx + straight/2 - straight*u;
-      const y = cy + r;
-      return { x, y, rot: 0, flipX: true };
-    } else {
-      const u = seg - 3;
-      const a = Math.PI/2 + Math.PI*u;
-      const x = cx - straight/2 + r*Math.cos(a);
-      const y = cy + r*Math.sin(a);
-      const angle = Math.atan2(r*Math.cos(a), -r*Math.sin(a));
-      const o = orientFromTangent(angle);
-      return { x, y, rot: o.rot, flipX: o.flipX };
-    }
+    return stadiumFrame(t, getLaneGeom(laneIndex));
   }
 
   function placeFinishFlag(){
@@ -2730,7 +3167,8 @@ dialog.horse-edit-dialog::backdrop{
   function raceLeaderProgress(){
     const lead = currentRaceLeader();
     if (!lead) return 0;
-    return clamp(lead.x - GAME.state.trackTOffset, 0, 1);
+    const laps = raceLaps();
+    return clamp((lead.x - GAME.state.trackTOffset) / laps, 0, 1);
   }
 
   function postProgressFromStart(postT){
@@ -2756,10 +3194,16 @@ dialog.horse-edit-dialog::backdrop{
   function updateCoursePostLights(){
     if (GAME.state.trackMode !== 'course' || !race || !race.horses) return;
     // Furthest progress of any horse (first horse to reach each post)
-    let maxProg = 0;
+    let maxAlong = 0;
     race.horses.forEach(h => {
-      maxProg = Math.max(maxProg, clamp(h.x - GAME.state.trackTOffset, 0, 1));
+      maxAlong = Math.max(maxAlong, h.x - GAME.state.trackTOffset);
     });
+    const lapIndex = Math.floor(Math.max(0, maxAlong));
+    if (race.postLap !== lapIndex){
+      race.postLap = lapIndex;
+      resetCoursePostLights();
+    }
+    const maxProg = clamp(maxAlong - lapIndex, 0, 1);
     document.querySelectorAll('.course-post-light').forEach(el => {
       const postT = Number(el.getAttribute('data-post-t'));
       const need = postProgressFromStart(postT);
@@ -2819,6 +3263,7 @@ dialog.horse-edit-dialog::backdrop{
     });
     updateHorseStrip(true);
     updateGraphicsBoard();
+    view3d.onField();
   }
 
   function setGraphicsFeaturedHorse(horseId, show){
@@ -2869,7 +3314,10 @@ dialog.horse-edit-dialog::backdrop{
     const statusEl = document.getElementById('gbStatus');
     const nextBtn = document.getElementById('infieldNextBtn');
     if (raceEl) raceEl.textContent = raceDisplayName();
-    if (heatEl) heatEl.textContent = heatLabel(GAME.state.heat);
+    if (heatEl){
+      const laps = raceLaps();
+      heatEl.textContent = laps > 1 ? `${heatLabel(GAME.state.heat)} · ${laps} laps` : heatLabel(GAME.state.heat);
+    }
 
     let stage = 'start';
     let icon = '🏁';
@@ -2945,42 +3393,93 @@ dialog.horse-edit-dialog::backdrop{
     updateHorseStrip();
   }
 
+  function infieldMetrics(){
+    const track = document.getElementById('track');
+    if (!track) return null;
+    const rect = track.getBoundingClientRect();
+    if (rect.width < 40 || rect.height < 40) return null;
+    const hole = getVisualLane(2.75);
+    const sx = rect.width / 1000;
+    const sy = rect.height / 600;
+    const grassTop = (hole.cy - hole.r) * sy;
+    const grassH = hole.r * 2 * sy;
+    const cx = hole.cx * sx;
+    const cy = hole.cy * sy;
+    const margin = Math.max(6, Math.round(8 * Math.min(sx, sy)));
+    const usableW = Math.max(80, hole.straight * sx - margin * 2);
+    const usableH = Math.max(48, grassH - margin * 2);
+    const gap = Math.max(8, Math.round(12 * sx));
+    let wheel = Math.floor(Math.min(usableH * 0.86, usableW * 0.34));
+    wheel = Math.max(52, wheel);
+    let boardW = Math.floor(usableW - wheel - gap);
+    if (boardW < 96){
+      wheel = Math.max(52, Math.floor(usableW * 0.3));
+      boardW = Math.floor(usableW - wheel - gap);
+    }
+    const boardH = Math.floor(Math.min(usableH * 0.9, Math.max(wheel, 72)));
+    const totalW = wheel + gap + boardW;
+    const originX = cx - totalW / 2;
+    return {
+      hole, sx, sy, grassTop, grassH, cx, cy, wheel, boardW, boardH, gap,
+      wheelCx: originX + wheel / 2,
+      boardCx: originX + wheel + gap + boardW / 2
+    };
+  }
+
+  function placeTrackRoulette(){
+    const btn = document.getElementById('trackRouletteBtn');
+    if (!btn) return;
+    const course2d = GAME.state.viewMode !== '3d' && GAME.state.trackMode === 'course';
+    if (!course2d){
+      btn.style.width = '';
+      btn.style.height = '';
+      btn.style.left = '';
+      btn.style.top = '';
+      return;
+    }
+    const m = infieldMetrics();
+    if (!m) return;
+    btn.style.width = m.wheel + 'px';
+    btn.style.height = m.wheel + 'px';
+    btn.style.left = m.wheelCx + 'px';
+    btn.style.top = m.cy + 'px';
+  }
+
   function fitInfieldBoard(){
     const board = document.getElementById('infieldBoard');
     const inner = document.getElementById('gbInner');
     const track = document.getElementById('track');
-    if (!board || !inner || !track || GAME.state.trackMode !== 'course') return;
+    placeTrackRoulette();
+    if (!board || !inner || !track) return;
     if (!board.classList.contains('show')) return;
-    const rect = track.getBoundingClientRect();
-    if (rect.height < 40 || rect.width < 40) return;
+    if (GAME.state.viewMode === '3d'){
+      board.style.width = '';
+      board.style.height = '';
+      board.style.maxWidth = '';
+      board.style.maxHeight = '';
+      board.style.left = '';
+      board.style.top = '';
+      board.style.transform = '';
+      inner.style.transform = '';
+      return;
+    }
+    if (GAME.state.trackMode !== 'course') return;
+    const m = infieldMetrics();
+    if (!m) return;
 
-    // Grass infield stadium (inside the inner rail) — size a rectangle that fits inside it
-    const hole = getVisualLane(2.75);
-    const { r, straight } = hole;
-    const sx = rect.width / 1000;
-    const sy = rect.height / 600;
+    const { cy, boardW, boardH, boardCx } = m;
+    board.style.width = boardW + 'px';
+    board.style.height = boardH + 'px';
+    board.style.maxWidth = boardW + 'px';
+    board.style.maxHeight = boardH + 'px';
+    board.style.left = boardCx + 'px';
+    board.style.top = cy + 'px';
+    board.style.transform = 'translate(-50%, -50%)';
 
-    // Height first (leave margin from top/bottom of infield)
-    const boxHSvg = r * 2 * 0.78;
-    const halfH = boxHSvg / 2;
-    // At the rectangle's top/bottom corners, end-cap half-width is straight/2 + sqrt(r² − halfH²)
-    // (narrower than the AABB, so corners stay off the racing surface)
-    const halfW = straight / 2 + Math.sqrt(Math.max(0, r * r - halfH * halfH));
-    const safety = 10; // extra SVG-unit inset clear of the rail
-    const boxWSvg = Math.max(48, halfW * 2 - safety * 2);
-
-    const boxW = Math.max(48, Math.floor(boxWSvg * sx));
-    const boxH = Math.max(48, Math.floor(boxHSvg * sy));
-    board.style.width = boxW + 'px';
-    board.style.height = boxH + 'px';
-    board.style.maxWidth = boxW + 'px';
-    board.style.maxHeight = boxH + 'px';
-
-    // Scale inner content to fit inside the locked panel (never upscale past 1)
     inner.style.transform = 'scale(1)';
     const pad = 8;
-    const availW = Math.max(32, boxW - pad * 2);
-    const availH = Math.max(32, boxH - pad * 2);
+    const availW = Math.max(32, boardW - pad * 2);
+    const availH = Math.max(32, boardH - pad * 2);
     const iw = Math.max(1, inner.scrollWidth);
     const ih = Math.max(1, inner.scrollHeight);
     const scale = Math.max(0.4, Math.min(availW / iw, availH / ih, 1));
@@ -3074,11 +3573,9 @@ dialog.horse-edit-dialog::backdrop{
       else if (placed && e.pos <= 3) posText = e.pos === 1 ? '🥇' : e.pos === 2 ? '🥈' : '🥉';
       else if (mode === 'live' || mode === 'results') posText = String(e.pos);
       btn.innerHTML = `
-        <div class="hs-pos">${posText}</div>
-        <div class="hs-name">${h.name}</div>
+        <div class="hs-panel"><div class="hs-name">${h.name}</div><div class="hs-pos">${posText}</div></div>
         <img src="${h.sprite}" alt="H${h.id}" onerror="this.style.display='none'"/>
-        <div class="hs-id">H${h.id}</div>
-        <div class="hs-od">${od}</div>`;
+        <div class="hs-meta"><div class="hs-id">H${h.id}</div><div class="hs-od">${od}</div></div>`;
       const nameEl = btn.querySelector('.hs-name');
       const imgEl = btn.querySelector('img');
       applyHorseTextStyle(nameEl, h);
@@ -3236,13 +3733,20 @@ dialog.horse-edit-dialog::backdrop{
   }
 
   // ---------- Admin buttons ----------
-  els.courseSelect.addEventListener('change', e => {
-    // Allow course change whenever betting is open; block otherwise
-    if (GAME.state.phase !== 'BETTING_OPEN') return;
-    GAME.state.course = e.target.value;
+  function cycleCourse(){
+    const ids = GAME.courses.map(c => c.id);
+    const i = Math.max(0, ids.indexOf(GAME.state.course));
+    GAME.state.course = ids[(i + 1) % ids.length];
     applyCourseSkin(GAME.state.course);
+    const course = GAME.courses.find(c => c.id === GAME.state.course);
+    setControlLabel(els.btnCourse, course ? course.name : 'Grass Day');
     scheduleFitTopBar();
-  });
+  }
+  els.btnCourse.onclick = () => cycleCourse();
+  const courseChipBtn = document.getElementById('courseChipBtn');
+  if (courseChipBtn) courseChipBtn.onclick = () => cycleCourse();
+  const countdownChip = document.getElementById('countdownChip');
+  if (countdownChip) countdownChip.onclick = () => cycleCountdown();
   // Betting toggle
   if (els.btnBetToggle){
     els.btnBetToggle.onclick = () => {
@@ -3256,6 +3760,11 @@ dialog.horse-edit-dialog::backdrop{
     const text = GAME.state.phase === 'BETTING_OPEN' ? 'Close Betting' : 'Open Betting';
     setControlLabel(els.btnBetToggle, text);
     scheduleFitTopBar();
+  }
+
+  function syncStartRaceButton(){
+    if (!els.btnStartRace) return;
+    els.btnStartRace.classList.toggle('is-racing', GAME.state.phase === 'RACING');
   }
 
   // Championship toggle button
@@ -3281,14 +3790,26 @@ dialog.horse-edit-dialog::backdrop{
   if (btnOddsMode){
     btnOddsMode.onclick = () => cycleOddsMode();
   }
+  document.getElementById('btnLaps').onclick = () => {
+    if (GAME.state.phase === 'RACING') return;
+    GAME.state.laps = (GAME.state.laps % 3) + 1;
+    setControlLabel(document.getElementById('btnLaps'), `Laps: ${GAME.state.laps}`);
+    // Lap length is stored for the next start. It does not redraw the grid.
+    const heatEl = document.getElementById('gbHeatName');
+    if (heatEl && GAME.state.phase !== 'RACING' && GAME.state.phase !== 'RESULTS'){
+      const laps = GAME.state.laps;
+      heatEl.textContent = laps > 1 ? `${heatLabel(GAME.state.heat)} · ${laps} laps` : heatLabel(GAME.state.heat);
+    }
+  };
   document.getElementById('btnToggleTrack').onclick = () => {
     // Allow toggling track shape whenever betting is open; block during racing
     if (GAME.state.phase === 'RACING') return;
     GAME.state.trackMode = GAME.state.trackMode === 'course' ? 'straight' : 'course';
+    GAME.state.trackTOffset = GAME.state.trackMode === 'course' ? 0.125 : 0;
+    view3d.onTrack();
     const btn = document.getElementById('btnToggleTrack');
     setControlLabel(btn, `Track: ${GAME.state.trackMode === 'course' ? 'Course' : 'Straight'}`);
     scheduleFitTopBar();
-    GAME.state.trackTOffset = GAME.state.trackMode === 'course' ? 0.125 : 0;
     const stg = document.getElementById('stadiumGroup');
     const sgg = document.getElementById('straightGroup');
     if (stg && sgg){ stg.style.display = GAME.state.trackMode==='course' ? 'block' : 'none'; sgg.style.display = GAME.state.trackMode==='course' ? 'none' : 'block'; }
@@ -3296,6 +3817,7 @@ dialog.horse-edit-dialog::backdrop{
     renderRacePositionsInitial();
     placeFinishFlag();
     updateInfieldBoard();
+    syncTrackRoulette();
   };
   els.btnStartRace.onclick = () => {
     if (GAME.state.phase === 'RACING') return;
@@ -3307,24 +3829,665 @@ dialog.horse-edit-dialog::backdrop{
       advanceHeat();
     }
   };
-  els.btnSkipAnim.onclick = () => {
-    if (race && GAME.state.phase==='RACING'){
-      race.skip = true;
-      // fast-forward using planned finish times so results match odds
-      race.horses.forEach(h => {
-        h.x = GAME.state.trackTOffset + 1;
-        h.finished = true;
-        h.finishTime = race.targets[h.id] ?? Math.random();
-      });
-      setFinishLineLight('#ff3b3b');
-      finishRace();
-    }
-  };
   els.btnRules.onclick = () => document.getElementById('rulesDialog').showModal();
+
+  // ---------- Roulette ----------
+  const ROULETTE_WHEEL = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+  const ROULETTE_RED = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+  const ROULETTE_CHIPS = [5, 10, 25, 50, 100];
+  const PLAYER_CHIP = { 1: '#3dff9a', 2: '#5cc8ff', 3: '#ffd166', 4: '#ff7ad9' };
+  const roulette = {
+    spinning: false,
+    bets: [],
+    playerId: 1,
+    chip: 10,
+    history: [],
+    focus: 17,
+    wheelAngle: 0,
+    raf: 0,
+    commentaryHeld: false
+  };
+
+  function rouletteColorName(n){
+    if (n === 0) return 'green';
+    return ROULETTE_RED.has(n) ? 'red' : 'black';
+  }
+  function roulettePlayer(id){
+    return GAME.players.find(p => p.id === id) || null;
+  }
+  function rouletteAvailable(p){
+    return Math.max(0, p.bankroll - currentCommittedStake(p));
+  }
+  function rouletteNeighbors(n){
+    if (n === 0) return [1, 2, 3];
+    const row = (n - 1) % 3;
+    const col = Math.floor((n - 1) / 3);
+    const list = [];
+    if (row < 2) list.push(n + 1);
+    if (row > 0) list.push(n - 1);
+    if (col < 11) list.push(n + 3);
+    if (col > 0) list.push(n - 3);
+    if (col === 0) list.push(0);
+    return list;
+  }
+  function rouletteStreet(n){
+    if (n <= 0) return null;
+    const base = Math.floor((n - 1) / 3) * 3 + 1;
+    return [base, base + 1, base + 2];
+  }
+  function rouletteCorners(n){
+    const out = [];
+    for (let col = 0; col < 11; col++){
+      for (let row = 0; row < 2; row++){
+        const bl = col * 3 + row + 1;
+        const set = [bl, bl + 1, bl + 3, bl + 4];
+        if (set.includes(n)) out.push(set);
+      }
+    }
+    return out;
+  }
+  function rouletteLines(n){
+    if (n <= 0) return [];
+    const col = Math.floor((n - 1) / 3);
+    const out = [];
+    [col - 1, col].forEach(c => {
+      if (c >= 0 && c < 11){
+        const a = c * 3 + 1;
+        out.push([a, a + 1, a + 2, a + 3, a + 4, a + 5]);
+      }
+    });
+    return out;
+  }
+  function rouletteRange(a, b){
+    const nums = [];
+    for (let n = a; n <= b; n++) nums.push(n);
+    return nums;
+  }
+  function rouletteColumn(col){
+    const nums = [];
+    for (let i = 0; i < 12; i++) nums.push(i * 3 + col);
+    return nums;
+  }
+  function rouletteOutside(kind){
+    if (kind === 'red') return [...ROULETTE_RED];
+    if (kind === 'black') return rouletteRange(1, 36).filter(n => !ROULETTE_RED.has(n));
+    if (kind === 'odd') return rouletteRange(1, 36).filter(n => n % 2 === 1);
+    if (kind === 'even') return rouletteRange(1, 36).filter(n => n % 2 === 0);
+    if (kind === 'low') return rouletteRange(1, 18);
+    return rouletteRange(19, 36);
+  }
+
+  function setRouletteCall(text){
+    const el = document.getElementById('rouletteCall');
+    if (el) el.textContent = text;
+  }
+
+  function placeRouletteBet(spec){
+    if (roulette.spinning) return;
+    const p = roulettePlayer(roulette.playerId);
+    if (!p) return;
+    if (rouletteAvailable(p) < roulette.chip){
+      setRouletteCall(`${p.name} does not have enough for a ${roulette.chip} chip.`);
+      return;
+    }
+    const numbers = spec.numbers.slice().sort((a, b) => a - b);
+    const key = `${p.id}|${spec.type}|${numbers.join(',')}`;
+    const existing = roulette.bets.find(b => b.key === key);
+    if (existing) existing.stake += roulette.chip;
+    else {
+      roulette.bets.push({
+        key,
+        playerId: p.id,
+        type: spec.type,
+        numbers,
+        odds: spec.odds,
+        stake: roulette.chip,
+        label: spec.label,
+        anchor: spec.anchor
+      });
+    }
+    p.bankroll -= roulette.chip;
+    updateBankrollDisplays();
+    setRouletteCall(`${p.name} · ${spec.label} · ${roulette.chip}`);
+    paintRouletteBets();
+    paintRoulettePlayers();
+  }
+
+  function refundRouletteBet(bet, amount){
+    const p = roulettePlayer(bet.playerId);
+    if (p) p.bankroll += amount;
+  }
+
+  function undoRoulette(){
+    if (roulette.spinning) return;
+    for (let i = roulette.bets.length - 1; i >= 0; i--){
+      const bet = roulette.bets[i];
+      if (bet.playerId !== roulette.playerId) continue;
+      const back = Math.min(roulette.chip, bet.stake);
+      bet.stake -= back;
+      refundRouletteBet(bet, back);
+      if (bet.stake <= 0) roulette.bets.splice(i, 1);
+      updateBankrollDisplays();
+      paintRouletteBets();
+      paintRoulettePlayers();
+      setRouletteCall('Last chip removed.');
+      return;
+    }
+  }
+
+  function clearRoulettePlayer(){
+    if (roulette.spinning) return;
+    roulette.bets = roulette.bets.filter(bet => {
+      if (bet.playerId !== roulette.playerId) return true;
+      refundRouletteBet(bet, bet.stake);
+      return false;
+    });
+    updateBankrollDisplays();
+    paintRouletteBets();
+    paintRoulettePlayers();
+    setRouletteCall('Bets cleared.');
+  }
+
+  function paintRouletteBets(){
+    document.querySelectorAll('#rouletteFelt [data-anchor], #rouletteInside [data-anchor]').forEach(el => {
+      const anchor = el.dataset.anchor;
+      const stack = el.querySelector('.rl-stack');
+      if (stack) stack.remove();
+      const mine = roulette.bets.filter(b => b.anchor === anchor);
+      if (!mine.length) return;
+      const holder = document.createElement('span');
+      holder.className = 'rl-stack';
+      mine.slice(0, 3).forEach(b => {
+        const token = document.createElement('span');
+        token.className = 'rl-token';
+        token.style.background = PLAYER_CHIP[b.playerId] || '#fff';
+        token.textContent = String(b.stake);
+        holder.appendChild(token);
+      });
+      el.appendChild(holder);
+    });
+  }
+
+  function paintRoulettePlayers(){
+    const host = document.getElementById('roulettePlayers');
+    if (!host) return;
+    host.innerHTML = '';
+    activePlayers().forEach(p => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rl-player' + (p.id === roulette.playerId ? ' on' : '');
+      btn.innerHTML = `<b>${p.name}</b><span>Bank ${formatMoney(rouletteAvailable(p))}</span>`;
+      btn.onclick = () => {
+        if (roulette.spinning) return;
+        roulette.playerId = p.id;
+        paintRoulettePlayers();
+      };
+      host.appendChild(btn);
+    });
+    const chips = document.getElementById('rouletteChips');
+    if (chips && !chips.childElementCount){
+      ROULETTE_CHIPS.forEach(v => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'rl-chipbtn' + (v === roulette.chip ? ' on' : '');
+        b.textContent = String(v);
+        b.onclick = () => {
+          roulette.chip = v;
+          chips.querySelectorAll('.rl-chipbtn').forEach(el => el.classList.toggle('on', Number(el.textContent) === v));
+        };
+        chips.appendChild(b);
+      });
+    }
+  }
+
+  function paintRouletteHistory(){
+    const host = document.getElementById('rouletteHistory');
+    if (!host) return;
+    host.innerHTML = '';
+    roulette.history.forEach(n => {
+      const s = document.createElement('span');
+      s.className = 'rl-hist ' + rouletteColorName(n);
+      s.textContent = String(n);
+      host.appendChild(s);
+    });
+  }
+
+  function paintRouletteInside(){
+    const host = document.getElementById('rouletteInside');
+    if (!host) return;
+    host.innerHTML = '';
+    const n = roulette.focus;
+    const note = document.createElement('p');
+    note.textContent = n === 0 ? 'More bets on 0' : `More bets on ${n}`;
+    host.appendChild(note);
+    const add = (label, odds, numbers, anchor) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = `${label} · ${odds}:1`;
+      b.disabled = roulette.spinning;
+      b.onclick = () => placeRouletteBet({ type: label, numbers, odds, label, anchor });
+      host.appendChild(b);
+    };
+    rouletteNeighbors(n).forEach(m => {
+      const pair = [n, m].sort((a, b) => a - b);
+      add(`Split ${pair.join('-')}`, 17, pair, 'n' + n);
+    });
+    const street = rouletteStreet(n);
+    if (street) add(`Street ${street[0]}-${street[2]}`, 11, street, 'n' + street[0]);
+    if (n === 0){
+      add('0-1-2', 11, [0, 1, 2], 'n0');
+      add('0-2-3', 11, [0, 2, 3], 'n0');
+      add('0-1-2-3', 8, [0, 1, 2, 3], 'n0');
+    }
+    rouletteCorners(n).forEach(set => add(`Corner ${set[0]}-${set[3]}`, 8, set, 'n' + set[0]));
+    rouletteLines(n).forEach(set => add(`Line ${set[0]}-${set[5]}`, 5, set, 'n' + set[0]));
+  }
+
+  function buildRouletteFelt(){
+    const felt = document.getElementById('rouletteFelt');
+    if (!felt || felt.childElementCount) return;
+    const cell = (label, cls, anchor, spec, style) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'rl-cell ' + cls;
+      b.dataset.anchor = anchor;
+      b.textContent = label;
+      if (style) b.style.cssText = style;
+      b.onclick = () => {
+        if (spec.focus != null) roulette.focus = spec.focus;
+        placeRouletteBet(spec);
+        paintRouletteInside();
+      };
+      felt.appendChild(b);
+      return b;
+    };
+    cell('0', 'green', 'n0', { type: 'straight', numbers: [0], odds: 35, label: '0', anchor: 'n0', focus: 0 }, 'grid-column:1;grid-row:1 / span 3;');
+    for (let col = 0; col < 12; col++){
+      for (let row = 0; row < 3; row++){
+        const n = col * 3 + (3 - row);
+        const cls = ROULETTE_RED.has(n) ? 'red' : 'black';
+        cell(String(n), cls, 'n' + n, {
+          type: 'straight', numbers: [n], odds: 35, label: String(n), anchor: 'n' + n, focus: n
+        }, `grid-column:${col + 2};grid-row:${row + 1};`);
+      }
+    }
+    for (let col = 1; col <= 3; col++){
+      const nums = rouletteColumn(col);
+      cell('2:1', 'out', 'col' + col, {
+        type: 'column', numbers: nums, odds: 2, label: `Column ${col}`, anchor: 'col' + col, focus: null
+      }, `grid-column:14;grid-row:${4 - col};`);
+    }
+    [[1, 1, 12], [2, 13, 24], [3, 25, 36]].forEach(([i, a, b], idx) => {
+      cell(`${i === 1 ? '1st' : i === 2 ? '2nd' : '3rd'} 12`, 'out', 'doz' + i, {
+        type: 'dozen', numbers: rouletteRange(a, b), odds: 2, label: `${a}–${b}`, anchor: 'doz' + i, focus: null
+      }, `grid-column:${2 + idx * 4} / span 4;grid-row:4;`);
+    });
+    const outs = [
+      ['1–18', 'low'], ['Even', 'even'], ['Red', 'red'], ['Black', 'black'], ['Odd', 'odd'], ['19–36', 'high']
+    ];
+    outs.forEach(([label, kind], idx) => {
+      const cls = kind === 'red' ? 'red' : kind === 'black' ? 'black' : 'out';
+      cell(label, cls, kind, {
+        type: kind, numbers: rouletteOutside(kind), odds: 1, label, anchor: kind, focus: null
+      }, `grid-column:${2 + idx * 2} / span 2;grid-row:5;`);
+    });
+  }
+
+  function drawRouletteWheel(angle, ballAngle, ballR){
+    const c = document.getElementById('rouletteWheel');
+    if (!c) return;
+    const g = c.getContext('2d');
+    const w = c.width;
+    const h = c.height;
+    const cx = w / 2;
+    const cy = h / 2;
+    const R = w * 0.42;
+    const slice = Math.PI * 2 / 37;
+    g.clearRect(0, 0, w, h);
+    g.beginPath();
+    g.arc(cx, cy, R + 28, 0, Math.PI * 2);
+    g.fillStyle = '#3a2a14';
+    g.fill();
+    g.lineWidth = 10;
+    g.strokeStyle = '#e8c56b';
+    g.stroke();
+    for (let i = 0; i < 37; i++){
+      const a0 = -Math.PI / 2 + angle + i * slice;
+      const a1 = a0 + slice;
+      const n = ROULETTE_WHEEL[i];
+      g.beginPath();
+      g.moveTo(cx, cy);
+      g.arc(cx, cy, R, a0, a1);
+      g.closePath();
+      g.fillStyle = n === 0 ? '#0b7a3a' : (ROULETTE_RED.has(n) ? '#c0392b' : '#161616');
+      g.fill();
+      g.lineWidth = 2;
+      g.strokeStyle = '#e6d3a1';
+      g.stroke();
+      const mid = (a0 + a1) / 2;
+      g.save();
+      g.translate(cx + Math.cos(mid) * R * 0.76, cy + Math.sin(mid) * R * 0.76);
+      g.rotate(mid + Math.PI / 2);
+      g.fillStyle = '#fff';
+      g.font = '700 20px system-ui, sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText(String(n), 0, 0);
+      g.restore();
+    }
+    g.beginPath();
+    g.arc(cx, cy, R * 0.34, 0, Math.PI * 2);
+    g.fillStyle = '#10281c';
+    g.fill();
+    g.lineWidth = 8;
+    g.strokeStyle = '#e8c56b';
+    g.stroke();
+    g.fillStyle = '#f3d48a';
+    g.font = '800 28px system-ui, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText('R', cx, cy);
+    g.beginPath();
+    g.moveTo(cx, 18);
+    g.lineTo(cx - 16, 52);
+    g.lineTo(cx + 16, 52);
+    g.closePath();
+    g.fillStyle = '#ffd166';
+    g.fill();
+    g.beginPath();
+    g.arc(cx + Math.cos(ballAngle) * ballR, cy + Math.sin(ballAngle) * ballR, 11, 0, Math.PI * 2);
+    g.fillStyle = '#f7f7f2';
+    g.fill();
+    g.lineWidth = 2;
+    g.strokeStyle = '#9aa';
+    g.stroke();
+  }
+
+  function settleRoulette(n){
+    const byPlayer = new Map();
+    roulette.bets.forEach(bet => {
+      const hit = bet.numbers.includes(n);
+      const returned = hit ? bet.stake * (bet.odds + 1) : 0;
+      const p = roulettePlayer(bet.playerId);
+      if (p && returned) p.bankroll += returned;
+      byPlayer.set(bet.playerId, (byPlayer.get(bet.playerId) || 0) + returned - bet.stake);
+    });
+    roulette.bets = [];
+    roulette.history.unshift(n);
+    if (roulette.history.length > 14) roulette.history.length = 14;
+    roulette.spinning = false;
+    const parts = [...byPlayer.entries()].map(([id, net]) => {
+      const p = roulettePlayer(id);
+      const name = p ? p.name : 'Player';
+      const sign = net > 0 ? '+' : net < 0 ? '−' : '';
+      return `${name} ${sign}${Math.abs(Math.round(net))}`;
+    });
+    const color = n === 0 ? 'Green' : rouletteColorName(n) === 'red' ? 'Red' : 'Black';
+    setRouletteCall(`${n} ${color}${parts.length ? ' — ' + parts.join(' · ') : ''}`);
+    updateBankrollDisplays();
+    paintRouletteBets();
+    paintRoulettePlayers();
+    paintRouletteHistory();
+    paintRouletteInside();
+    const closeBtn = document.getElementById('rouletteClose');
+    if (closeBtn) closeBtn.disabled = false;
+  }
+
+  function spinRoulette(){
+    if (roulette.spinning) return;
+    if (!roulette.bets.length){
+      setRouletteCall('Place a chip on the table first.');
+      return;
+    }
+    const idx = Math.floor(Math.random() * ROULETTE_WHEEL.length);
+    const n = ROULETTE_WHEEL[idx];
+    const slice = Math.PI * 2 / 37;
+    const from = roulette.wheelAngle || 0;
+    let target = -(idx + 0.5) * slice;
+    while (target < from + Math.PI * 2 * 5) target += Math.PI * 2;
+    const ballFrom = -Math.PI / 2;
+    const ballTo = -Math.PI / 2 - Math.PI * 2 * 8;
+    const outer = 640 * 0.42 * 0.93;
+    const inner = 640 * 0.42 * 0.62;
+    const dur = 4600;
+    const start = performance.now();
+    roulette.spinning = true;
+    const closeBtn = document.getElementById('rouletteClose');
+    if (closeBtn) closeBtn.disabled = true;
+    paintRouletteInside();
+    setRouletteCall('No more bets.');
+    const frame = (now) => {
+      const t = Math.min(1, (now - start) / dur);
+      const e = 1 - Math.pow(1 - t, 3);
+      roulette.wheelAngle = from + (target - from) * e;
+      const ballAngle = ballFrom + (ballTo - ballFrom) * e;
+      const ballR = outer + (inner - outer) * e;
+      drawRouletteWheel(roulette.wheelAngle, ballAngle, ballR);
+      if (t < 1) roulette.raf = requestAnimationFrame(frame);
+      else settleRoulette(n);
+    };
+    roulette.raf = requestAnimationFrame(frame);
+  }
+
+  function holdCommentaryForRoulette(){
+    roulette.commentaryHeld = false;
+    if (commentaryAudio && !commentaryAudio.paused){
+      roulette.commentaryHeld = true;
+      try { commentaryAudio.pause(); } catch (e) {}
+    }
+  }
+  function releaseCommentaryFromRoulette(){
+    if (!roulette.commentaryHeld || !commentaryAudio) return;
+    roulette.commentaryHeld = false;
+    if (commentaryStarted) commentaryAudio.play().catch(() => {});
+  }
+
+  function openRoulette(){
+    if (GAME.state.rouletteOpen) return;
+    const players = activePlayers();
+    if (!players.some(p => p.id === roulette.playerId)) roulette.playerId = players[0] ? players[0].id : 1;
+    GAME.state.rouletteOpen = true;
+    if (race && !race.done) race.paused = true;
+    holdCommentaryForRoulette();
+    buildRouletteFelt();
+    paintRoulettePlayers();
+    paintRouletteBets();
+    paintRouletteInside();
+    paintRouletteHistory();
+    drawRouletteWheel(roulette.wheelAngle, -Math.PI / 2, 640 * 0.42 * 0.9);
+    const layer = document.getElementById('rouletteLayer');
+    if (layer){
+      layer.hidden = false;
+      const panel = layer.querySelector('.roulette-panel');
+      if (panel) panel.focus();
+    }
+    setRouletteCall('Pick a player, a chip, and a spot. The race stays paused.');
+  }
+
+  function closeRoulette(){
+    if (roulette.spinning) return;
+    if (roulette.raf) cancelAnimationFrame(roulette.raf);
+    roulette.bets.forEach(bet => refundRouletteBet(bet, bet.stake));
+    roulette.bets = [];
+    updateBankrollDisplays();
+    GAME.state.rouletteOpen = false;
+    if (race) race.paused = false;
+    releaseCommentaryFromRoulette();
+    const layer = document.getElementById('rouletteLayer');
+    if (layer) layer.hidden = true;
+  }
+
+  function setupRoulette(){
+    buildRouletteFelt();
+    const openBtn = document.getElementById('btnRoulette');
+    if (openBtn) openBtn.onclick = openRoulette;
+    const closeBtn = document.getElementById('rouletteClose');
+    if (closeBtn) closeBtn.onclick = closeRoulette;
+    const undo = document.getElementById('rouletteUndo');
+    if (undo) undo.onclick = undoRoulette;
+    const clearBtn = document.getElementById('rouletteClear');
+    if (clearBtn) clearBtn.onclick = clearRoulettePlayer;
+    const spin = document.getElementById('rouletteSpin');
+    if (spin) spin.onclick = spinRoulette;
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && GAME.state.rouletteOpen) closeRoulette();
+    });
+    const wheelBtn = document.getElementById('trackRouletteBtn');
+    if (wheelBtn) wheelBtn.onclick = openRoulette;
+    setupTrackRoulette();
+    syncTrackRoulette();
+  }
+
+  function syncTrackRoulette(){
+    const el = document.getElementById('trackRouletteBtn');
+    if (!el) return;
+    const show = GAME.state.viewMode !== '3d' && GAME.state.trackMode === 'course';
+    el.classList.toggle('is-on', show);
+  }
+
+  function setupTrackRoulette(){
+    const canvas = document.getElementById('trackRoulette');
+    if (!canvas || !window.THREE) return;
+    const THREE = window.THREE;
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 30);
+    camera.position.set(0.2, 2.55, 2.7);
+    camera.lookAt(0, 0.05, 0);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.72));
+    const key = new THREE.DirectionalLight(0xfff1cc, 1.15);
+    key.position.set(3, 5, 2);
+    scene.add(key);
+
+    const texCanvas = document.createElement('canvas');
+    texCanvas.width = 512;
+    texCanvas.height = 512;
+    const g = texCanvas.getContext('2d');
+    const slice = Math.PI * 2 / 37;
+    g.fillStyle = '#3a2a14';
+    g.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 37; i++){
+      const a0 = -Math.PI / 2 + i * slice;
+      const a1 = a0 + slice;
+      const n = ROULETTE_WHEEL[i];
+      g.beginPath();
+      g.moveTo(256, 256);
+      g.arc(256, 256, 230, a0, a1);
+      g.closePath();
+      g.fillStyle = n === 0 ? '#0b7a3a' : (ROULETTE_RED.has(n) ? '#c0392b' : '#161616');
+      g.fill();
+      g.strokeStyle = '#e6d3a1';
+      g.lineWidth = 2;
+      g.stroke();
+      const mid = (a0 + a1) / 2;
+      g.save();
+      g.translate(256 + Math.cos(mid) * 176, 256 + Math.sin(mid) * 176);
+      g.rotate(mid + Math.PI / 2);
+      g.fillStyle = '#fff';
+      g.font = '700 18px system-ui, sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText(String(n), 0, 0);
+      g.restore();
+    }
+    g.beginPath();
+    g.arc(256, 256, 70, 0, Math.PI * 2);
+    g.fillStyle = '#10281c';
+    g.fill();
+    g.lineWidth = 8;
+    g.strokeStyle = '#e8c56b';
+    g.stroke();
+    const tex = new THREE.CanvasTexture(texCanvas);
+    if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+
+    const wheel = new THREE.Group();
+    scene.add(wheel);
+    const felt = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.38, 1.5, 0.16, 40),
+      new THREE.MeshStandardMaterial({ color: 0x0c5c32, roughness: 0.9 })
+    );
+    felt.position.y = -0.22;
+    scene.add(felt);
+    const bowl = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.08, 1.08, 0.12, 48),
+      new THREE.MeshStandardMaterial({ color: 0x6b4a1e, roughness: 0.55, metalness: 0.15 })
+    );
+    bowl.position.y = -0.04;
+    wheel.add(bowl);
+    const face = new THREE.Mesh(
+      new THREE.CircleGeometry(1.02, 64),
+      new THREE.MeshStandardMaterial({ map: tex, roughness: 0.42, metalness: 0.08 })
+    );
+    face.rotation.x = -Math.PI / 2;
+    face.position.y = 0.03;
+    wheel.add(face);
+    const rim = new THREE.Mesh(
+      new THREE.TorusGeometry(1.04, 0.055, 12, 48),
+      new THREE.MeshStandardMaterial({ color: 0xe8c56b, metalness: 0.65, roughness: 0.28 })
+    );
+    rim.rotation.x = Math.PI / 2;
+    rim.position.y = 0.05;
+    wheel.add(rim);
+    const pointer = new THREE.Mesh(
+      new THREE.ConeGeometry(0.08, 0.22, 12),
+      new THREE.MeshStandardMaterial({ color: 0xffd166, metalness: 0.4, roughness: 0.35 })
+    );
+    pointer.position.set(0, 0.28, -0.72);
+    pointer.rotation.x = Math.PI;
+    scene.add(pointer);
+    const ballPivot = new THREE.Group();
+    scene.add(ballPivot);
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(0.07, 16, 12),
+      new THREE.MeshStandardMaterial({ color: 0xf7f7f2, roughness: 0.25, metalness: 0.1 })
+    );
+    ball.position.set(0.78, 0.12, 0);
+    ballPivot.add(ball);
+
+    let idle = 0;
+    let last = 0;
+    const resize = () => {
+      const w = canvas.clientWidth || 180;
+      const h = canvas.clientHeight || 180;
+      if (canvas.width !== w || canvas.height !== h){
+        renderer.setSize(w, h, false);
+        camera.aspect = w / Math.max(1, h);
+        camera.updateProjectionMatrix();
+      }
+    };
+    const loop = (ts) => {
+      requestAnimationFrame(loop);
+      const hidden = !document.getElementById('trackRouletteBtn').classList.contains('is-on');
+      if (hidden) return;
+      const dt = Math.min(0.05, last ? (ts - last) / 1000 : 0.016);
+      last = ts;
+      resize();
+      if (roulette.spinning){
+        wheel.rotation.y = roulette.wheelAngle;
+        ballPivot.rotation.y = -roulette.wheelAngle;
+      } else {
+        idle += dt * 0.35;
+        const ang = idle + (roulette.wheelAngle || 0);
+        wheel.rotation.y = ang;
+        ballPivot.rotation.y = -ang * 0.65;
+      }
+      renderer.render(scene, camera);
+    };
+    requestAnimationFrame(loop);
+  }
 
   // ---------- Keyboard shortcuts ----------
   window.addEventListener('keydown', (e)=>{
     if (e.repeat) return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.key === 'r' || e.key === 'R'){
+      if (!GAME.state.rouletteOpen) openRoulette();
+      return;
+    }
+    if (GAME.state.rouletteOpen) return;
     if (e.key==='b' || e.key==='B'){
       if (GAME.state.phase==='BETTING_OPEN') closeBetting();
       else if (GAME.state.phase!=='RACING') openBetting();
@@ -3341,8 +4504,8 @@ dialog.horse-edit-dialog::backdrop{
 
   // ---------- Resize handling ----------
   new ResizeObserver(() => {
-    // nothing heavy; CSS handles most. Could adjust sizes if needed.
     placeFinishFlag();
+    fitInfieldBoard();
   }).observe(document.body);
 
   // ---------- Commentary audio ----------
@@ -3470,6 +4633,7 @@ dialog.horse-edit-dialog::backdrop{
     updateBetToggleLabel();
     setupCommentary();
     setupHorseEditor();
+    setupRoulette();
     initControlLabels();
     syncOddsModeButton();
     scheduleFitTopBar();
@@ -3486,7 +4650,36 @@ dialog.horse-edit-dialog::backdrop{
       placeFinishFlag();
       fitInfieldBoard();
       if (GAME.state.phase !== 'RACING') renderRacePositionsInitial();
+      view3d.resize();
     });
+  }
+
+  let view3d = { onField(){}, onCourse(){}, onTrack(){}, resize(){} };
+  if (window.RaceView3D){
+    try {
+      view3d = RaceView3D.attach({
+        game: GAME,
+        getRace: () => race,
+        pointForMode,
+        currentLaneCount,
+        getVisualLane,
+        stadiumPointAt,
+        horseScale,
+        currentRaceLeader,
+        raceLeaderProgress,
+        roulettePose() {
+          return { spinning: !!roulette.spinning, angle: roulette.wheelAngle || 0 };
+        },
+        openRoulette() { openRoulette(); },
+        onViewChange(){
+          fitInfieldBoard();
+          scheduleFitTopBar();
+          syncTrackRoulette();
+        }
+      }) || view3d;
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   init();
