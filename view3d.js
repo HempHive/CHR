@@ -755,7 +755,7 @@
           const board = {
             canvas,
             tex,
-            label: 'tvn.lol',
+            label: 'TVN',
             hue: Math.random() * 360,
             target: Math.random() * 360,
             next: 0
@@ -770,7 +770,7 @@
           face.rotation.y = sign > 0 ? Math.PI / 2 : -Math.PI / 2;
           face.position.x = sign * (length / 2 + 0.08);
           face.userData.kind = 'ad';
-          face.userData.href = 'https://tvn.lol';
+          face.userData.href = 'https://wardtv.uk';
           root.add(face);
         }
         addTvnEnd(1);
@@ -779,14 +779,12 @@
         const roof = new THREE.Mesh(
           new THREE.PlaneGeometry(22.6, 5.65),
           new THREE.MeshBasicMaterial({
-            map: adBoardTex('luckyradio.lol', '#140812', '#ffd166', 1024, 256, '#000000'),
+            map: adBoardTex('ARCADE RACING', '#140812', '#ffd166', 1024, 256, '#000000'),
             side: THREE.DoubleSide
           })
         );
         roof.rotation.x = -Math.PI / 2;
         roof.position.y = height / 2 + 0.16;
-        roof.userData.kind = 'ad';
-        roof.userData.href = 'https://luckyradio.lol';
         root.add(roof);
 
         parent.add(root);
@@ -1517,7 +1515,7 @@
         const S = 3.05;
         const wheelX = -5.15;
         const root = new THREE.Group();
-        root.position.set(-19.05, 0.02, 0);
+        root.position.set(-19.05, 0.02, 6.05);
         root.userData.roulette = true;
         root.userData.kind = 'roulette';
 
@@ -1592,6 +1590,8 @@
         refs.rouletteBall = ballPivot;
         addInfieldPitch(parent);
         addInfieldChess(parent);
+        addInfieldCircuit(parent);
+        addInfieldGridiron(parent);
       }
 
       function insideInfield(x, z, level) {
@@ -1607,9 +1607,11 @@
       }
 
       function infieldBlocked(x, z) {
-        if (x > -29.1 && x < -9.2 && Math.abs(z) < 5.1) return true;
-        if (x > -5.4 && x < 5.4 && Math.abs(z) < 5.4) return true;
-        if (x > 9.1 && x < 25.8 && Math.abs(z) < 5.6) return true;
+        if (x > -29.3 && x < -8.8 && z > 0.95 && z < 11.15) return true;
+        if (x > -28.6 && x < -9.5 && z > -12.05 && z < -3.25) return true;
+        if (x > -5.5 && x < 5.5 && z > -5.5 && z < 5.5) return true;
+        if (x > 8.8 && x < 26.0 && z > 0.35 && z < 11.2) return true;
+        if (x > 8.0 && x < 26.9 && z > -11.85 && z < -2.95) return true;
         return false;
       }
 
@@ -1664,7 +1666,7 @@
 
       function addInfieldPitch(parent) {
         const root = new THREE.Group();
-        root.position.set(17.4, 0.03, 0);
+        root.position.set(17.4, 0.03, 5.75);
         root.userData.kind = 'football';
         const base = new THREE.Mesh(
           new THREE.BoxGeometry(15.4, 0.1, 9.2),
@@ -1727,6 +1729,347 @@
         root.add(top);
         parent.add(root);
         refs.chessRoot = root;
+      }
+
+      function stadiumFillGeo(length, width) {
+        const r = width / 2;
+        const hs = Math.max(0.05, (length - width) / 2);
+        const shape = new THREE.Shape();
+        shape.moveTo(-hs, -r);
+        shape.lineTo(hs, -r);
+        shape.absarc(hs, 0, r, -Math.PI / 2, Math.PI / 2, false);
+        shape.lineTo(-hs, r);
+        shape.absarc(-hs, 0, r, Math.PI / 2, Math.PI * 1.5, false);
+        return new THREE.ShapeGeometry(shape, 20);
+      }
+
+      function motoLap(length, width) {
+        const r = width / 2;
+        const straight = Math.max(0.2, length - width);
+        const bend = Math.PI * r;
+        return { r, straight, bend, lap: straight * 2 + bend * 2 };
+      }
+
+      function motoSample(length, width, t) {
+        const lap = motoLap(length, width);
+        let d = ((t % 1) + 1) % 1 * lap.lap;
+        if (d < lap.straight) {
+          return { x: -lap.straight / 2 + d, z: -lap.r, section: 'near', u: d / lap.straight };
+        }
+        d -= lap.straight;
+        if (d < lap.bend) {
+          const u = d / lap.bend;
+          const a = -Math.PI / 2 + u * Math.PI;
+          return { x: lap.straight / 2 + Math.cos(a) * lap.r, z: Math.sin(a) * lap.r, section: 'right', u };
+        }
+        d -= lap.bend;
+        if (d < lap.straight) {
+          return { x: lap.straight / 2 - d, z: lap.r, section: 'far', u: d / lap.straight };
+        }
+        d -= lap.straight;
+        const u = d / lap.bend;
+        const a = Math.PI / 2 + u * Math.PI;
+        return { x: -lap.straight / 2 + Math.cos(a) * lap.r, z: Math.sin(a) * lap.r, section: 'left', u };
+      }
+
+      function motoT(length, width, section, u) {
+        const lap = motoLap(length, width);
+        let d = u * lap.straight;
+        if (section === 'right') d = lap.straight + u * lap.bend;
+        else if (section === 'far') d = lap.straight + lap.bend + u * lap.straight;
+        else if (section === 'left') d = lap.straight * 2 + lap.bend + u * lap.bend;
+        return d / lap.lap;
+      }
+
+      function motoBump(u, center, half, amp) {
+        const d = Math.abs(u - center);
+        if (d >= half) return 0;
+        const k = Math.cos((d / half) * Math.PI * 0.5);
+        return k * k * amp;
+      }
+
+      function motoHeight(section, u) {
+        if (section === 'near') {
+          let h = 0;
+          for (let i = 0; i < 4; i++) h = Math.max(h, motoBump(u, 0.2 + i * 0.19, 0.085, 0.86));
+          return h;
+        }
+        if (section === 'far') {
+          return Math.max(motoBump(u, 0.3, 0.15, 1.22), motoBump(u, 0.7, 0.15, 1.08));
+        }
+        return motoBump(u, 0.5, 0.38, 0.2);
+      }
+
+      function buildMotoMesh(length, width, ribbon, raised) {
+        const segs = 220;
+        const across = 8;
+        const pos = [];
+        const col = [];
+        const dirt = new THREE.Color(raised ? 0x6b4122 : 0x4e3018);
+        const crest = new THREE.Color(0xd7b48a);
+        const samples = [];
+        for (let i = 0; i <= segs; i++) {
+          const t = i / segs;
+          const a = motoSample(length, width, t);
+          const b = motoSample(length, width, t + 0.002);
+          let tx = b.x - a.x;
+          let tz = b.z - a.z;
+          const mag = Math.hypot(tx, tz) || 1;
+          tx /= mag;
+          tz /= mag;
+          samples.push({ a, rx: tz, rz: -tx });
+        }
+        for (let i = 0; i <= segs; i++) {
+          const { a, rx, rz } = samples[i];
+          const h = raised ? motoHeight(a.section, a.u) : 0;
+          const banking = raised && (a.section === 'left' || a.section === 'right') ? Math.sin(a.u * Math.PI) : 0;
+          for (let j = 0; j <= across; j++) {
+            const v = j / across;
+            const off = (v - 0.5) * ribbon;
+            const bank = banking * (v - 0.32) * 0.72;
+            const y = (raised ? 0.14 : 0.07) + h + Math.max(0, bank);
+            pos.push(a.x + rx * off, y, a.z + rz * off);
+            const c = dirt.clone().lerp(crest, raised ? Math.min(1, (h + Math.max(0, bank)) / 1.15) : 0);
+            col.push(c.r, c.g, c.b);
+          }
+        }
+        const idx = [];
+        const row = across + 1;
+        for (let i = 0; i < segs; i++) {
+          for (let j = 0; j < across; j++) {
+            const a0 = i * row + j;
+            const b0 = a0 + 1;
+            const c0 = a0 + row;
+            const d0 = c0 + 1;
+            idx.push(a0, c0, b0, b0, c0, d0);
+          }
+        }
+        if (raised) {
+          const side = new THREE.Color(0x5a381c);
+          const groundY = 0.06;
+          for (const edge of [0, across]) {
+            const start = pos.length / 3;
+            for (let i = 0; i <= segs; i++) {
+              const vi = (i * row + edge) * 3;
+              const x = pos[vi];
+              const y = pos[vi + 1];
+              const z = pos[vi + 2];
+              pos.push(x, y, z);
+              col.push(side.r, side.g, side.b);
+              pos.push(x, groundY, z);
+              col.push(side.r * 0.78, side.g * 0.78, side.b * 0.78);
+            }
+            for (let i = 0; i < segs; i++) {
+              const topA = start + i * 2;
+              const botA = topA + 1;
+              const topB = topA + 2;
+              const botB = topA + 3;
+              if (edge === across) idx.push(topA, topB, botA, botA, topB, botB);
+              else idx.push(topA, botA, topB, topB, botA, botB);
+            }
+          }
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
+        geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(col), 3));
+        geo.setIndex(idx);
+        geo.computeVertexNormals();
+        return geo;
+      }
+
+      function addInfieldCircuit(parent) {
+        const length = 15.4;
+        const width = 5.2;
+        const ribbon = 1.9;
+        const root = new THREE.Group();
+        root.position.set(-19.05, 0.02, -7.65);
+        root.userData.kind = 'racing';
+
+        const skirt = new THREE.Mesh(
+          buildMotoMesh(length, width, ribbon + 0.7, false),
+          new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.96, side: THREE.DoubleSide })
+        );
+        skirt.receiveShadow = true;
+        root.add(skirt);
+
+        const track = new THREE.Mesh(
+          buildMotoMesh(length, width, ribbon, true),
+          new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92, metalness: 0.02, side: THREE.DoubleSide })
+        );
+        track.castShadow = true;
+        track.receiveShadow = true;
+        root.add(track);
+
+        const grass = new THREE.Mesh(
+          stadiumFillGeo(length - ribbon - 0.2, width - ribbon - 0.2),
+          new THREE.MeshStandardMaterial({ color: 0x1a7a34, roughness: 0.9, side: THREE.DoubleSide })
+        );
+        grass.rotation.x = -Math.PI / 2;
+        grass.position.y = 0.09;
+        grass.receiveShadow = true;
+        root.add(grass);
+
+        const baleMat = new THREE.MeshStandardMaterial({ color: 0xc6a15a, roughness: 0.88 });
+        const placeBale = (section, u) => {
+          const t = motoT(length, width, section, u);
+          const s = motoSample(length, width, t);
+          const s2 = motoSample(length, width, t + 0.012);
+          let tx = s2.x - s.x;
+          let tz = s2.z - s.z;
+          const mag = Math.hypot(tx, tz) || 1;
+          tx /= mag;
+          tz /= mag;
+          const bale = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.4, 0.46), baleMat);
+          bale.position.set(s.x + tz * (ribbon / 2 + 0.42), 0.28, s.z - tx * (ribbon / 2 + 0.42));
+          bale.rotation.y = Math.atan2(tx, tz);
+          bale.castShadow = true;
+          root.add(bale);
+        };
+        placeBale('far', 0.16);
+        placeBale('far', 0.44);
+        placeBale('far', 0.56);
+        placeBale('far', 0.84);
+
+        const redMat = new THREE.MeshStandardMaterial({ color: 0xd23a32, roughness: 0.45 });
+        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf7f7f7, roughness: 0.4 });
+        for (let i = 0; i < 28; i++) {
+          const t = i / 28;
+          const s = motoSample(length, width, t);
+          const s2 = motoSample(length, width, t + 0.01);
+          let tx = s2.x - s.x;
+          let tz = s2.z - s.z;
+          const mag = Math.hypot(tx, tz) || 1;
+          const pole = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.035, 0.04, 0.55, 6),
+            i % 2 ? redMat : whiteMat
+          );
+          pole.position.set(s.x + (tz / mag) * (ribbon / 2 + 0.28), 0.34, s.z - (tx / mag) * (ribbon / 2 + 0.28));
+          pole.castShadow = true;
+          root.add(pole);
+        }
+
+        const gate = motoSample(length, width, motoT(length, width, 'near', 0.05));
+        const postMat = new THREE.MeshStandardMaterial({ color: 0xf4f7fb, roughness: 0.4, metalness: 0.08 });
+        [-1, 1].forEach(side => {
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 1.45, 6), postMat);
+          post.position.set(gate.x, 0.78, gate.z + side * (ribbon / 2 + 0.08));
+          post.castShadow = true;
+          root.add(post);
+        });
+        const banner = new THREE.Mesh(
+          new THREE.PlaneGeometry(ribbon + 0.16, 0.36),
+          new THREE.MeshStandardMaterial({ map: checkerTex(), roughness: 0.5, side: THREE.DoubleSide })
+        );
+        banner.rotation.y = Math.PI / 2;
+        banner.position.set(gate.x, 1.35, gate.z);
+        root.add(banner);
+
+        parent.add(root);
+        refs.circuitRoot = root;
+      }
+
+      function gridironTex() {
+        if (refs.gridironTex) return refs.gridironTex;
+        const W = 1024;
+        const H = 436;
+        const c = document.createElement('canvas');
+        c.width = W;
+        c.height = H;
+        const g = c.getContext('2d');
+        g.fillStyle = '#1b7a34';
+        g.fillRect(0, 0, W, H);
+        for (let i = 0; i < 12; i++) {
+          g.fillStyle = i % 2 ? 'rgba(255,255,255,0.045)' : 'rgba(0,0,0,0.06)';
+          g.fillRect((W * i) / 12, 0, W / 12 + 1, H);
+        }
+        const end = Math.round(W * (10 / 120));
+        g.fillStyle = '#1a3f86';
+        g.fillRect(0, 0, end, H);
+        g.fillStyle = '#8d2942';
+        g.fillRect(W - end, 0, end, H);
+        g.strokeStyle = '#f7f7f7';
+        g.lineWidth = 8;
+        g.strokeRect(10, 10, W - 20, H - 20);
+        g.lineWidth = 5;
+        const field = W - end * 2;
+        for (let n = 0; n <= 10; n++) {
+          const x = end + (field * n) / 10;
+          g.beginPath();
+          g.moveTo(x, 12);
+          g.lineTo(x, H - 12);
+          g.stroke();
+        }
+        g.strokeStyle = 'rgba(247,247,247,0.75)';
+        g.lineWidth = 3;
+        for (let n = 0; n < 10; n++) {
+          const x = end + field * (n + 0.5) / 10;
+          g.beginPath();
+          g.moveTo(x, 12);
+          g.lineTo(x, H - 12);
+          g.stroke();
+        }
+        g.strokeStyle = '#f7f7f7';
+        g.lineWidth = 4;
+        for (let n = 1; n < 20; n++) {
+          const x = end + (field * n) / 20;
+          g.beginPath();
+          g.moveTo(x, H * 0.36);
+          g.lineTo(x, H * 0.36 + 16);
+          g.moveTo(x, H * 0.64);
+          g.lineTo(x, H * 0.64 - 16);
+          g.stroke();
+        }
+        refs.gridironTex = srgbTex(new THREE.CanvasTexture(c));
+        return refs.gridironTex;
+      }
+
+      function addUprightGoal(parent, xSign, halfLen) {
+        const yellow = new THREE.MeshStandardMaterial({ color: 0xf5c542, metalness: 0.4, roughness: 0.38 });
+        const x = xSign * (halfLen + 0.08);
+        const gap = 1.28;
+        const crossY = 1.2;
+        const topY = 2.75;
+        const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, crossY, 8), yellow);
+        stalk.position.set(x, crossY / 2, 0);
+        stalk.castShadow = true;
+        parent.add(stalk);
+        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, gap * 2, 8), yellow);
+        bar.rotation.x = Math.PI / 2;
+        bar.position.set(x, crossY, 0);
+        parent.add(bar);
+        [-1, 1].forEach(side => {
+          const up = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, topY - crossY, 8), yellow);
+          up.position.set(x, (topY + crossY) / 2, side * gap);
+          up.castShadow = true;
+          parent.add(up);
+        });
+      }
+
+      function addInfieldGridiron(parent) {
+        const length = 16.8;
+        const width = 7.15;
+        const root = new THREE.Group();
+        root.position.set(17.4, 0.03, -7.4);
+        root.userData.kind = 'gridiron';
+        const base = new THREE.Mesh(
+          new THREE.BoxGeometry(length, 0.1, width),
+          new THREE.MeshStandardMaterial({ color: 0x1c7a34, roughness: 0.9 })
+        );
+        base.position.y = 0.05;
+        base.receiveShadow = true;
+        root.add(base);
+        const lines = new THREE.Mesh(
+          new THREE.PlaneGeometry(length, width),
+          new THREE.MeshStandardMaterial({ map: gridironTex(), roughness: 0.86 })
+        );
+        lines.rotation.x = -Math.PI / 2;
+        lines.position.y = 0.11;
+        lines.receiveShadow = true;
+        root.add(lines);
+        addUprightGoal(root, -1, length / 2);
+        addUprightGoal(root, 1, length / 2);
+        parent.add(root);
+        refs.gridironRoot = root;
       }
 
       function updateRoulette(dt) {
@@ -2548,7 +2891,7 @@
         function infieldHit(e) {
           if (!active || !camera || game.state.rouletteOpen) return null;
           pointerRay(e);
-          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.jumboRoot].filter(Boolean);
+          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.circuitRoot, refs.gridironRoot, refs.jumboRoot].filter(Boolean);
           const hits = raycaster.intersectObjects(roots, true);
           if (!hits.length) return null;
           let node = hits[0].object;
@@ -2594,7 +2937,7 @@
           const hit = infieldHit(e);
           if (!hit) return;
           if (hit.kind === 'roulette' && api.openRoulette) api.openRoulette();
-          else if (hit.kind === 'football' || hit.kind === 'chess') showComingSoon();
+          else if (hit.kind === 'football' || hit.kind === 'chess' || hit.kind === 'gridiron' || hit.kind === 'racing') showComingSoon();
           else if (hit.kind === 'ad' && hit.href) window.open(hit.href, '_blank', 'noopener,noreferrer');
         });
         canvas.addEventListener('pointercancel', () => { press = null; drag = null; });
