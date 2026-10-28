@@ -2401,12 +2401,19 @@ body.view-3d .scanlines{ opacity:0.16; }
     const countOverlay = document.getElementById('countOverlay');
     const countNum = document.getElementById('countNum');
     countdownTimer = setInterval(()=>{
+      if (startCountdownTid || GAME.state.phase === 'RACING'){
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+        return;
+      }
       if (GAME.state.rouletteOpen){
         GAME.state.countdownEndAt += 200;
         return;
       }
       const ms = GAME.state.countdownEndAt - Date.now();
       if (ms <= 0){
+        clearInterval(countdownTimer);
+        countdownTimer = null;
         if (countOverlay) countOverlay.style.display = 'none';
         closeBetting();
         startRace();
@@ -2447,18 +2454,17 @@ body.view-3d .scanlines{ opacity:0.16; }
           GAME.state.autoTimer = setTimeout(autoRace, 1000);
           return;
         }
-        if (GAME.state.phase !== 'RACING' && GAME.state.phase !== 'BETTING_OPEN'){
-          // start a new single race
-          GAME.state.heat = 'trialA';
-          GAME.state.qualifiers = { trialA: [], trialB: [] };
-          setupHeat();
-          openBetting();
-        }
+        if (startCountdownTid || GAME.state.phase === 'RACING' || GAME.state.phase === 'BETTING_OPEN') return;
+        GAME.state.heat = 'trialA';
+        GAME.state.qualifiers = { trialA: [], trialB: [] };
+        setupHeat();
+        openBetting();
       }, 30000);
     }
   }
   function closeBetting(){
     if (countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; }
+    if (GAME.state.phase === 'RACING' || startCountdownTid) return;
     GAME.state.phase = 'BETTING_CLOSED';
     renderTopbar();
     renderPlayersControls();
@@ -2478,6 +2484,13 @@ body.view-3d .scanlines{ opacity:0.16; }
   function beginRaceStartCountdown(){
     if (GAME.state.phase === 'RACING') return;
     if (startCountdownTid) return; // already counting down
+    const liveOverlay = document.getElementById('countOverlay');
+    const bettingCountdownVisible = countdownTimer && liveOverlay && liveOverlay.style.display === 'flex';
+    if (GAME.state.autoTimer){ clearTimeout(GAME.state.autoTimer); GAME.state.autoTimer = null; }
+    clearResultsCountdown();
+    resultsProceeded = true;
+    // The betting clock already has the big 3-2-1 on screen. Leave that one to finish.
+    if (bettingCountdownVisible) return;
     if (countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
     GAME.state.phase = 'BETTING_CLOSED';
     renderTopbar();
@@ -2858,6 +2871,11 @@ body.view-3d .scanlines{ opacity:0.16; }
 
   function proceedAfterResults(){
     if (resultsProceeded) return;
+    if (GAME.state.phase === 'RACING' || startCountdownTid){
+      resultsProceeded = true;
+      clearResultsCountdown();
+      return;
+    }
     resultsProceeded = true;
     clearResultsCountdown();
     const overlay = document.getElementById('resultsOverlay');
@@ -3412,11 +3430,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       statusEl.textContent = status;
       statusEl.setAttribute('aria-label', stage === 'start' ? 'Start race' : status);
       if (stage === 'start'){
-        statusEl.onclick = () => {
-          if (GAME.state.phase === 'RACING') return;
-          if (GAME.state.phase === 'BETTING_OPEN') closeBetting();
-          beginRaceStartCountdown();
-        };
+        statusEl.onclick = () => beginRaceStartCountdown();
       } else {
         statusEl.onclick = null;
       }
@@ -3881,11 +3895,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     syncTrackRoulette();
     resetActiveCountdown();
   };
-  els.btnStartRace.onclick = () => {
-    if (GAME.state.phase === 'RACING') return;
-    if (GAME.state.phase === 'BETTING_OPEN') closeBetting();
-    beginRaceStartCountdown();
-  };
+  els.btnStartRace.onclick = () => beginRaceStartCountdown();
   els.btnNextHeat.onclick = () => {
     if (GAME.state.phase !== 'RACING') {
       advanceHeat();
@@ -4555,10 +4565,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       else if (GAME.state.phase!=='RACING') openBetting();
       updateBetToggleLabel();
     } else if (e.key==='s' || e.key==='S'){
-      if (GAME.state.phase!=='RACING') {
-        if (GAME.state.phase==='BETTING_OPEN') closeBetting();
-        beginRaceStartCountdown();
-      }
+      beginRaceStartCountdown();
     } else if (e.key==='n' || e.key==='N'){
       if (GAME.state.phase!=='RACING' && GAME.state.phase!=='BETTING_OPEN') advanceHeat();
     }

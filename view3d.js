@@ -129,6 +129,7 @@
       const orbit = { theta: -Math.PI / 2, phi: 1.02, radius: 54 };
       let orbitEase = false;
       let orbitAtFinish = false;
+      let orbitFollowT = null;
       const refs = { spots: [], bulbs: [] };
       const GEO = {};
       const MAT = {};
@@ -2222,6 +2223,7 @@
         _fwd.set(Math.sin(yaw), 0, Math.cos(yaw));
         const out = outward(pos).clone();
         let fov = 46;
+        let orbitGlide = false;
 
         if (camId === 'broadcast') {
           // Stay behind the leader on the racing line. Looking back at the
@@ -2296,25 +2298,36 @@
             desiredLook.set(anchor.pos.x, 0.8, anchor.pos.z);
             orbitAround(desiredLook);
           } else {
-            desiredLook.copy(pack);
-            if (focus && game.state.phase === 'RACING') {
-              const dx = focus.pos.x - pack.x;
-              const dz = focus.pos.z - pack.z;
-              const gap = Math.hypot(dx, dz);
-              const keep = Math.tan(THREE.MathUtils.degToRad(24)) * r * 0.72;
-              if (gap > keep) {
-                const push = (gap - keep) / gap;
-                desiredLook.x += dx * push;
-                desiredLook.z += dz * push;
-              }
+            // Follow the middle of the field along the racing line. A new
+            // leader used to pull the look straight to that horse, which
+            // jumped the view across a bend.
+            const entries = fieldEntries();
+            let targetT = game.state.trackTOffset || 0;
+            if (entries.length) {
+              const ts = entries.map(e => e.t).sort((a, b) => a - b);
+              targetT = ts[Math.floor((ts.length - 1) / 2)];
+            }
+            if (orbitFollowT == null || (freshRace && Math.abs(targetT - orbitFollowT) > 0.5)) {
+              orbitFollowT = targetT;
+            } else {
+              const maxStep = dt * 0.12;
+              let step = targetT - orbitFollowT;
+              if (step > maxStep) step = maxStep;
+              else if (step < -maxStep) step = -maxStep;
+              orbitFollowT += step;
+            }
+            const along = worldPose(orbitFollowT, (api.currentLaneCount() - 1) / 2);
+            desiredLook.set(along.x, 0.8, along.z);
+            orbitGlide = true;
+            if (game.state.phase === 'RACING') {
               const prog = api.raceLeaderProgress ? api.raceLeaderProgress() : 0;
               if (prog > 0.8) {
+                orbitGlide = false;
                 const k = smoothstep(0.8, 0.96, prog);
                 desiredLook.x += (anchor.pos.x - desiredLook.x) * k;
                 desiredLook.z += (anchor.pos.z - desiredLook.z) * k;
               }
             }
-            desiredLook.y = 0.8;
             orbitAround(desiredLook);
           }
           fov = 48;
@@ -2350,6 +2363,18 @@
           camLook.copy(desiredLook);
           camera.fov = fov;
           snapCam = false;
+        } else if (camId === 'orbit' && orbitGlide && !orbitEase) {
+          const glide = 1 - Math.exp(-dt * 4);
+          camLook.lerp(desiredLook, glide);
+          const glideR = orbit.radius * zoom;
+          const glideSp = Math.sin(orbit.phi);
+          const glideY = camLook.y + Math.cos(orbit.phi) * glideR;
+          camPos.set(
+            camLook.x + glideSp * Math.cos(orbit.theta) * glideR,
+            glideY < 0.45 ? 0.45 : glideY,
+            camLook.z + glideSp * Math.sin(orbit.theta) * glideR
+          );
+          camera.fov += (fov - camera.fov) * (1 - Math.exp(-dt * 5));
         } else {
           let follow = camId === 'jockey' ? 10 : camId === 'broadcast' ? 9 : 6;
           if (camId === 'orbit' && orbitEase) follow = 1.35;
