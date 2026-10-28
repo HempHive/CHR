@@ -127,6 +127,8 @@
       const desiredPos = new THREE.Vector3();
       const desiredLook = new THREE.Vector3();
       const orbit = { theta: -Math.PI / 2, phi: 1.02, radius: 54 };
+      let orbitEase = false;
+      let orbitAtFinish = false;
       const refs = { spots: [], bulbs: [] };
       const GEO = {};
       const MAT = {};
@@ -433,7 +435,8 @@
         const texKey = back ? 'toteBackTex' : 'toteTex';
         if (refs[canvasKey]) return refs[canvasKey];
         const c = document.createElement('canvas');
-        c.width = 1024; c.height = 384;
+        c.width = 1400;
+        c.height = 384;
         refs[canvasKey] = c;
         refs[texKey] = srgbTex(new THREE.CanvasTexture(c));
         return c;
@@ -635,6 +638,157 @@
         parent.add(frame);
         parent.add(front);
         parent.add(back);
+      }
+
+      function paintAdCanvas(c, label, bg, accent, border) {
+        const w = c.width;
+        const h = c.height;
+        const g = c.getContext('2d');
+        g.fillStyle = bg;
+        g.fillRect(0, 0, w, h);
+        g.strokeStyle = border || accent;
+        g.lineWidth = Math.max(10, Math.round(Math.min(w, h) * 0.04));
+        const inset = g.lineWidth;
+        g.strokeRect(inset, inset, w - inset * 2, h - inset * 2);
+        g.fillStyle = accent;
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        let size = Math.round(h * 0.42);
+        g.font = '800 ' + size + 'px system-ui, sans-serif';
+        const limit = w * 0.84;
+        while (size > 24 && g.measureText(label).width > limit) {
+          size -= 2;
+          g.font = '800 ' + size + 'px system-ui, sans-serif';
+        }
+        g.fillText(label, w / 2, h / 2);
+      }
+
+      function adBoardTex(label, bg, accent, w, h, border) {
+        const c = document.createElement('canvas');
+        c.width = w || 512;
+        c.height = h || 512;
+        paintAdCanvas(c, label, bg, accent, border);
+        return srgbTex(new THREE.CanvasTexture(c));
+      }
+
+      function tvnColours(hue) {
+        const h = ((hue % 360) + 360) % 360;
+        return {
+          bg: 'hsl(' + h.toFixed(1) + ' 48% 12%)',
+          accent: 'hsl(' + ((h + 32) % 360).toFixed(1) + ' 92% 66%)'
+        };
+      }
+
+      function updateTvnBoards(time, dt) {
+        const boards = refs.tvnBoards;
+        if (!boards || !boards.length) return;
+        boards.forEach(board => {
+          if (time >= board.next) {
+            board.target = Math.random() * 360;
+            board.next = time + 1.5 + Math.random() * 2.4;
+          }
+          let dh = board.target - board.hue;
+          if (dh > 180) dh -= 360;
+          if (dh < -180) dh += 360;
+          board.hue = (board.hue + dh * Math.min(1, dt * 1.15) + 360) % 360;
+          const colours = tvnColours(board.hue);
+          paintAdCanvas(board.canvas, board.label, colours.bg, colours.accent);
+          board.tex.needsUpdate = true;
+        });
+      }
+
+      function addJumbotron(parent, x, y, z, yaw) {
+        const length = 24;
+        const height = 6.6;
+        const depth = height;
+        const root = new THREE.Group();
+        root.position.set(x, y, z);
+        root.rotation.y = yaw;
+        const shell = new THREE.Mesh(
+          new THREE.BoxGeometry(length, height, depth),
+          new THREE.MeshStandardMaterial({ color: 0x141820, metalness: 0.45, roughness: 0.38 })
+        );
+        shell.castShadow = true;
+        shell.receiveShadow = true;
+        root.add(shell);
+        const trimMat = new THREE.MeshStandardMaterial({ color: 0xc6a15a, metalness: 0.55, roughness: 0.32 });
+        const topLip = new THREE.Mesh(
+          new THREE.BoxGeometry(length + 0.28, 0.18, depth + 0.28),
+          new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 0.12, roughness: 0.78 })
+        );
+        topLip.position.y = height / 2 + 0.02;
+        root.add(topLip);
+        const bottomLip = new THREE.Mesh(
+          new THREE.BoxGeometry(length + 0.28, 0.18, depth + 0.28),
+          trimMat
+        );
+        bottomLip.position.y = -height / 2 - 0.02;
+        root.add(bottomLip);
+
+        paintTote();
+        paintToteBack();
+        const screenW = 22.2;
+        const screenH = 5.7;
+        const front = new THREE.Mesh(
+          new THREE.PlaneGeometry(screenW, screenH),
+          new THREE.MeshBasicMaterial({ map: refs.toteTex })
+        );
+        front.position.z = depth / 2 + 0.04;
+        root.add(front);
+        const back = new THREE.Mesh(
+          new THREE.PlaneGeometry(screenW, screenH),
+          new THREE.MeshBasicMaterial({ map: refs.toteBackTex })
+        );
+        back.rotation.y = Math.PI;
+        back.position.z = -depth / 2 - 0.04;
+        root.add(back);
+
+        const end = height * 0.78;
+        refs.tvnBoards = [];
+        function addTvnEnd(sign) {
+          const canvas = document.createElement('canvas');
+          canvas.width = 512;
+          canvas.height = 512;
+          const tex = srgbTex(new THREE.CanvasTexture(canvas));
+          const board = {
+            canvas,
+            tex,
+            label: 'tvn.lol',
+            hue: Math.random() * 360,
+            target: Math.random() * 360,
+            next: 0
+          };
+          const colours = tvnColours(board.hue);
+          paintAdCanvas(canvas, board.label, colours.bg, colours.accent);
+          refs.tvnBoards.push(board);
+          const face = new THREE.Mesh(
+            new THREE.PlaneGeometry(end, end),
+            new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide })
+          );
+          face.rotation.y = sign > 0 ? Math.PI / 2 : -Math.PI / 2;
+          face.position.x = sign * (length / 2 + 0.08);
+          face.userData.kind = 'ad';
+          face.userData.href = 'https://tvn.lol';
+          root.add(face);
+        }
+        addTvnEnd(1);
+        addTvnEnd(-1);
+
+        const roof = new THREE.Mesh(
+          new THREE.PlaneGeometry(22.6, 5.65),
+          new THREE.MeshBasicMaterial({
+            map: adBoardTex('luckyradio.lol', '#140812', '#ffd166', 1024, 256, '#000000'),
+            side: THREE.DoubleSide
+          })
+        );
+        roof.rotation.x = -Math.PI / 2;
+        roof.position.y = height / 2 + 0.16;
+        roof.userData.kind = 'ad';
+        roof.userData.href = 'https://luckyradio.lol';
+        root.add(roof);
+
+        parent.add(root);
+        refs.jumboRoot = root;
       }
 
       function addMesh(geo, material, parent) {
@@ -1194,7 +1348,7 @@
         }
         refs.shrubMat = shrubMat;
 
-        addToteScreen(worldGroup, 0, 5.2, 0, Math.PI, 16.4, 6.2);
+        addJumbotron(worldGroup, 0, 5.45, 0, Math.PI);
 
         const tFin = game.state.trackTOffset || 0.125;
         const finMat = new THREE.MeshStandardMaterial({ map: checkerTex(), roughness: 0.5, side: THREE.DoubleSide });
@@ -2117,11 +2271,30 @@
           const r = orbit.radius * zoom;
           const sp = Math.sin(orbit.phi);
           const raceNow = api.getRace && api.getRace();
-          const winnerIn = game.state.phase === 'RESULTS' || (raceNow && raceNow.order && raceNow.order.length > 0);
-          if (winnerIn) {
-            const anchor = finishAnchor();
-            desiredLook.copy(anchor.pos);
-            desiredLook.y = 0.8;
+          const freshRace = game.state.phase === 'RACING' && !(raceNow && raceNow.order && raceNow.order.length);
+          const anchor = finishAnchor();
+          const atLine = !freshRace && (
+            game.state.phase === 'RESULTS' ||
+            (raceNow && raceNow.order && raceNow.order.length > 0)
+          );
+          if (freshRace && orbitAtFinish) {
+            orbitAtFinish = false;
+            orbitEase = true;
+          }
+          const orbitAround = (look) => {
+            desiredPos.set(
+              look.x + sp * Math.cos(orbit.theta) * r,
+              look.y + Math.cos(orbit.phi) * r,
+              look.z + sp * Math.sin(orbit.theta) * r
+            );
+          };
+          if (atLine) {
+            if (!orbitAtFinish) {
+              orbitAtFinish = true;
+              orbitEase = true;
+            }
+            desiredLook.set(anchor.pos.x, 0.8, anchor.pos.z);
+            orbitAround(desiredLook);
           } else {
             desiredLook.copy(pack);
             if (focus && game.state.phase === 'RACING') {
@@ -2134,14 +2307,16 @@
                 desiredLook.x += dx * push;
                 desiredLook.z += dz * push;
               }
+              const prog = api.raceLeaderProgress ? api.raceLeaderProgress() : 0;
+              if (prog > 0.8) {
+                const k = smoothstep(0.8, 0.96, prog);
+                desiredLook.x += (anchor.pos.x - desiredLook.x) * k;
+                desiredLook.z += (anchor.pos.z - desiredLook.z) * k;
+              }
             }
             desiredLook.y = 0.8;
+            orbitAround(desiredLook);
           }
-          desiredPos.set(
-            desiredLook.x + sp * Math.cos(orbit.theta) * r,
-            desiredLook.y + Math.cos(orbit.phi) * r,
-            desiredLook.z + sp * Math.sin(orbit.theta) * r
-          );
           fov = 48;
         } else {
           const anchor = finishAnchor();
@@ -2176,11 +2351,15 @@
           camera.fov = fov;
           snapCam = false;
         } else {
-          const follow = camId === 'jockey' ? 10 : camId === 'broadcast' ? 9 : 6;
+          let follow = camId === 'jockey' ? 10 : camId === 'broadcast' ? 9 : 6;
+          if (camId === 'orbit' && orbitEase) follow = 1.35;
           const blend = 1 - Math.exp(-dt * follow);
           camPos.lerp(desiredPos, blend);
           camLook.lerp(desiredLook, blend);
           camera.fov += (fov - camera.fov) * (1 - Math.exp(-dt * 5));
+          if (orbitEase && camId === 'orbit' && camPos.distanceTo(desiredPos) < 0.45 && camLook.distanceTo(desiredLook) < 0.3) {
+            orbitEase = false;
+          }
         }
         camera.position.copy(camPos);
         camera.lookAt(camLook);
@@ -2225,6 +2404,7 @@
           paintTote();
           paintToteBack();
         }
+        updateTvnBoards(time, dt);
         syncLamps();
         updateRoulette(dt);
         frameCamera(dt);
@@ -2323,15 +2503,20 @@
           pointerNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
           raycaster.setFromCamera(pointerNdc, camera);
         }
-        function infieldKind(e) {
-          if (!active || !camera || game.state.rouletteOpen) return '';
+        function infieldHit(e) {
+          if (!active || !camera || game.state.rouletteOpen) return null;
           pointerRay(e);
-          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot].filter(Boolean);
+          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.jumboRoot].filter(Boolean);
           const hits = raycaster.intersectObjects(roots, true);
-          if (!hits.length) return '';
+          if (!hits.length) return null;
           let node = hits[0].object;
-          while (node && !node.userData.kind) node = node.parent;
-          return (node && node.userData.kind) || '';
+          while (node) {
+            if (node.userData && node.userData.kind) {
+              return { kind: node.userData.kind, href: node.userData.href || '' };
+            }
+            node = node.parent;
+          }
+          return null;
         }
         function showComingSoon() {
           const el = document.getElementById('comingSoon');
@@ -2353,8 +2538,8 @@
             orbit.phi = Math.min(1.35, Math.max(0.28, drag.phi + (e.clientY - drag.y) * 0.005));
             return;
           }
-          const kind = infieldKind(e);
-          canvas.style.cursor = kind ? 'pointer' : '';
+          const hit = infieldHit(e);
+          canvas.style.cursor = hit && hit.kind ? 'pointer' : '';
         });
         canvas.addEventListener('pointerup', (e) => {
           const start = press;
@@ -2364,9 +2549,11 @@
           const dx = e.clientX - start.x;
           const dy = e.clientY - start.y;
           if (dx * dx + dy * dy > 36) return;
-          const kind = infieldKind(e);
-          if (kind === 'roulette' && api.openRoulette) api.openRoulette();
-          else if (kind === 'football' || kind === 'chess') showComingSoon();
+          const hit = infieldHit(e);
+          if (!hit) return;
+          if (hit.kind === 'roulette' && api.openRoulette) api.openRoulette();
+          else if (hit.kind === 'football' || hit.kind === 'chess') showComingSoon();
+          else if (hit.kind === 'ad' && hit.href) window.open(hit.href, '_blank', 'noopener,noreferrer');
         });
         canvas.addEventListener('pointercancel', () => { press = null; drag = null; });
       }
