@@ -430,12 +430,12 @@ button.chip:hover{ border-color:#17f0ff; }
   background:#0f2037; border:1px solid #244766; color:#e6f1ff;
   border-radius:8px; padding:5px 3px; min-width:0;
   display:flex; flex-direction:column; align-items:center; gap:2px;
-  cursor:pointer; user-select:none;
+  cursor:pointer; user-select:none; overflow:hidden;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, order 180ms ease;
 }
 .horse-strip-btn:hover{ border-color:#17f0ff; }
 .horse-strip-btn img{
-  width:72px; height:56px; object-fit:contain; image-rendering:pixelated;
+  width:72px; height:56px; max-width:100%; object-fit:contain; image-rendering:pixelated;
   filter: drop-shadow(0 2px 2px rgba(0,0,0,0.45));
 }
 .horse-strip-btn .hs-pos{
@@ -810,12 +810,17 @@ dialog.horse-edit-dialog::backdrop{
   border:1px solid rgba(23,240,255,0.28);
   border-radius:8px; padding:5px 8px;
   text-shadow:0 1px 2px #000;
+  max-width:min(240px, calc(50% - 16px));
+  box-sizing:border-box;
 }
 .track-outer.is-3d .cam-hud{ display:flex; }
 .cam-hud strong{
   font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
 }
-.cam-hud span{ font-size:10px; color:#9fd3ff; letter-spacing:0.02em; }
+.cam-hud span{
+  font-size:10px; color:#9fd3ff; letter-spacing:0.02em;
+  white-space:normal; line-height:1.25;
+}
 .cam-bar{
   position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
   display:none; gap:4px; justify-content:center; flex-wrap:wrap;
@@ -836,6 +841,93 @@ dialog.horse-edit-dialog::backdrop{
 }
 .cam-bar button.active{
   background:#17f0ff; color:#041018; border-color:#17f0ff;
+}
+@media (max-width: 720px){
+  .track-outer.is-3d .infield-board.show{
+    right:6px; top:6px;
+    width:min(168px, 46%);
+    max-width:min(168px, 46%);
+    max-height:46%;
+  }
+  .track-outer.is-3d .infield-board .gb-inner{ gap:3px; padding:6px 7px; }
+  .infield-board .gb-brand{ font-size:11px; letter-spacing:0.06em; }
+  .infield-board .gb-race{ font-size:10px; max-width:100%; white-space:normal; }
+  .infield-board .gb-heat{ font-size:9px; letter-spacing:0.04em; }
+  .infield-board .gb-icon{ font-size:24px; }
+  .infield-board .gb-status{ font-size:12px; letter-spacing:0.04em; white-space:normal; }
+  .infield-board .gb-horse img{ width:40px; height:30px; }
+  .cam-hud{ top:6px; left:6px; padding:3px 6px; max-width:min(150px, calc(48% - 12px)); }
+  .cam-hud strong{ font-size:10px; letter-spacing:0.06em; }
+  .cam-hud span{ font-size:9px; }
+  .cam-bar{ left:4px; right:4px; bottom:4px; gap:3px; }
+  .cam-bar button{ padding:3px 7px; font-size:10px; }
+  .players-bar{ flex-direction:column; gap:8px; }
+  .sidebar,
+  .sidebar.four-up{ grid-template-columns:1fr; gap:8px; }
+  .add-player-btn{
+    flex:0 0 auto;
+    width:100%;
+    writing-mode:horizontal-tb;
+    text-orientation:mixed;
+    letter-spacing:0.3px;
+    padding:8px 10px;
+    font-size:13px;
+  }
+  .player{ padding:8px; gap:8px; }
+  .sidebar.four-up .player{ padding:8px; }
+  .player header{ flex-wrap:wrap; gap:6px; }
+  .player .name{ flex:1 1 8rem; min-width:0; }
+  .player input[type="text"],
+  .sidebar.four-up .player input[type="text"]{
+    width:100%;
+    max-width:100%;
+    font-size:16px;
+  }
+  .balance{ font-size:13px; gap:8px; }
+  .horse-btn{ min-height:44px; padding:6px 3px; }
+  .horse-btn .name{ font-size:10px; }
+  .mybets .line{ flex-wrap:wrap; }
+  .brand{ flex-wrap:wrap; min-width:0; }
+  .brand .title{ flex:0 0 auto; }
+  .brand .subtitle{ white-space:normal; min-width:0; flex:1 1 12rem; }
+  .info-chips{ flex-wrap:wrap; overflow:visible; row-gap:6px; }
+  .odds{
+    flex:1 1 100%;
+    flex-wrap:wrap;
+    overflow:visible;
+    justify-content:flex-start;
+    margin-left:0;
+  }
+  .controls{ grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px; }
+  .controls select,
+  .controls button{
+    font-size:12px;
+    line-height:1.2;
+    min-height:40px;
+    padding:6px 4px;
+  }
+  .controls select{ padding-right:16px; }
+  .horse-strip-btn .hs-meta{ flex-direction:column; gap:0; }
+  .horse-strip-btn img{ height:auto !important; max-height:36px; }
+  .results-card,
+  .track-outer.is-3d .results-card{
+    min-width:0;
+    width:min(360px, calc(100% - 12px));
+    max-width:calc(100% - 12px);
+    padding:10px 8px;
+  }
+  .results-card .hdr{ letter-spacing:0.04em; font-size:14px; }
+  .results-card .name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .results-card .btns{ flex-wrap:wrap; }
+  .track-outer.is-3d .results-overlay{ padding:36px 6px 0 0; }
+  .infield-board .gb-actions{ min-width:0; }
+  #rulesDialog{
+    width:min(480px, calc(100vw - 24px));
+    max-width:calc(100vw - 24px);
+    box-sizing:border-box;
+  }
+  .player .betrow{ grid-template-columns:1fr; }
+  .footer{ padding:8px 10px; }
 }
 .coming-soon{
   position:absolute; left:50%; top:42%; transform:translate(-50%, -50%);
@@ -958,6 +1050,43 @@ body.view-3d .scanlines{ opacity:0.16; }
 @media (max-width: 860px){
   .rl-main{ grid-template-columns: 1fr; }
   #rouletteWheel{ width:200px; height:200px; }
+}
+@media (max-width: 720px){
+  .coming-soon{
+    font-size:15px;
+    letter-spacing:0.08em;
+    padding:8px 12px;
+    max-width:calc(100% - 16px);
+    text-align:center;
+    box-sizing:border-box;
+  }
+  .roulette-layer{ padding:8px; }
+  .roulette-panel{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    box-sizing:border-box;
+    border-radius:12px;
+    padding:10px 8px;
+  }
+  .rl-head, .rl-foot{ flex-wrap:wrap; }
+  .rl-head h2{ font-size:16px; letter-spacing:0.08em; }
+  .rl-main{ min-width:0; }
+  .rl-main > div:last-child{
+    min-width:0;
+    max-width:100%;
+    overflow-x:auto;
+  }
+  .rl-felt{
+    width:max-content;
+    min-width:100%;
+    box-sizing:border-box;
+    grid-template-columns:40px repeat(12, 26px) 44px;
+    gap:2px;
+    padding:4px;
+  }
+  .rl-cell{ font-size:11px; }
+  .rl-cell.out{ font-size:9px; letter-spacing:0; line-height:1.05; }
 }
 </style>
 </head>
@@ -1835,13 +1964,49 @@ body.view-3d .scanlines{ opacity:0.16; }
     }
   }
 
+  function controlContentWidth(el){
+    const cs = getComputedStyle(el);
+    return el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  }
+
+  function controlTextWidth(el, text){
+    let probe = controlTextWidth.probe;
+    if (!probe){
+      probe = document.createElement('span');
+      probe.setAttribute('aria-hidden', 'true');
+      probe.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:nowrap;visibility:hidden;pointer-events:none;';
+      document.body.appendChild(probe);
+      controlTextWidth.probe = probe;
+    }
+    probe.style.font = getComputedStyle(el).font;
+    probe.textContent = text;
+    return probe.offsetWidth;
+  }
+
+  function selectedControlText(el){
+    const opt = el.options && el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null;
+    return opt ? opt.text : '';
+  }
+
+  function controlOverflows(el){
+    const avail = controlContentWidth(el);
+    if (avail <= 0) return false;
+    if (el.tagName === 'BUTTON'){
+      const label = el.querySelector('.ctl-label');
+      return !!(label && label.scrollWidth > avail + 1);
+    }
+    if (el.tagName === 'SELECT') return controlTextWidth(el, selectedControlText(el)) > avail + 1;
+    return el.scrollWidth > el.clientWidth + 1;
+  }
+
   function fitTopControls(){
     const root = document.querySelector('.controls');
     if (!root) return;
     const items = [...root.querySelectorAll('select, button')];
     if (!items.length) return;
-    const maxPx = 13;
-    const minPx = 6;
+    const narrow = window.matchMedia('(max-width: 720px)').matches;
+    const maxPx = narrow ? 12 : 13;
+    const minPx = narrow ? 8 : 6;
 
     function applySize(sz){
       items.forEach(el => {
@@ -1858,27 +2023,26 @@ body.view-3d .scanlines{ opacity:0.16; }
 
     let size = maxPx;
     applySize(size);
-    while (size > minPx){
-      const overflow = items.some(el => {
-        if (el.scrollWidth > el.clientWidth + 1) return true;
-        if (el.tagName === 'BUTTON'){
-          const label = el.querySelector('.ctl-label');
-          if (label && label.scrollWidth > el.clientWidth - 6) return true;
-        }
-        return false;
-      });
-      if (!overflow) break;
+    while (size > minPx && items.some(controlOverflows)){
       size -= 0.5;
       applySize(size);
     }
 
     items.forEach(el => {
-      if (el.tagName !== 'BUTTON') return;
-      const label = el.querySelector('.ctl-label');
-      if (!label) return;
-      const avail = el.clientWidth - 6;
-      if (label.scrollWidth > avail && avail > 0){
-        label.style.transform = `scale(${Math.max(0.55, avail / label.scrollWidth)})`;
+      const avail = controlContentWidth(el);
+      if (avail <= 0) return;
+      if (el.tagName === 'BUTTON'){
+        const label = el.querySelector('.ctl-label');
+        if (label && label.scrollWidth > avail){
+          label.style.transform = `scale(${avail / label.scrollWidth})`;
+        }
+        return;
+      }
+      if (el.tagName !== 'SELECT') return;
+      let px = parseFloat(el.style.fontSize) || maxPx;
+      while (px > 7 && controlTextWidth(el, selectedControlText(el)) > avail + 1){
+        px -= 0.5;
+        el.style.fontSize = px + 'px';
       }
     });
   }
@@ -3521,7 +3685,30 @@ body.view-3d .scanlines{ opacity:0.16; }
       board.style.left = '';
       board.style.top = '';
       board.style.transform = '';
-      inner.style.transform = '';
+      inner.style.transform = 'scale(1)';
+      inner.style.transformOrigin = 'top center';
+      inner.style.width = 'max-content';
+      inner.style.maxWidth = 'none';
+      const naturalW = Math.max(1, inner.offsetWidth);
+      const naturalH = Math.max(1, inner.offsetHeight);
+      inner.style.width = '';
+      inner.style.maxWidth = '';
+      const parent = board.parentElement;
+      const parentH = parent ? parent.clientHeight : board.clientHeight;
+      const pad = 8;
+      const availW = Math.max(40, board.clientWidth - pad);
+      const availH = Math.max(40, parentH * 0.46 - pad);
+      const scale = Math.min(availW / naturalW, availH / naturalH, 1);
+      if (scale < 0.995){
+        inner.style.transform = `scale(${scale})`;
+        board.style.width = Math.ceil(naturalW * scale + pad) + 'px';
+        board.style.height = Math.ceil(naturalH * scale + pad) + 'px';
+        board.style.maxWidth = board.style.width;
+        board.style.maxHeight = board.style.height;
+      } else {
+        inner.style.transform = '';
+        inner.style.transformOrigin = '';
+      }
       return;
     }
     if (GAME.state.trackMode !== 'course') return;

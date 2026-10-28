@@ -19,8 +19,8 @@
     2: { coat: 0xf4f1ea, mane: 0x5a3a24, silk: 0x1d4ed8 },
     3: { coat: 0xf3e6cf, mane: 0x8d8680, silk: 0xe0b000 },
     4: { coat: 0x6d5148, mane: 0x241c18, silk: 0x7c3aed },
-    5: { coat: 0xc47a3a, mane: 0x4a2c16, silk: 0xf97316 },
-    6: { coat: 0xb7d4d6, mane: 0x3e6268, silk: 0x0f9f78 },
+    5: { coat: 0xd4bc9a, mane: 0x7a5a3c, silk: 0xf97316 },
+    6: { coat: 0x8fafc2, mane: 0x3e5560, silk: 0x0f9f78 },
     7: { coat: 0xe7e4ee, mane: 0x6a6874, silk: 0xec4899 },
     8: { coat: 0x243028, mane: 0x101814, silk: 0xf4f7fb }
   };
@@ -875,12 +875,19 @@
           ball(anim, patch, -0.08, 1.24, -0.42, 0.13, 0.09, 0.15);
           ball(anim, patch, 0.12, 1.1, 0.38, 0.09, 0.07, 0.13);
         }
+        if (entry.id === 5) {
+          ball(anim, MAT.white, -0.15, 1.2, 0.18, 0.12, 0.08, 0.17);
+          ball(anim, MAT.white, 0.16, 1.02, -0.1, 0.13, 0.1, 0.2);
+          ball(anim, MAT.white, 0.05, 1.22, -0.44, 0.14, 0.09, 0.16);
+          ball(anim, MAT.white, -0.11, 1.06, 0.4, 0.1, 0.08, 0.14);
+        }
 
         const neck = new THREE.Group();
         neck.position.set(0, 1.12, 0.5);
         neck.rotation.x = 0.42;
         anim.add(neck);
         ball(neck, coat, 0, 0.16, 0.16, 0.11, 0.22, 0.13);
+        if (entry.id === 5) ball(neck, MAT.white, 0.05, 0.2, 0.14, 0.06, 0.09, 0.08);
         ball(neck, mane, 0, 0.28, 0.02, 0.07, 0.16, 0.08);
         const head = new THREE.Group();
         head.position.set(0, 0.4, 0.26);
@@ -1590,7 +1597,7 @@
         refs.rouletteBall = ballPivot;
         addInfieldPitch(parent);
         addInfieldChess(parent);
-        addInfieldCircuit(parent);
+        addInfieldMall(parent);
         addInfieldGridiron(parent);
       }
 
@@ -1608,7 +1615,7 @@
 
       function infieldBlocked(x, z) {
         if (x > -29.3 && x < -8.8 && z > 0.95 && z < 11.15) return true;
-        if (x > -28.6 && x < -9.5 && z > -12.05 && z < -3.25) return true;
+        if (x > -28.6 && x < -6.3 && z > -12.05 && z < -3.25) return true;
         if (x > -5.5 && x < 5.5 && z > -5.5 && z < 5.5) return true;
         if (x > 8.8 && x < 26.0 && z > 0.35 && z < 11.2) return true;
         if (x > 8.0 && x < 26.9 && z > -11.85 && z < -2.95) return true;
@@ -1731,241 +1738,141 @@
         refs.chessRoot = root;
       }
 
-      function stadiumFillGeo(length, width) {
-        const r = width / 2;
-        const hs = Math.max(0.05, (length - width) / 2);
-        const shape = new THREE.Shape();
-        shape.moveTo(-hs, -r);
-        shape.lineTo(hs, -r);
-        shape.absarc(hs, 0, r, -Math.PI / 2, Math.PI / 2, false);
-        shape.lineTo(-hs, r);
-        shape.absarc(-hs, 0, r, Math.PI / 2, Math.PI * 1.5, false);
-        return new THREE.ShapeGeometry(shape, 20);
-      }
-
-      function motoLap(length, width) {
-        const r = width / 2;
-        const straight = Math.max(0.2, length - width);
-        const bend = Math.PI * r;
-        return { r, straight, bend, lap: straight * 2 + bend * 2 };
-      }
-
-      function motoSample(length, width, t) {
-        const lap = motoLap(length, width);
-        let d = ((t % 1) + 1) % 1 * lap.lap;
-        if (d < lap.straight) {
-          return { x: -lap.straight / 2 + d, z: -lap.r, section: 'near', u: d / lap.straight };
-        }
-        d -= lap.straight;
-        if (d < lap.bend) {
-          const u = d / lap.bend;
-          const a = -Math.PI / 2 + u * Math.PI;
-          return { x: lap.straight / 2 + Math.cos(a) * lap.r, z: Math.sin(a) * lap.r, section: 'right', u };
-        }
-        d -= lap.bend;
-        if (d < lap.straight) {
-          return { x: lap.straight / 2 - d, z: lap.r, section: 'far', u: d / lap.straight };
-        }
-        d -= lap.straight;
-        const u = d / lap.bend;
-        const a = Math.PI / 2 + u * Math.PI;
-        return { x: -lap.straight / 2 + Math.cos(a) * lap.r, z: Math.sin(a) * lap.r, section: 'left', u };
-      }
-
-      function motoT(length, width, section, u) {
-        const lap = motoLap(length, width);
-        let d = u * lap.straight;
-        if (section === 'right') d = lap.straight + u * lap.bend;
-        else if (section === 'far') d = lap.straight + lap.bend + u * lap.straight;
-        else if (section === 'left') d = lap.straight * 2 + lap.bend + u * lap.bend;
-        return d / lap.lap;
-      }
-
-      function motoBump(u, center, half, amp) {
-        const d = Math.abs(u - center);
-        if (d >= half) return 0;
-        const k = Math.cos((d / half) * Math.PI * 0.5);
-        return k * k * amp;
-      }
-
-      function motoHeight(section, u) {
-        if (section === 'near') {
-          let h = 0;
-          for (let i = 0; i < 4; i++) h = Math.max(h, motoBump(u, 0.2 + i * 0.19, 0.085, 0.86));
-          return h;
-        }
-        if (section === 'far') {
-          return Math.max(motoBump(u, 0.3, 0.15, 1.22), motoBump(u, 0.7, 0.15, 1.08));
-        }
-        return motoBump(u, 0.5, 0.38, 0.2);
-      }
-
-      function buildMotoMesh(length, width, ribbon, raised) {
-        const segs = 220;
-        const across = 8;
-        const pos = [];
-        const col = [];
-        const dirt = new THREE.Color(raised ? 0x6b4122 : 0x4e3018);
-        const crest = new THREE.Color(0xd7b48a);
-        const samples = [];
-        for (let i = 0; i <= segs; i++) {
-          const t = i / segs;
-          const a = motoSample(length, width, t);
-          const b = motoSample(length, width, t + 0.002);
-          let tx = b.x - a.x;
-          let tz = b.z - a.z;
-          const mag = Math.hypot(tx, tz) || 1;
-          tx /= mag;
-          tz /= mag;
-          samples.push({ a, rx: tz, rz: -tx });
-        }
-        for (let i = 0; i <= segs; i++) {
-          const { a, rx, rz } = samples[i];
-          const h = raised ? motoHeight(a.section, a.u) : 0;
-          const banking = raised && (a.section === 'left' || a.section === 'right') ? Math.sin(a.u * Math.PI) : 0;
-          for (let j = 0; j <= across; j++) {
-            const v = j / across;
-            const off = (v - 0.5) * ribbon;
-            const bank = banking * (v - 0.32) * 0.72;
-            const y = (raised ? 0.14 : 0.07) + h + Math.max(0, bank);
-            pos.push(a.x + rx * off, y, a.z + rz * off);
-            const c = dirt.clone().lerp(crest, raised ? Math.min(1, (h + Math.max(0, bank)) / 1.15) : 0);
-            col.push(c.r, c.g, c.b);
-          }
-        }
-        const idx = [];
-        const row = across + 1;
-        for (let i = 0; i < segs; i++) {
-          for (let j = 0; j < across; j++) {
-            const a0 = i * row + j;
-            const b0 = a0 + 1;
-            const c0 = a0 + row;
-            const d0 = c0 + 1;
-            idx.push(a0, c0, b0, b0, c0, d0);
-          }
-        }
-        if (raised) {
-          const side = new THREE.Color(0x5a381c);
-          const groundY = 0.06;
-          for (const edge of [0, across]) {
-            const start = pos.length / 3;
-            for (let i = 0; i <= segs; i++) {
-              const vi = (i * row + edge) * 3;
-              const x = pos[vi];
-              const y = pos[vi + 1];
-              const z = pos[vi + 2];
-              pos.push(x, y, z);
-              col.push(side.r, side.g, side.b);
-              pos.push(x, groundY, z);
-              col.push(side.r * 0.78, side.g * 0.78, side.b * 0.78);
-            }
-            for (let i = 0; i < segs; i++) {
-              const topA = start + i * 2;
-              const botA = topA + 1;
-              const topB = topA + 2;
-              const botB = topA + 3;
-              if (edge === across) idx.push(topA, topB, botA, botA, topB, botB);
-              else idx.push(topA, botA, topB, topB, botA, botB);
-            }
-          }
-        }
-        const geo = new THREE.BufferGeometry();
-        geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
-        geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(col), 3));
-        geo.setIndex(idx);
-        geo.computeVertexNormals();
-        return geo;
-      }
-
-      function addInfieldCircuit(parent) {
-        const length = 15.4;
-        const width = 5.2;
-        const ribbon = 1.9;
+      function addInfieldMall(parent) {
         const root = new THREE.Group();
         root.position.set(-19.05, 0.02, -7.65);
-        root.userData.kind = 'racing';
+        root.userData.kind = 'mall';
 
-        const skirt = new THREE.Mesh(
-          buildMotoMesh(length, width, ribbon + 0.7, false),
-          new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.96, side: THREE.DoubleSide })
-        );
-        skirt.receiveShadow = true;
-        root.add(skirt);
+        const stone = new THREE.MeshStandardMaterial({ color: 0xe7e2d8, roughness: 0.72, metalness: 0.06 });
+        const bronze = new THREE.MeshStandardMaterial({ color: 0x8d7348, roughness: 0.42, metalness: 0.48 });
+        const deck = new THREE.MeshStandardMaterial({ color: 0xf7f4ee, roughness: 0.42, metalness: 0.16 });
+        const frame = new THREE.MeshStandardMaterial({ color: 0xeef3f8, roughness: 0.28, metalness: 0.62 });
+        const glass = new THREE.MeshStandardMaterial({ color: 0x9ad4f0, roughness: 0.1, metalness: 0.74, emissive: 0x14445c, emissiveIntensity: 0.22 });
+        const store = new THREE.MeshStandardMaterial({ color: 0x14364a, roughness: 0.16, metalness: 0.6, emissive: 0x0e3a52, emissiveIntensity: 0.45 });
+        const glow = new THREE.MeshStandardMaterial({ color: 0xffd166, emissive: 0xffb703, emissiveIntensity: 0.75, roughness: 0.32 });
+        const gold = new THREE.MeshStandardMaterial({ color: 0xd4b06a, roughness: 0.32, metalness: 0.58 });
+        const water = new THREE.MeshStandardMaterial({
+          color: 0x3ec8e4, roughness: 0.05, metalness: 0.48,
+          emissive: 0x0a7494, emissiveIntensity: 0.5
+        });
+        const cope = new THREE.MeshStandardMaterial({ color: 0xf8f5f0, roughness: 0.4, metalness: 0.1 });
+        const leaf = new THREE.MeshStandardMaterial({ color: 0x2f8a45, roughness: 0.8 });
 
-        const track = new THREE.Mesh(
-          buildMotoMesh(length, width, ribbon, true),
-          new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92, metalness: 0.02, side: THREE.DoubleSide })
-        );
-        track.castShadow = true;
-        track.receiveShadow = true;
-        root.add(track);
-
-        const grass = new THREE.Mesh(
-          stadiumFillGeo(length - ribbon - 0.2, width - ribbon - 0.2),
-          new THREE.MeshStandardMaterial({ color: 0x1a7a34, roughness: 0.9, side: THREE.DoubleSide })
-        );
-        grass.rotation.x = -Math.PI / 2;
-        grass.position.y = 0.09;
-        grass.receiveShadow = true;
-        root.add(grass);
-
-        const baleMat = new THREE.MeshStandardMaterial({ color: 0xc6a15a, roughness: 0.88 });
-        const placeBale = (section, u) => {
-          const t = motoT(length, width, section, u);
-          const s = motoSample(length, width, t);
-          const s2 = motoSample(length, width, t + 0.012);
-          let tx = s2.x - s.x;
-          let tz = s2.z - s.z;
-          const mag = Math.hypot(tx, tz) || 1;
-          tx /= mag;
-          tz /= mag;
-          const bale = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.4, 0.46), baleMat);
-          bale.position.set(s.x + tz * (ribbon / 2 + 0.42), 0.28, s.z - tx * (ribbon / 2 + 0.42));
-          bale.rotation.y = Math.atan2(tx, tz);
-          bale.castShadow = true;
-          root.add(bale);
-        };
-        placeBale('far', 0.16);
-        placeBale('far', 0.44);
-        placeBale('far', 0.56);
-        placeBale('far', 0.84);
-
-        const redMat = new THREE.MeshStandardMaterial({ color: 0xd23a32, roughness: 0.45 });
-        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf7f7f7, roughness: 0.4 });
-        for (let i = 0; i < 28; i++) {
-          const t = i / 28;
-          const s = motoSample(length, width, t);
-          const s2 = motoSample(length, width, t + 0.01);
-          let tx = s2.x - s.x;
-          let tz = s2.z - s.z;
-          const mag = Math.hypot(tx, tz) || 1;
-          const pole = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.035, 0.04, 0.55, 6),
-            i % 2 ? redMat : whiteMat
-          );
-          pole.position.set(s.x + (tz / mag) * (ribbon / 2 + 0.28), 0.34, s.z - (tx / mag) * (ribbon / 2 + 0.28));
-          pole.castShadow = true;
-          root.add(pole);
+        function box(mat, w, h, d, x, y, z) {
+          const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+          m.position.set(x, y, z);
+          m.castShadow = true;
+          m.receiveShadow = true;
+          root.add(m);
+          return m;
         }
 
-        const gate = motoSample(length, width, motoT(length, width, 'near', 0.05));
-        const postMat = new THREE.MeshStandardMaterial({ color: 0xf4f7fb, roughness: 0.4, metalness: 0.08 });
-        [-1, 1].forEach(side => {
-          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 1.45, 6), postMat);
-          post.position.set(gate.x, 0.78, gate.z + side * (ribbon / 2 + 0.08));
-          post.castShadow = true;
-          root.add(post);
+        function story(w, d, cx, cz, y0, wallH, wallMat) {
+          box(deck, w, 0.1, d, cx, y0, cz);
+          const t = 0.07;
+          const yh = y0 + 0.05 + wallH / 2;
+          box(wallMat, w - 0.12, wallH, t, cx, yh, cz + d / 2 - t / 2);
+          box(wallMat, w - 0.12, wallH, t, cx, yh, cz - d / 2 + t / 2);
+          box(wallMat, t, wallH, d - 0.12, cx + w / 2 - t / 2, yh, cz);
+          box(wallMat, t, wallH, d - 0.12, cx - w / 2 + t / 2, yh, cz);
+          box(gold, w + 0.12, 0.06, d + 0.12, cx, y0 + wallH + 0.06, cz);
+          const posts = Math.max(2, Math.round(w / 1.55));
+          for (let i = 0; i < posts; i++) {
+            const x = cx - w / 2 + (w * (i + 0.5)) / posts;
+            box(frame, 0.04, wallH, 0.045, x, yh, cz - d / 2 + 0.02);
+          }
+        }
+
+        const plazaX = 2.85;
+        box(stone, 18.7, 0.12, 7.0, plazaX, 0.08, 0);
+        box(bronze, 17.3, 0.08, 5.85, plazaX, 0.16, 0.08);
+        story(17.1, 5.6, plazaX, 0.1, 0.24, 0.9, store);
+        story(8.0, 4.9, -1.3, 0.12, 1.26, 0.82, glass);
+        story(6.2, 3.2, -1.55, 0.02, 2.22, 0.9, glass);
+        box(deck, 6.4, 0.08, 3.4, -1.55, 3.2, 0.02);
+        box(glass, 3.4, 0.05, 1.6, -1.55, 3.28, 0.02);
+        box(gold, 6.5, 0.05, 3.5, -1.55, 3.34, 0.02);
+
+        const terraceX = 7.15;
+        const terraceY = 1.32;
+        box(deck, 7.6, 0.08, 5.05, terraceX, terraceY, 0.1);
+        box(glass, 7.6, 0.18, 0.035, terraceX, terraceY + 0.18, -2.4);
+        box(glass, 0.035, 0.18, 5.05, terraceX + 3.78, terraceY + 0.18, 0.1);
+
+        const poolX = 5.1;
+        const poolZ = 0.05;
+        const poolY = terraceY + 0.08;
+        box(cope, 3.2, 0.12, 2.2, poolX, poolY, poolZ);
+        box(water, 2.8, 0.07, 1.8, poolX, poolY + 0.07, poolZ);
+        box(glass, 3.2, 0.16, 0.03, poolX, poolY + 0.2, poolZ + 1.08);
+        box(glass, 3.2, 0.16, 0.03, poolX, poolY + 0.2, poolZ - 1.08);
+        box(glass, 0.03, 0.16, 2.2, poolX + 1.58, poolY + 0.2, poolZ);
+        box(glass, 0.03, 0.16, 2.2, poolX - 1.58, poolY + 0.2, poolZ);
+        box(cope, 0.7, 0.04, 0.32, poolX + 0.7, poolY + 0.1, poolZ + 0.7);
+        box(cope, 0.7, 0.04, 0.32, poolX - 0.55, poolY + 0.1, poolZ - 0.65);
+
+        const cafeX = 8.9;
+        const cafeZ = 0.45;
+        const cafeY = terraceY + 0.06;
+        box(store, 2.45, 0.08, 2.05, cafeX, cafeY, cafeZ);
+        box(glass, 2.3, 0.7, 0.05, cafeX, cafeY + 0.42, cafeZ + 0.98);
+        box(glass, 2.3, 0.7, 0.05, cafeX, cafeY + 0.42, cafeZ - 0.98);
+        box(glass, 0.05, 0.7, 1.95, cafeX + 1.15, cafeY + 0.42, cafeZ);
+        box(glass, 0.05, 0.7, 1.95, cafeX - 1.15, cafeY + 0.42, cafeZ);
+        box(gold, 2.7, 0.06, 2.25, cafeX, cafeY + 0.82, cafeZ);
+        box(glow, 1.6, 0.03, 1.2, cafeX, cafeY + 0.1, cafeZ);
+        [[8.35, -1.35], [9.45, -1.35], [8.9, -1.85]].forEach(p => {
+          box(cope, 0.38, 0.04, 0.38, p[0], terraceY + 0.14, p[1]);
+          box(gold, 0.55, 0.03, 0.55, p[0], terraceY + 0.42, p[1]);
+          box(frame, 0.03, 0.28, 0.03, p[0], terraceY + 0.28, p[1]);
         });
-        const banner = new THREE.Mesh(
-          new THREE.PlaneGeometry(ribbon + 0.16, 0.36),
-          new THREE.MeshStandardMaterial({ map: checkerTex(), roughness: 0.5, side: THREE.DoubleSide })
+        const cafeSign = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.35, 0.32),
+          new THREE.MeshBasicMaterial({ map: adBoardTex('CAFE', '#140812', '#ffd166', 512, 160, '#000000') })
         );
-        banner.rotation.y = Math.PI / 2;
-        banner.position.set(gate.x, 1.35, gate.z);
-        root.add(banner);
+        cafeSign.rotation.y = Math.PI;
+        cafeSign.position.set(cafeX, cafeY + 0.55, cafeZ - 1.04);
+        root.add(cafeSign);
+
+        function canopy(x) {
+          box(gold, 3.2, 0.06, 0.8, x, 1.05, -3.05);
+          box(frame, 0.07, 0.8, 0.07, x - 1.45, 0.64, -3.32);
+          box(frame, 0.07, 0.8, 0.07, x + 1.45, 0.64, -3.32);
+          box(glow, 2.4, 0.03, 0.35, x, 1.0, -3.05);
+        }
+        canopy(-2.2);
+        canopy(7.4);
+
+        const frontZ = -2.78;
+        for (let i = 0; i < 12; i++) {
+          const x = -4.8 + i * 1.35;
+          box(glow, 0.72, 0.26, 0.04, x, 0.64, frontZ);
+        }
+
+        [[11.4, 2.55], [11.4, -2.35], [-5.6, 2.55], [-5.6, -2.35]].forEach(p => {
+          box(cope, 0.55, 0.28, 0.55, p[0], 0.28, p[1]);
+          const shrub = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), leaf);
+          shrub.position.set(p[0], 0.62, p[1]);
+          shrub.castShadow = true;
+          root.add(shrub);
+        });
+
+        const boardW = 4.1;
+        const boardH = 1.2;
+        const boardX = 0.4;
+        const boardY = 1.42;
+        const boardZ = -3.05;
+        box(new THREE.MeshStandardMaterial({ color: 0x101820, metalness: 0.45, roughness: 0.38 }), boardW + 0.28, boardH + 0.26, 0.1, boardX, boardY, boardZ);
+        const face = new THREE.Mesh(
+          new THREE.PlaneGeometry(boardW, boardH),
+          new THREE.MeshBasicMaterial({ map: adBoardTex('ARCADE', '#140812', '#ffd166', 1024, 320, '#000000') })
+        );
+        face.rotation.y = Math.PI;
+        face.position.set(boardX, boardY, boardZ - 0.06);
+        root.add(face);
 
         parent.add(root);
-        refs.circuitRoot = root;
+        refs.mallRoot = root;
       }
 
       function gridironTex() {
@@ -2891,7 +2798,7 @@
         function infieldHit(e) {
           if (!active || !camera || game.state.rouletteOpen) return null;
           pointerRay(e);
-          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.circuitRoot, refs.gridironRoot, refs.jumboRoot].filter(Boolean);
+          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.mallRoot, refs.gridironRoot, refs.jumboRoot].filter(Boolean);
           const hits = raycaster.intersectObjects(roots, true);
           if (!hits.length) return null;
           let node = hits[0].object;
@@ -2937,7 +2844,7 @@
           const hit = infieldHit(e);
           if (!hit) return;
           if (hit.kind === 'roulette' && api.openRoulette) api.openRoulette();
-          else if (hit.kind === 'football' || hit.kind === 'chess' || hit.kind === 'gridiron' || hit.kind === 'racing') showComingSoon();
+          else if (hit.kind === 'football' || hit.kind === 'chess' || hit.kind === 'gridiron' || hit.kind === 'mall') showComingSoon();
           else if (hit.kind === 'ad' && hit.href) window.open(hit.href, '_blank', 'noopener,noreferrer');
         });
         canvas.addEventListener('pointercancel', () => { press = null; drag = null; });
