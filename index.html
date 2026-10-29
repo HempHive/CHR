@@ -898,12 +898,17 @@ dialog.horse-edit-dialog::backdrop{
   border-radius:5px;
   border:1px solid #ffe566;
   background:linear-gradient(180deg, rgba(92,70,14,0.98), rgba(28,20,4,0.98));
-  color:#ffe566;
+}
+.gb-tick-race-label{
   font-size:13px;
-  font-weight:900;
+  font-weight:800;
   letter-spacing:0.14em;
   text-transform:uppercase;
-  text-shadow:0 0 6px rgba(255,214,80,0.7);
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:0 0 10px #0ff6, 0 0 20px #f3f6;
 }
 .gb-tick-item{
   display:inline-flex;
@@ -929,12 +934,14 @@ dialog.horse-edit-dialog::backdrop{
   font-weight:900;
   line-height:1;
 }
-.gb-tick-id,
 .gb-tick-name{
   color:var(--tick);
-  font-size:12px;
-  font-weight:800;
-  letter-spacing:0.02em;
+  font-family:"Avenir Next Condensed", "Arial Narrow", "Franklin Gothic Medium", "Nimbus Sans Narrow", sans-serif;
+  font-stretch:condensed;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.03em;
+  line-height:1;
   text-shadow:
     0 0 1px #000,
     1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000;
@@ -4184,9 +4191,10 @@ body.view-3d .scanlines{ opacity:0.16; }
       const ids = (GAME.state.entered || []).slice().sort((a, b) => (GAME.state.odds[a] || 99) - (GAME.state.odds[b] || 99));
       entries = ids.map((id, i) => ({ id, tag: String(i + 1), medal: 0 }));
     }
-    const title = results ? `${raceDisplayName()} · RESULTS` : raceDisplayName();
-    const key = title + '|' + entries.map(e => e.tag + ':' + e.id + (e.medal ? 'm' + e.medal : '')).join(',');
-    return { results, title, entries, key };
+    const title = 'ARCADE RACING';
+    const raceMark = raceDisplayName() + '|' + GAME.state.cupIndex + '|' + GAME.state.heat + '|' + GAME.state.seed;
+    const key = raceMark + '|' + entries.map(e => e.tag + ':' + e.id + (e.medal ? 'm' + e.medal : '')).join(',');
+    return { results, title, raceMark, entries, key };
   }
 
   function tickerRunHTML(model){
@@ -4198,7 +4206,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       const place = e.medal ? ' place-' + e.medal : '';
       return `<span class="gb-tick-item${place}" style="--tick:${pal.tick};--ink:${pal.ink}"><span class="gb-tick-pos">${escapeTicker(e.tag)}</span><img src="${src}" alt=""><span class="gb-tick-name">${name}</span></span>`;
     }).join('');
-    return `<span class="gb-tick-run"><span class="gb-tick-race"><span class="gb-tick-race-in">${escapeTicker(model.title)}</span></span>${horses}</span>`;
+    return `<span class="gb-tick-run"><span class="gb-tick-race"><span class="gb-tick-race-in"><span class="gb-tick-race-label">${escapeTicker(model.title)}</span></span></span>${horses}</span>`;
   }
 
   let tickerAnim = null;
@@ -4262,6 +4270,8 @@ body.view-3d .scanlines{ opacity:0.16; }
     const horseLeft = horse && bar ? horse.getBoundingClientRect().left : null;
     track.dataset.text = model.key;
     track.dataset.title = model.title;
+    track.dataset.race = model.raceMark;
+    track.dataset.results = model.results ? '1' : '';
     const run = tickerRunHTML(model);
     track.innerHTML = run + run;
     if (!keepHold) return;
@@ -4289,10 +4299,10 @@ body.view-3d .scanlines{ opacity:0.16; }
 
   function tickerBetweenRaces(model){
     const track = document.getElementById('gbTickerTrack');
-    const prev = track && track.dataset.title ? track.dataset.title : '';
-    if (!prev || prev === model.title) return false;
-    if (model.title.indexOf('RESULTS') !== -1) return false;
-    return true;
+    const prev = track && track.dataset.race ? track.dataset.race : '';
+    if (!prev || model.results) return false;
+    if (track.dataset.results === '1') return true;
+    return prev !== model.raceMark;
   }
 
   function freezeTicker(){
