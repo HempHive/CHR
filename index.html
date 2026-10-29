@@ -65,7 +65,12 @@ img{ display:block; }
   width:100%; min-width:0;
 }
 .brand{
-  display:flex; flex-direction:row; align-items:center; gap:10px;
+  display:grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-width:0;
 }
 .brand .title{
   font-weight:800; letter-spacing:1.5px;
@@ -81,11 +86,40 @@ img{ display:block; }
 }
 button.title:hover{ filter:brightness(1.15); }
 .brand .subtitle{
-  color:#ffd166; /* gold style */
+  color:#ffd166;
   font-weight:700;
   font-size: 12px;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
   white-space:nowrap;
 }
+.game-switches{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.game-switch{
+  width:44px;
+  height:30px;
+  flex:0 0 44px;
+  padding:0;
+  border-radius:999px;
+  border:1px solid var(--chip-border);
+  background:var(--odd-chip);
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.game-switch.active{
+  background:#241c08;
+  border-color:#ffd166;
+  box-shadow:inset 0 0 0 1px rgba(255,209,102,0.35);
+}
+.game-switch[hidden]{ display:none !important; }
 
 .info-chips{
   display:grid;
@@ -142,7 +176,7 @@ button.chip.active strong{ color:#d7b4ff; }
 /* Course selector + Admin controls */
 .controls{
   display:grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   grid-template-rows: auto;
   align-items:stretch;
   gap:4px;
@@ -199,6 +233,11 @@ button.chip.active strong{ color:#d7b4ff; }
   border-radius:999px;
 }
 .controls button.admin{ border-color:var(--chip-border); background:var(--odd-chip);}
+.controls #btnChamp.is-on{
+  background:#241c08;
+  border-color:#ffd166;
+  box-shadow:inset 0 0 0 1px rgba(255,209,102,0.55), 0 0 8px rgba(255,209,102,0.4);
+}
 .controls button.active .ctl-label{
   color:#ffd166;
   text-shadow:none;
@@ -617,6 +656,7 @@ button.chip.active strong{ color:#d7b4ff; }
   padding: 10px;
   display:grid;
   grid-template-columns: minmax(0, 1fr);
+  align-content: start;
   gap:10px;
   min-width:0;
   box-shadow: inset 0 0 0 2px #0b1626, 0 8px 24px var(--shadow);
@@ -685,15 +725,15 @@ button.chip.active strong{ color:#d7b4ff; }
   gap:3px;
   justify-content:stretch;
 }
-.horse-btn{ background:#0f2037; border:1px solid #244766; color:#e6f1ff; border-radius:8px; padding:3px 1px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; cursor:pointer; user-select:none; min-height:0; min-width:0; width:100%; overflow:hidden; }
-.horse-btn .num{ font-size:13px; font-weight:800; color:#17f0ff; line-height:1.1; max-width:100%; }
+.horse-btn{ background:#0f2037; border:1px solid #244766; color:#e6f1ff; border-radius:8px; padding:3px 1px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; cursor:pointer; user-select:none; min-height:0; min-width:0; width:100%; height:45px; overflow:hidden; }
+.horse-btn .num{ font-size:13px; font-weight:800; color:#17f0ff; line-height:1.1; width:100%; min-width:0; max-width:100%; white-space:nowrap; overflow:hidden; text-align:center; }
 .horse-btn .name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:10px; color:#bfe0ff; width:100%; min-width:0; max-width:100%; line-height:1.15; text-align:center; }
-.horse-btn .stake{ font-size:10px; color:var(--accent-3); font-weight:700; min-height:0; line-height:1.1; max-width:100%; overflow:hidden; }
-.horse-btn .stake:empty{ display:none; }
+.horse-btn .stake{ font-size:10px; color:var(--accent-3); font-weight:700; height:1.1em; line-height:1.1; width:100%; min-width:0; max-width:100%; overflow:hidden; white-space:nowrap; text-align:center; flex:0 0 auto; }
+.horse-btn .stake.is-nil{ color:#6d829c; }
 .horse-btn .od{
   font-size:11px; color:#9fd3ff; padding:0; margin:0; line-height:1.1;
   background:none; border:none; border-radius:0; box-shadow:none;
-  max-width:100%; min-width:0; white-space:nowrap; overflow:visible; text-overflow:clip;
+  width:100%; max-width:100%; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:clip; text-align:center;
   flex:0 0 auto; transform-origin:center center;
 }
 .horse-btn.selected{ outline:2px solid #a85cff; box-shadow: 0 0 0 2px rgba(168,92,255,0.25) inset; }
@@ -715,6 +755,28 @@ button.chip.active strong{ color:#d7b4ff; }
 .selhorse .label{ font-size:12px; color:#bfe0ff; }
 /* payout flash */
 .horse-btn.payout{ outline: 2px solid #ffd166; box-shadow: 0 0 0 2px rgba(255,209,102,0.35) inset; animation: btnPulse 800ms ease-in-out infinite; }
+.horse-cell{ display:flex; flex-direction:column; gap:2px; min-width:0; width:100%; }
+.horse-cell .horse-btn{ border-radius:8px 8px 3px 3px; }
+.place-btn{
+  width:100%; min-width:0; height:39px;
+  background:#1a1408; border:1px solid #8a6a2a; color:#ffd166;
+  border-radius:3px 3px 8px 8px; padding:2px 1px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
+  cursor:pointer; user-select:none; overflow:hidden;
+}
+.place-btn .pl-tag{
+  font-size:9px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase;
+  color:#ffd166; line-height:1.05; width:100%; min-width:0; max-width:100%; white-space:nowrap; overflow:hidden; text-align:center;
+}
+.place-btn .stake{ font-size:10px; color:#fff3c4; font-weight:700; height:1.1em; line-height:1.1; width:100%; min-width:0; max-width:100%; overflow:hidden; white-space:nowrap; text-align:center; flex:0 0 auto; }
+.place-btn .stake.is-nil{ color:#8d7344; }
+.place-btn .od{
+  font-size:10px; color:#ffe08a; padding:0; margin:0; line-height:1.05;
+  background:none; border:none; border-radius:0; box-shadow:none;
+  width:100%; max-width:100%; min-width:0; white-space:nowrap; overflow:hidden; text-align:center;
+}
+.place-btn.has-bet{ background:#3a2a08; border-color:#ffd166; }
+.place-btn.payout{ outline:2px solid #ffd166; animation: btnPulse 800ms ease-in-out infinite; }
 @keyframes btnPulse { 0%{ outline-width:2px; } 50%{ outline-width:4px; } 100%{ outline-width:2px; } }
 
 .horse-grid-fit{
@@ -1139,15 +1201,22 @@ dialog.rules-dialog::backdrop{ background:rgba(4,10,18,0.72); }
 }
 @media (max-width: 720px){
   .controls{
-    display:grid;
-    grid-template-columns:repeat(20, minmax(0, 1fr));
-    grid-template-rows:auto;
+    display:flex;
+    flex-wrap:wrap;
     width:100%;
     gap:4px;
     transform:none;
   }
-  .controls > *{ grid-column:span 4; }
-  .controls > :nth-child(n + 6){ grid-column:span 5; }
+  .controls > button{
+    flex:1 1 calc(25% - 4px);
+    width:auto;
+  }
+  .game-switch{
+    width:36px;
+    flex-basis:36px;
+    height:28px;
+    font-size:16px;
+  }
   .controls select,
   .controls button{
     width:100%;
@@ -1193,9 +1262,9 @@ dialog.rules-dialog::backdrop{ background:rgba(4,10,18,0.72); }
   .horse-btn .od{ font-size:10px; }
   .horse-btn .stake{ font-size:10px; }
   .mybets .line{ flex-wrap:wrap; }
-  .brand{ flex-wrap:wrap; min-width:0; }
+  .brand{ min-width:0; }
   .brand .title{ flex:0 0 auto; }
-  .brand .subtitle{ white-space:normal; min-width:0; flex:1 1 12rem; }
+  .brand .subtitle{ white-space:nowrap; min-width:0; }
   .info-chips{
     display:grid;
     grid-template-columns:repeat(12, minmax(0, 1fr));
@@ -1205,7 +1274,6 @@ dialog.rules-dialog::backdrop{ background:rgba(4,10,18,0.72); }
     overflow:visible;
   }
   .info-chips > *{ grid-column:span 4; width:100%; min-width:0; }
-  .info-chips > :nth-child(n + 4){ grid-column:span 3; }
   .info-chips > .chip,
   .info-chips > .status{ padding:5px 4px; gap:4px; }
   .horse-strip-btn .hs-meta{ flex-direction:column; gap:0; }
@@ -1713,12 +1781,17 @@ body.view-3d .scanlines{ opacity:0.16; }
       <div class="brand">
         <button type="button" class="title" id="brandTitle">Arcade Racing</button>
         <div class="subtitle" id="subtitle">KINGDOMS OF TREASURE STAKES • Trial A • Grass Day</div>
+        <div class="game-switches">
+          <button type="button" class="game-switch" id="btnBlackjack" data-game="blackjack" title="Blackjack">♠️</button>
+          <button type="button" class="game-switch" id="btnPoker" data-game="holdem" title="Poker">♦️</button>
+          <button type="button" class="game-switch" id="btnFruit" data-game="slots" title="Fruit Machine">🍋</button>
+          <button type="button" class="game-switch" id="btnRoulette" data-game="roulette" title="Roulette">🃏</button>
+        </div>
       </div>
       <div class="info-chips">
         <div class="chip"><strong>State</strong><span id="stateChip">BETTING OPEN</span></div>
         <div class="status" id="betStatus"><span class="dot"></span><span id="betText">BETTING OPEN</span> <span class="countdown" id="betCountdown">(00:20)</span></div>
         <button type="button" class="chip" id="countdownChip" title="Betting countdown and next-race wait. Cycles 10, 15, 20, 25, and 30 seconds."><strong>Countdown</strong><span id="countdown">20</span>s</button>
-        <button type="button" class="chip" id="courseChipBtn" title="Course. Cycles Grass Day, Dirt Sunset, Chariot Sands, Night Neon, and Cyber Grid."><strong>Course</strong><span id="courseChip">Grass Day</span></button>
         <button type="button" class="chip" id="cameraChip" title="Camera. Cycles Broadcast, Rail, Chase, Finish, Grandstand, Drone, Jockey, and Orbit."><strong>Camera</strong><span id="cameraChipLabel">Orbit</span></button>
         <button type="button" class="chip" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps."><strong>Laps</strong><span id="lapsChip">1</span></button>
         <button type="button" class="chip" id="btnCommentary" title="Commentary"><strong>Commentary</strong></button>
@@ -1726,13 +1799,11 @@ body.view-3d .scanlines{ opacity:0.16; }
       <div class="controls">
         <button class="admin active" id="btnToggleView" title="Swap flat track and 3D broadcast">View: 3D</button>
         <button class="admin" id="btnCourse" title="Course setting. Cycles Grass Day, Dirt Sunset, Chariot Sands, Night Neon, and Cyber Grid.">Grass Day</button>
-        <button class="admin" id="btnToggleTrack">Track: Course</button>
-        <button class="admin" id="btnChamp">Championship: Off</button>
+        <button class="admin" id="btnChamp" title="Championship">Championship</button>
         <button class="admin" id="btnStartRace">Start Race Now</button>
         <button class="admin" id="btnBetToggle">Open Betting</button>
         <button class="admin" id="btnOddsMode">Odds: Fixed</button>
-        <button class="admin" id="btnFruit" title="Open the fruit machine">🍇FRUIT🍋</button>
-        <button class="admin" id="btnRoulette" title="Open the casino. Roulette, Texas Hold'em, blackjack, and the fruit machine. Pauses the horse race.">Roulette</button>
+        <button class="admin" id="btnToggleTrack">Track: Course</button>
       </div>
       <div class="horse-strip-wrap">
         <div class="horse-strip" id="horseStrip" aria-label="Horse standings"></div>
@@ -1982,8 +2053,8 @@ body.view-3d .scanlines{ opacity:0.16; }
     <h3>Arcade Racing</h3>
     <section>
       <h4>Betting</h4>
-      <p>Tap a horse to add 10 on a win. Tap again to add another 10. Clear Bets removes that player’s wagers. +50 and +100 add to the bank.</p>
-      <p>A win pays stake × the horse’s odds.</p>
+      <p>Tap a horse to add 10 on a win. Tap Place under that horse to add 10 on a place. Tap again to add another 10. Clear Bets removes that player’s wagers. +50 and +100 add to the bank.</p>
+      <p>A win pays stake × the horse’s odds. A place pays if the horse finishes in the places. With eight runners that is the first three, at one fifth of the win odds. In a smaller field it is the first two, at one quarter of the win odds.</p>
     </section>
     <section>
       <h4>Trials</h4>
@@ -2187,7 +2258,6 @@ body.view-3d .scanlines{ opacity:0.16; }
   // ---------- DOM refs ----------
   const els = {
     subtitle: document.getElementById('subtitle'),
-    courseChip: document.getElementById('courseChip'),
     stateChip: document.getElementById('stateChip'),
     countdown: document.getElementById('countdown'),
     betStatus: document.getElementById('betStatus'),
@@ -2749,7 +2819,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   function fitTopControls(){
     const root = document.querySelector('.controls');
     if (!root) return;
-    const items = [...root.querySelectorAll('select, button')];
+    const items = [...root.querySelectorAll('select, button')].filter(el => !el.classList.contains('game-switch'));
     if (!items.length) return;
     const narrow = window.matchMedia('(max-width: 720px)').matches;
 
@@ -2813,7 +2883,33 @@ body.view-3d .scanlines{ opacity:0.16; }
     });
   }
 
+  const CUP_SHORT = {
+    'KINGDOMS OF TREASURE STAKES': 'Kingdom of Treasure',
+    'HEAVENLY WORLD CUP': 'Heavenly World',
+    'LOTUS QUEEN CUP': 'Lotus Queen',
+    'UNICORN POWER CUP CLASSIC': 'Unicorn Power'
+  };
+
+  function fitSubtitle(){
+    const el = els.subtitle;
+    const brand = el && el.closest('.brand');
+    if (!el || !brand) return;
+    const cup = GAME.cups[GAME.state.cupIndex];
+    if (!cup) return;
+    const course = GAME.courses.find(c => c.id === GAME.state.course);
+    const courseName = course ? course.name : '';
+    const heat = heatLabel(GAME.state.heat);
+    const shortCup = CUP_SHORT[cup.name] || cup.name;
+    const full = `${cup.name} • ${heat} • ${courseName}`;
+    const mid = `${shortCup} • ${heat} • ${courseName}`;
+    el.textContent = full;
+    const tight = () => el.scrollWidth > el.clientWidth + 1;
+    if (tight()) el.textContent = mid;
+    if (tight()) el.textContent = shortCup;
+  }
+
   function fitTopBar(){
+    fitSubtitle();
     fitInfoChips();
     fitTopControls();
   }
@@ -2889,8 +2985,6 @@ body.view-3d .scanlines{ opacity:0.16; }
     const grid = els.parallax && els.parallax.querySelector('.grid');
     if (grid) grid.style.display = id === 'cyber' ? 'block' : 'none';
     paintFlatCourse(id);
-    const course = GAME.courses.find(c => c.id === id);
-    document.getElementById('courseChip').textContent = course ? course.name : id;
     view3d.onCourse();
   }
 
@@ -3040,25 +3134,42 @@ body.view-3d .scanlines{ opacity:0.16; }
       // Betting row — eight simple horse buttons (one per entrant)
       const qb = document.createElement('div');
       qb.className = 'quickbets';
-      const qbTitle = document.createElement('div'); qbTitle.className = 'title';
-      qbTitle.textContent = 'Pick a horse ($10 per tap)';
-      qb.appendChild(qbTitle);
       const grid = document.createElement('div');
       grid.className = 'horse-grid' + (GAME.state.entered.length >= 8 ? ' eight' : '');
       const horseButtons = new Map();
+      const placeButtons = new Map();
+      const market = placeMarket();
       GAME.state.entered.forEach(id=>{
         const h = GAME.horses.find(x=>x.id===id);
         const odds = GAME.state.odds[id];
         const fr = typeof odds === 'number' ? decimalOddsToFraction(odds) : '?';
+        const cell = document.createElement('div');
+        cell.className = 'horse-cell';
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'horse-btn';
         btn.dataset.horseId = String(id);
-        btn.title = h.name;
-        btn.innerHTML = `<span class="num">H${id}</span><span class="stake"></span><span class="od">${fr}</span>`;
+        btn.title = `${h.name} to win`;
+        btn.innerHTML = `<span class="num">H${id}</span><span class="stake is-nil">-</span><span class="od">${fr}</span>`;
         btn.onclick = ()=> toggleWinBet(id);
         horseButtons.set(id, btn);
-        grid.appendChild(btn);
+        const placeBtn = document.createElement('button');
+        placeBtn.type = 'button';
+        placeBtn.className = 'place-btn';
+        placeBtn.dataset.horseId = String(id);
+        const pDec = typeof odds === 'number' ? placeDecimal(odds, market.fraction) : null;
+        const placeWhere = market.places >= 3 ? '1st, 2nd or 3rd' : '1st or 2nd';
+        const priceText = pDec ? pDec.toFixed(2) : '?';
+        const returns = pDec ? Math.round(10 * pDec) : 0;
+        placeBtn.title = pDec
+          ? `Place ${h.name}: ${placeWhere} pays ${priceText}, ${market.fracLabel} of the ${Number(odds).toFixed(2)} win odds. $10 returns $${returns}.`
+          : `Place ${h.name}`;
+        placeBtn.innerHTML = `<span class="pl-tag">Place</span><span class="stake is-nil">-</span><span class="od">${priceText}</span>`;
+        placeBtn.onclick = () => togglePlaceBet(id);
+        placeButtons.set(id, placeBtn);
+        cell.appendChild(btn);
+        cell.appendChild(placeBtn);
+        grid.appendChild(cell);
       });
       qb.appendChild(grid);
 
@@ -3092,32 +3203,72 @@ body.view-3d .scanlines{ opacity:0.16; }
       add100.onclick = () => addBank(100);
 
       function syncBetButtons(){
-        const stakeByHorse = new Map();
-        p.bets.filter(b=>b.type==='WIN' && !b.result).forEach(b=>{
+        const winStake = new Map();
+        const placeStake = new Map();
+        p.bets.filter(b => !b.result).forEach(b=>{
           const id = b.pick[0];
-          stakeByHorse.set(id, (stakeByHorse.get(id)||0) + b.stake);
+          if (b.type==='WIN') winStake.set(id, (winStake.get(id)||0) + b.stake);
+          if (b.type==='PLACE') placeStake.set(id, (placeStake.get(id)||0) + b.stake);
         });
         horseButtons.forEach((b, hid)=>{
-          const stake = stakeByHorse.get(hid) || 0;
+          const stake = winStake.get(hid) || 0;
           b.classList.toggle('has-bet', stake > 0);
           const stakeEl = b.querySelector('.stake');
-          if (stakeEl) stakeEl.textContent = stake > 0 ? `$${stake}` : '';
+          if (stakeEl){
+            stakeEl.textContent = stake > 0 ? `$${stake}` : '-';
+            stakeEl.classList.toggle('is-nil', stake <= 0);
+          }
         });
+        placeButtons.forEach((b, hid)=>{
+          const stake = placeStake.get(hid) || 0;
+          b.classList.toggle('has-bet', stake > 0);
+          const stakeEl = b.querySelector('.stake');
+          if (stakeEl){
+            stakeEl.textContent = stake > 0 ? `$${stake}` : '-';
+            stakeEl.classList.toggle('is-nil', stake <= 0);
+          }
+        });
+      }
+      function raiseStake(existingIdx){
+        const b = p.bets[existingIdx];
+        const newStake = b.stake + 10;
+        if (newStake > p.bankroll - currentCommittedStake(p) + b.stake) return false;
+        p.bets[existingIdx] = { ...b, stake: newStake };
+        return true;
       }
       function toggleWinBet(horseId){
         if (!betsAccepted()) return;
         const existingIdx = p.bets.findIndex(b=>b.type==='WIN' && b.pick[0]===horseId && !b.result);
         if (existingIdx >= 0){
-          const b = p.bets[existingIdx];
-          const newStake = b.stake + 10;
-          if (newStake > p.bankroll - currentCommittedStake(p) + b.stake){
-            return;
-          }
-          p.bets[existingIdx] = { ...b, stake: newStake };
+          if (!raiseStake(existingIdx)) return;
         } else {
           const max = p.bankroll - currentCommittedStake(p);
           if (max < 10) return;
           p.bets.push({ id: uid(), type:'WIN', pick:[horseId], stake: 10, odds: GAME.state.odds[horseId] });
+        }
+        render();
+        updateBankrollDisplays();
+        syncBetButtons();
+      }
+      function togglePlaceBet(horseId){
+        if (!betsAccepted()) return;
+        const terms = placeMarket();
+        if (!terms.places) return;
+        const existingIdx = p.bets.findIndex(b=>b.type==='PLACE' && b.pick[0]===horseId && !b.result);
+        if (existingIdx >= 0){
+          if (!raiseStake(existingIdx)) return;
+        } else {
+          const max = p.bankroll - currentCommittedStake(p);
+          if (max < 10) return;
+          p.bets.push({
+            id: uid(),
+            type:'PLACE',
+            pick:[horseId],
+            stake: 10,
+            odds: placeDecimal(GAME.state.odds[horseId], terms.fraction),
+            places: terms.places,
+            fraction: terms.fraction
+          });
         }
         render();
         updateBankrollDisplays();
@@ -3207,7 +3358,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         host.style.height = Math.ceil(grid.offsetHeight * scale) + 'px';
       }
     });
-    document.querySelectorAll('.horse-btn .od').forEach(od => {
+    document.querySelectorAll('.horse-btn .od, .place-btn .od, .place-btn .pl-tag, .horse-btn .stake, .place-btn .stake').forEach(od => {
       od.style.fontSize = '';
       od.style.transform = '';
       const btn = od.parentElement;
@@ -3315,7 +3466,12 @@ body.view-3d .scanlines{ opacity:0.16; }
     const name = (id)=>`H${id} ${GAME.horses.find(h=>h.id===id).name}`;
     const odds = (id)=> `${GAME.state.odds[id]?.toFixed(2) ?? '?' }x`;
     if (b.type==='WIN') return `WIN ${name(b.pick[0])} @ ${odds(b.pick[0])} — ${b.stake}`;
-    if (b.type==='PLACE') return `PLACE ${name(b.pick[0])} @ ${odds(b.pick[0])} ×0.5 — ${b.stake}`;
+    if (b.type==='PLACE'){
+      const where = (b.places || 2) >= 3 ? '1st–3rd' : '1st–2nd';
+      const price = Number(b.odds);
+      const shown = Number.isFinite(price) ? `${price.toFixed(2)}x` : odds(b.pick[0]);
+      return `PLACE ${name(b.pick[0])} @ ${shown} (${where}) — ${b.stake}`;
+    }
     return `QUINELLA ${name(b.pick[0])} + ${name(b.pick[1])} @ ${(GAME.state.odds[b.pick[0]]+GAME.state.odds[b.pick[1]]).toFixed(2)} ×0.25 — ${b.stake}`;
   }
 
@@ -3975,6 +4131,25 @@ body.view-3d .scanlines{ opacity:0.16; }
     beginResultsCountdown(document.getElementById('ovTimer'));
   }
 
+  function placeMarket(){
+    const n = (GAME.state.entered || []).length;
+    if (n >= 8) return { places: 3, fraction: 0.2, fracLabel: '1/5' };
+    if (n >= 2) return { places: 2, fraction: 0.25, fracLabel: '1/4' };
+    return { places: 0, fraction: 0, fracLabel: '' };
+  }
+
+  function placeDecimal(winOdds, fraction){
+    const win = Math.max(1, Number(winOdds) || 1);
+    return Math.round((1 + (win - 1) * fraction) * 100) / 100;
+  }
+
+  function placeBetReady(bet, order){
+    const places = bet.places || placeMarket().places || 2;
+    const pos = order.indexOf(bet.pick[0]);
+    if (pos >= 0 && pos < places) return true;
+    return order.length >= places;
+  }
+
   function settleBet(bet, order){
     const odds = GAME.state.odds;
     const stake = bet.stake;
@@ -3985,9 +4160,12 @@ body.view-3d .scanlines{ opacity:0.16; }
       return 0;
     }
     if (bet.type==='PLACE'){
-      const top2 = order.slice(0,2);
-      if (top2.includes(bet.pick[0])){
-        return stake * (odds[bet.pick[0]]||1) * CONFIG.settings.placeFactor;
+      const places = bet.places || placeMarket().places || 2;
+      const pos = order.indexOf(bet.pick[0]);
+      if (pos >= 0 && pos < places){
+        const fraction = bet.fraction || placeMarket().fraction || 0.2;
+        const price = bet.odds || placeDecimal(odds[bet.pick[0]] || 1, fraction);
+        return stake * price;
       }
       return 0;
     }
@@ -4010,7 +4188,8 @@ body.view-3d .scanlines{ opacity:0.16; }
       p.bets.forEach(b => {
         if (b.result) return;
         const ready = b.type === 'WIN' ? order.length >= 1
-          : (b.type === 'PLACE' || b.type === 'QUINELLA') ? order.length >= 2
+          : b.type === 'PLACE' ? placeBetReady(b, order)
+          : b.type === 'QUINELLA' ? order.length >= 2
           : order.length >= 1;
         if (!ready) return;
         const payout = settleBet(b, order);
@@ -4028,8 +4207,15 @@ body.view-3d .scanlines{ opacity:0.16; }
     document.querySelectorAll('.horse-btn').forEach(btn => {
       if (Number(btn.dataset.horseId) === winner) btn.classList.add('payout');
     });
+    activePlayers().forEach(p => {
+      p.bets.forEach(b => {
+        if (b.type === 'PLACE' && b.result && b.result.win){
+          document.querySelectorAll('.place-btn[data-horse-id="' + b.pick[0] + '"]').forEach(btn => btn.classList.add('payout'));
+        }
+      });
+    });
     setTimeout(() => {
-      document.querySelectorAll('.horse-btn.payout').forEach(b => b.classList.remove('payout'));
+      document.querySelectorAll('.horse-btn.payout, .place-btn.payout').forEach(b => b.classList.remove('payout'));
     }, 2500);
   }
 
@@ -4079,7 +4265,6 @@ body.view-3d .scanlines{ opacity:0.16; }
     const cup = GAME.cups[GAME.state.cupIndex];
     const courseName = GAME.courses.find(c=>c.id===GAME.state.course).name;
     els.subtitle.textContent = `${cup.name} • ${heatLabel(GAME.state.heat)} • ${courseName}`;
-    els.courseChip.textContent = courseName;
     els.stateChip.textContent = GAME.state.phase.replace('_',' ');
     const racing = GAME.state.phase === 'RACING';
     const open = GAME.state.phase === 'BETTING_OPEN' || GAME.state.phase === 'RESULTS';
@@ -4464,7 +4649,8 @@ body.view-3d .scanlines{ opacity:0.16; }
     return model.entries.map(e => {
       const h = GAME.horses.find(x => x.id === e.id);
       const pal = tickerColour(e.id);
-      const name = escapeTicker(h ? h.name : '');
+      const horseName = h ? h.name : '';
+      const name = escapeTicker(h ? `H${e.id} ${horseName}` : '');
       const src = escapeTicker(h ? h.sprite : '');
       const place = e.medal ? ' place-' + e.medal : '';
       return `<span class="gb-tick-item${place}" style="--tick:${pal.tick};--ink:${pal.ink}" title="${name}"><span class="gb-tick-pos">${escapeTicker(e.tag)}</span><img src="${src}" alt=""><span class="gb-tick-name">${name}</span></span>`;
@@ -5017,8 +5203,6 @@ body.view-3d .scanlines{ opacity:0.16; }
     resetActiveCountdown();
   }
   els.btnCourse.onclick = () => cycleCourse();
-  const courseChipBtn = document.getElementById('courseChipBtn');
-  if (courseChipBtn) courseChipBtn.onclick = () => cycleCourse();
   const countdownChip = document.getElementById('countdownChip');
   if (countdownChip) countdownChip.onclick = () => cycleCountdown();
   // Betting toggle
@@ -5047,9 +5231,9 @@ body.view-3d .scanlines{ opacity:0.16; }
   // Championship toggle button
   if (els.btnChamp){
     const syncChampBtn = () => {
-      const text = `Championship: ${GAME.state.championship ? 'On' : 'Off'}`;
-      setControlLabel(els.btnChamp, text);
-      els.btnChamp.classList.toggle('active', !!GAME.state.championship);
+      setControlLabel(els.btnChamp, 'Championship');
+      els.btnChamp.classList.toggle('is-on', !!GAME.state.championship);
+      els.btnChamp.title = GAME.state.championship ? 'Championship on' : 'Championship';
       scheduleFitTopBar();
     };
     syncChampBtn();
@@ -5642,6 +5826,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     releaseCommentaryFromRoulette();
     const layer = document.getElementById('rouletteLayer');
     if (layer) layer.hidden = true;
+    syncGameButtons();
   }
 
   const CASINO = [
@@ -5713,6 +5898,25 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (game.id === 'slots') slotEnsure();
     paintCasinoPlayers();
     casinoLock(false);
+    syncGameButtons();
+  }
+  function syncGameButtons(){
+    const open = !!GAME.state.rouletteOpen;
+    const gameId = open && CASINO[casinoIndex] ? CASINO[casinoIndex].id : '';
+    document.querySelectorAll('.game-switch[data-game]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.game === gameId);
+    });
+    scheduleFitTopBar();
+  }
+  function openCasinoGame(id){
+    const ix = CASINO.findIndex(g => g.id === id);
+    if (ix < 0) return;
+    if (GAME.state.rouletteOpen){
+      if (casinoIndex !== ix) showCasino(ix);
+      return;
+    }
+    casinoIndex = ix;
+    openRoulette();
   }
   function paintCasinoPlayers(){
     ['pkPlayers', 'bjPlayers', 'slotPlayers'].forEach(id => {
@@ -6590,19 +6794,10 @@ body.view-3d .scanlines{ opacity:0.16; }
 
   function setupRoulette(){
     buildRouletteFelt();
-    const openBtn = document.getElementById('btnRoulette');
-    if (openBtn) openBtn.onclick = openRoulette;
-    const fruitBtn = document.getElementById('btnFruit');
-    if (fruitBtn) fruitBtn.onclick = () => {
-      const ix = CASINO.findIndex(g => g.id === 'slots');
-      if (ix < 0) return;
-      if (!GAME.state.rouletteOpen){
-        casinoIndex = ix;
-        openRoulette();
-        return;
-      }
-      showCasino(ix);
-    };
+    document.querySelectorAll('.game-switch[data-game]').forEach(btn => {
+      btn.onclick = () => openCasinoGame(btn.dataset.game);
+    });
+    syncGameButtons();
     const closeBtn = document.getElementById('rouletteClose');
     if (closeBtn) closeBtn.onclick = closeRoulette;
     const undo = document.getElementById('rouletteUndo');
