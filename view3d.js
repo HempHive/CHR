@@ -144,6 +144,7 @@
       let orbitAtFinish = false;
       let orbitFollowT = null;
       let orbitLookT = null;
+      let orbitHoldFinish = null;
       const refs = { spots: [], bulbs: [] };
       const GEO = {};
       const MAT = {};
@@ -2734,9 +2735,16 @@
               const prog = api.raceLeaderProgress ? api.raceLeaderProgress() : 0;
               if (prog > 0.8) {
                 orbitGlide = false;
-                const k = smoothstep(0.8, 0.96, prog);
+                let from = 0.8;
+                if (orbitHoldFinish != null) {
+                  if (orbitHoldFinish <= 0.8) orbitHoldFinish = null;
+                  else from = orbitHoldFinish;
+                }
+                const k = smoothstep(from, 0.96, prog);
                 desiredLook.x += (anchor.pos.x - desiredLook.x) * k;
                 desiredLook.z += (anchor.pos.z - desiredLook.z) * k;
+              } else {
+                orbitHoldFinish = null;
               }
             }
             orbitAround(desiredLook);
@@ -2885,17 +2893,29 @@
           if (fieldDirty || !horses.length) rebuildField();
           resize();
           snapCam = true;
+          if (camId === 'orbit') joinOrbit();
           startLoop();
         }
         if (api.onViewChange) api.onViewChange();
       }
 
+      function joinOrbit() {
+        orbitFollowT = null;
+        orbitLookT = null;
+        orbitEase = false;
+        const racing = game.state.phase === 'RACING';
+        const prog = racing && api.raceLeaderProgress ? api.raceLeaderProgress() : 0;
+        orbitHoldFinish = racing && prog > 0.8 ? prog : null;
+      }
+
       function setCamera(id) {
         if (!CAMS.some(c => c.id === id)) id = 'broadcast';
+        const enteringOrbit = id === 'orbit' && camId !== 'orbit';
         if (id !== camId) zoomByCam[camId] = zoom;
         camId = id;
         zoom = zoomByCam[id] != null ? zoomByCam[id] : 1;
         snapCam = true;
+        if (enteringOrbit) joinOrbit();
         game.state.camera = id;
         if (sel) sel.value = id;
         if (bar) bar.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.cam === id));
