@@ -1015,20 +1015,26 @@ dialog.horse-edit-dialog::backdrop{
 }
 @media (max-width: 720px){
   .controls{
-    grid-template-columns:repeat(7, max-content);
-    width:max-content;
+    display:grid;
+    grid-template-columns:repeat(20, minmax(0, 1fr));
+    grid-template-rows:auto;
+    width:100%;
     gap:4px;
-    transform-origin:top left;
+    transform:none;
   }
+  .controls > *{ grid-column:span 4; }
+  .controls > :nth-child(n + 6){ grid-column:span 5; }
   .controls select,
   .controls button{
-    width:auto;
+    width:100%;
+    min-width:0;
     min-height:0;
-    font-size:13px;
-    padding:6px 8px;
+    font-size:12px;
+    padding:6px 4px;
     white-space:nowrap;
   }
-  .controls select{ padding-right:18px; }
+  .controls button .ctl-label{ letter-spacing:0.02em; }
+  .controls select{ padding-right:16px; }
   .cam-bar{ bottom:4px; gap:3px; }
   .players-bar{ flex-direction:column; gap:8px; }
   .sidebar,
@@ -1067,13 +1073,17 @@ dialog.horse-edit-dialog::backdrop{
   .brand .title{ flex:0 0 auto; }
   .brand .subtitle{ white-space:normal; min-width:0; flex:1 1 12rem; }
   .info-chips{
-    display:flex;
-    flex-wrap:wrap;
+    display:grid;
+    grid-template-columns:repeat(12, minmax(0, 1fr));
+    grid-auto-flow:row;
+    width:100%;
+    gap:6px;
     overflow:visible;
-    row-gap:6px;
   }
+  .info-chips > *{ grid-column:span 4; width:100%; min-width:0; }
+  .info-chips > :nth-child(n + 4){ grid-column:span 3; }
   .info-chips > .chip,
-  .info-chips > .status{ width:auto; flex:0 1 auto; }
+  .info-chips > .status{ padding:5px 4px; gap:4px; }
   .horse-strip-btn .hs-meta{ flex-direction:column; gap:0; }
   .horse-strip-btn img{ height:auto !important; max-height:36px; }
   .results-card,
@@ -1304,10 +1314,13 @@ body.view-3d .scanlines{ opacity:0.16; }
   align-items:center;
   min-height:0;
 }
-.rl-wheel-col{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.rl-wheel-col{ display:flex; flex-direction:column; align-items:center; gap:6px; width:100%; min-width:0; max-width:100%; }
 #rouletteWheel{
-  width:min(360px, 40vh);
-  height:min(360px, 40vh);
+  width:min(360px, 40vh, 100%);
+  height:auto;
+  aspect-ratio:1;
+  max-width:100%;
+  display:block;
   border-radius:50%;
   background:#1a1208;
   box-shadow:0 0 0 6px #3a2a14, 0 10px 24px rgba(0,0,0,0.45);
@@ -1414,7 +1427,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 .rl-chipbtn{ min-width:42px; border-radius:999px; }
 @media (max-width: 860px){
   .rl-main{ grid-template-columns: 1fr; }
-  #rouletteWheel{ width:200px; height:200px; }
+  #rouletteWheel{ width:min(180px, 46vw); }
 }
 @media (max-width: 720px){
   .coming-soon{
@@ -1434,24 +1447,34 @@ body.view-3d .scanlines{ opacity:0.16; }
     border-radius:12px;
     padding:10px 8px;
   }
+  .roulette-panel.fit-window{ overflow:auto; }
   .rl-head, .rl-foot{ flex-wrap:wrap; }
   .rl-head h2{ font-size:16px; letter-spacing:0.08em; }
-  .rl-main{ min-width:0; }
+  .rl-main{ min-width:0; gap:8px; margin:6px 0; }
+  .rl-main > div,
   .rl-main > div:last-child{
     min-width:0;
     max-width:100%;
-    overflow-x:auto;
+    overflow:visible;
   }
+  #rouletteWheel{ width:min(132px, 34vw); box-shadow:0 0 0 4px #3a2a14, 0 6px 14px rgba(0,0,0,0.4); }
+  .rl-history{ min-height:0; }
   .rl-felt{
-    width:max-content;
-    min-width:100%;
+    width:100%;
+    min-width:0;
+    max-width:100%;
     box-sizing:border-box;
-    grid-template-columns:40px repeat(12, 26px) 44px;
+    grid-template-columns:repeat(14, minmax(0, 1fr));
+    grid-template-rows:repeat(3, 40px) 34px 34px;
     gap:2px;
     padding:4px;
   }
-  .rl-cell{ font-size:11px; }
-  .rl-cell.out{ font-size:9px; letter-spacing:0; line-height:1.05; }
+  .rl-cell{ font-size:11px; min-width:0; }
+  .rl-cell.out{ font-size:9px; letter-spacing:0; line-height:1.05; padding:0 1px; }
+  .rl-inside{ grid-template-columns:repeat(auto-fill, minmax(92px, 1fr)); }
+  .rl-sidebet{ min-height:40px; }
+  .rl-player{ min-width:0; flex:1 1 30%; }
+  .rl-chipbtn{ min-width:36px; padding:7px 8px; }
   .slot-glass{ --sym:36px; }
   .slot-reel{ width:44px; }
   .slot-sym svg{ width:32px; height:32px; }
@@ -1821,7 +1844,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js?v=chariotdust"></script>
+<script src="view3d.js?v=orbithome"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING
@@ -2413,12 +2436,21 @@ body.view-3d .scanlines{ opacity:0.16; }
     const minPx = 8;
     let size = maxPx;
     row.style.fontSize = size + 'px';
+    [...row.children].forEach(el => { el.style.fontSize = ''; });
     const tight = () => row.scrollWidth > row.clientWidth + 1
       || [...row.children].some(el => el.scrollWidth > el.clientWidth + 1);
     while (size > minPx && tight()){
       size -= 0.5;
       row.style.fontSize = size + 'px';
     }
+    [...row.children].forEach(el => {
+      if (el.clientWidth <= 0 || el.scrollWidth <= el.clientWidth + 1) return;
+      let px = parseFloat(getComputedStyle(el).fontSize) || minPx;
+      while (px > 6.5 && el.scrollWidth > el.clientWidth + 1){
+        px -= 0.5;
+        el.style.fontSize = px + 'px';
+      }
+    });
   }
 
   function controlContentWidth(el){
@@ -2485,28 +2517,12 @@ body.view-3d .scanlines{ opacity:0.16; }
       });
     }
 
-    if (narrow){
-      const host = ensureControlsFitHost(root);
-      clearItemFit();
-      root.style.transform = 'none';
-      items.forEach(el => {
-        if (el.tagName !== 'SELECT') return;
-        el.style.width = Math.ceil(controlTextWidth(el, selectedControlText(el)) + 22) + 'px';
-      });
-      const avail = host.clientWidth;
-      const natural = Math.max(root.scrollWidth, root.offsetWidth);
-      if (avail < 8 || natural < 8) return;
-      const scale = Math.min(1, avail / natural);
-      root.style.transform = scale < 0.995 ? `scale(${scale})` : '';
-      host.style.height = Math.ceil(root.offsetHeight * scale) + 'px';
-      return;
-    }
-
     root.style.transform = '';
     if (root.parentElement && root.parentElement.classList.contains('controls-fit')){
       root.parentElement.style.height = '';
     }
     clearItemFit();
+    if (narrow) items.forEach(el => { el.style.width = ''; });
     const maxPx = 13;
     const minPx = 6;
 
@@ -3135,6 +3151,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (GAME.state.phase === 'RACING') return;
     const span = (seconds == null) ? countdownSec() : seconds;
     GAME.state.phase = 'BETTING_OPEN';
+    orbitHomeSent = false;
     updateInfieldBoard();
     const now = Date.now();
     GAME.state.countdownEndAt = now + span*1000;
@@ -3167,6 +3184,7 @@ body.view-3d .scanlines{ opacity:0.16; }
             countNum.textContent = String(secs);
           }
           if (secs === 3){
+            requestOrbitHome();
             startCommentaryIfEnabled();
             // ensure horses are visually at the start line
             renderRacePositionsInitial();
@@ -3232,6 +3250,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     resultsProceeded = true;
     // The betting clock already has the big 3-2-1 on screen. Leave that one to finish.
     if (bettingCountdownVisible) return;
+    orbitHomeSent = false;
     if (countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
     GAME.state.phase = 'BETTING_CLOSED';
     renderTopbar();
@@ -3254,6 +3273,7 @@ body.view-3d .scanlines{ opacity:0.16; }
           countNum.textContent = String(n);
         }
         if (n === 3){
+          requestOrbitHome();
           startCommentaryIfEnabled();
           renderRacePositionsInitial();
           placeFinishFlag();
@@ -6731,7 +6751,14 @@ body.view-3d .scanlines{ opacity:0.16; }
     });
   }
 
-  let view3d = { onField(){}, onCourse(){}, onTrack(){}, resize(){} };
+  let orbitHomeSent = false;
+  function requestOrbitHome(){
+    if (orbitHomeSent) return;
+    orbitHomeSent = true;
+    if (view3d && view3d.easeOrbitHome) view3d.easeOrbitHome();
+  }
+
+  let view3d = { onField(){}, onCourse(){}, onTrack(){}, resize(){}, easeOrbitHome(){} };
   if (window.RaceView3D){
     try {
       view3d = RaceView3D.attach({

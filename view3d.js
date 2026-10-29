@@ -135,7 +135,10 @@
       const camLook = new THREE.Vector3(0, 1, 0);
       const desiredPos = new THREE.Vector3();
       const desiredLook = new THREE.Vector3();
-      const orbit = { theta: -Math.PI / 2, phi: 1.02, radius: 54 };
+      const ORBIT_HOME_THETA = -Math.PI / 2;
+      const ORBIT_HOME_PHI = 1.02;
+      const orbit = { theta: ORBIT_HOME_THETA, phi: ORBIT_HOME_PHI, radius: 54 };
+      let orbitHoming = false;
       let orbitEase = false;
       let orbitAtFinish = false;
       let orbitFollowT = null;
@@ -2576,7 +2579,34 @@
         pos.sub(look).multiplyScalar(zoom).add(look);
       }
 
+      function angleDelta(from, to){
+        const pi2 = Math.PI * 2;
+        let d = to - from;
+        d = ((d + Math.PI) % pi2 + pi2) % pi2 - Math.PI;
+        return d;
+      }
+      function stepOrbitHome(dt){
+        if (!orbitHoming || camId !== 'orbit') return;
+        const dTheta = angleDelta(orbit.theta, ORBIT_HOME_THETA);
+        const dPhi = ORBIT_HOME_PHI - orbit.phi;
+        const homeZoom = ZOOM_MIN;
+        const dZoom = homeZoom - zoom;
+        if (Math.abs(dTheta) < 0.006 && Math.abs(dPhi) < 0.006 && Math.abs(dZoom) < 0.008){
+          orbit.theta = ORBIT_HOME_THETA;
+          orbit.phi = ORBIT_HOME_PHI;
+          zoom = homeZoom;
+          zoomByCam.orbit = zoom;
+          orbitHoming = false;
+          return;
+        }
+        const k = 1 - Math.exp(-Math.max(0.001, dt) * 1.7);
+        orbit.theta += dTheta * k;
+        orbit.phi += dPhi * k;
+        zoom += dZoom * k;
+        zoomByCam.orbit = zoom;
+      }
       function frameCamera(dt) {
+        stepOrbitHome(dt);
         const pack = packCenter().clone();
         const focus = focusHorse();
         const pos = focus ? focus.pos : pack;
@@ -2895,6 +2925,7 @@
         canvas.addEventListener('wheel', (e) => {
           if (!active) return;
           e.preventDefault();
+          if (camId === 'orbit') orbitHoming = false;
           zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * (e.deltaY > 0 ? 1.08 : 0.92)));
           zoomByCam[camId] = zoom;
         }, { passive: false });
@@ -2934,6 +2965,7 @@
           if (!active) return;
           press = { x: e.clientX, y: e.clientY };
           if (camId !== 'orbit') return;
+          orbitHoming = false;
           drag = { x: e.clientX, y: e.clientY, theta: orbit.theta, phi: orbit.phi };
           canvas.setPointerCapture(e.pointerId);
         });
@@ -2993,7 +3025,14 @@
             rebuildField();
           }
         },
-        resize
+        resize,
+        easeOrbitHome(){
+          if (camId !== 'orbit' || orbitHoming) return;
+          const moved = Math.abs(angleDelta(orbit.theta, ORBIT_HOME_THETA)) > 0.02
+            || Math.abs(orbit.phi - ORBIT_HOME_PHI) > 0.02
+            || Math.abs(zoom - ZOOM_MIN) > 0.02;
+          if (moved) orbitHoming = true;
+        }
       };
     }
   };
