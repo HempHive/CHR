@@ -84,8 +84,12 @@ img{ display:block; }
 }
 
 .info-chips{
-  display:flex; flex-wrap:nowrap; align-items:center; gap:6px;
-  width:100%; min-width:0; overflow:hidden;
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(0, 1fr);
+  align-items:stretch;
+  gap:6px;
+  width:100%; min-width:0;
   font-size:12px;
 }
 .chip{
@@ -94,8 +98,10 @@ img{ display:block; }
   border-radius: 999px;
   padding: 5px 8px;
   font-size:1em;
-  display:flex; align-items:center; gap:6px;
-  flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  min-width:0;
+  width:100%;
+  box-sizing:border-box;
   white-space:nowrap;
 }
 .chip strong{ color: var(--accent-3); text-transform:uppercase; letter-spacing:0.5px; }
@@ -106,11 +112,18 @@ button.chip{
   background: var(--odd-chip);
 }
 button.chip:hover{ border-color:#17f0ff; }
+button.chip.active{
+  border-color:#a85cff;
+  box-shadow: 0 0 0 1px rgba(168,92,255,0.35) inset, 0 0 8px rgba(168,92,255,0.3);
+}
+button.chip.active strong{ color:#d7b4ff; }
 
 .status{
-  display:flex; align-items:center; gap:6px;
+  display:flex; align-items:center; justify-content:center; gap:6px;
   font-weight:700;
-  flex:0 0 auto;
+  min-width:0;
+  width:100%;
+  box-sizing:border-box;
   white-space:nowrap;
   font-size:1em;
 }
@@ -125,7 +138,7 @@ button.chip:hover{ border-color:#17f0ff; }
 /* Course selector + Admin controls */
 .controls{
   display:grid;
-  grid-template-columns: repeat(13, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   grid-template-rows: auto;
   align-items:stretch;
   gap:4px;
@@ -155,6 +168,11 @@ button.chip:hover{ border-color:#17f0ff; }
   line-height:1.1;
   transform-origin:center center;
   max-width:100%;
+  font-weight:800;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:#ffd166;
+  text-shadow:none;
 }
 .controls select{
   padding-right:18px;
@@ -163,21 +181,29 @@ button.chip:hover{ border-color:#17f0ff; }
   background-size: 4px 4px, 4px 4px;
   background-repeat: no-repeat;
 }
-.controls button.active{ background:#0b3a2e; border-color:#0bbd7a; box-shadow: 0 0 0 1px rgba(11,189,122,0.2) inset; }
+.controls button.active{
+  background:#241c08;
+  border-color:#ffd166;
+  box-shadow:inset 0 0 0 1px rgba(255,209,102,0.35);
+}
 /* Stronger active state for Commentary */
 .controls #btnCommentary.active{ background:#2b1f4a; border-color:#a85cff; box-shadow: 0 0 0 1px rgba(168,92,255,0.35) inset, 0 0 8px rgba(168,92,255,0.3); }
 .controls select,.controls button{
-  background: #0f2037;
-  border: 1px solid #244766;
+  background: var(--odd-chip);
+  border: 1px solid var(--chip-border);
   color:var(--text);
-  border-radius:8px;
+  border-radius:999px;
 }
-.controls button.admin{ border-color:#495a7a; background:#11243f;}
+.controls button.admin{ border-color:var(--chip-border); background:var(--odd-chip);}
+.controls button.active .ctl-label{
+  color:#ffd166;
+  text-shadow:none;
+}
 .controls #btnStartRace{
   background: linear-gradient(180deg, #ffe7a8 0%, #e2b34a 48%, #b8860b 100%);
   border-color: #fff1c2;
   color: #2a1c00;
-  box-shadow: 0 0 0 1px rgba(255, 220, 120, 0.5) inset, 0 0 14px rgba(224, 176, 74, 0.45);
+  box-shadow: 0 0 0 1px rgba(255, 220, 120, 0.5) inset;
 }
 .controls #btnStartRace .ctl-label{ color:#2a1c00; }
 .controls #btnStartRace.is-racing{
@@ -186,7 +212,10 @@ button.chip:hover{ border-color:#17f0ff; }
   color:var(--text);
   box-shadow:none;
 }
-.controls #btnStartRace.is-racing .ctl-label{ color:var(--text); }
+.controls #btnStartRace.is-racing .ctl-label{
+  color:#ffd166;
+  text-shadow:none;
+}
 .controls button.primary{ background:#0b3a2e; border-color:#0bbd7a; }
 .controls button.warn{ background:#3a0b0b; border-color:#bd0b0b; }
 
@@ -207,7 +236,9 @@ button.chip:hover{ border-color:#17f0ff; }
   position:relative;
   width:100%;
   height:auto;
-  display:flex; align-items:center; justify-content:center;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
 }
 .track-outer{
   position:relative;
@@ -230,6 +261,9 @@ button.chip:hover{ border-color:#17f0ff; }
 /* Course skins — peek through stadium SVG infield / edges */
 .track.grass{ background: radial-gradient(ellipse at 50% 50%, #3d5c28 0%, #2a4418 55%, #152018 100%); }
 .track.dirt{ background: radial-gradient(ellipse at 50% 50%, #6a4e32 0%, #4a341f 55%, #1a1410 100%); }
+.track.chariot{ background: radial-gradient(ellipse at 50% 50%, #c4a06a 0%, #8a6844 55%, #3a2a1c 100%); }
+.chariot-meta{ display:none; }
+.track.chariot .chariot-meta{ display:block; }
 .track.night{ background: radial-gradient(120% 150% at 50% -20%, #0c1f3d, #060a12 70%); }
 .track.cyber{ background: radial-gradient(120% 150% at 50% -20%, #001018, #00060c 70%); }
 
@@ -334,7 +368,7 @@ button.chip:hover{ border-color:#17f0ff; }
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:6px; padding:10px 12px; box-sizing:border-box;
   transform-origin:center center;
-  width:max-content; max-width:100%;
+  width:100%; max-width:100%; min-width:0;
 }
 .infield-board .gb-brand{
   font-weight:900; letter-spacing:0.12em; text-transform:uppercase;
@@ -342,10 +376,11 @@ button.chip:hover{ border-color:#17f0ff; }
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   -webkit-background-clip:text; background-clip:text; color:transparent;
   line-height:1.1; white-space:nowrap;
+  max-width:100%; overflow:hidden; text-overflow:ellipsis;
 }
 .infield-board .gb-race{
   font-size:11px; font-weight:700; color:#ffd166;
-  line-height:1.2; max-width:220px;
+  line-height:1.2; width:100%; max-width:100%;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .infield-board .gb-heat{
@@ -568,17 +603,17 @@ button.chip:hover{ border-color:#17f0ff; }
 .add-player-btn.remove{ color:var(--danger); border-style:solid; }
 .sidebar.four-up .player{ padding:8px; }
 .sidebar.four-up .player input[type="text"]{ width:120px; font-size:13px; }
-.sidebar.four-up .horse-btn{ padding:6px 4px; min-height:46px; }
+.sidebar.four-up .horse-btn{ padding:4px 6px; min-height:0; }
 .sidebar.four-up .horse-btn .name{ font-size:10px; }
-.sidebar.four-up .horse-grid.eight{ grid-template-columns: repeat(4, minmax(0,1fr)); }
 .player{
   background: var(--panel);
   border: 1px solid #1a2a44;
   border-radius: 12px;
   padding: 10px;
   display:grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap:10px;
+  min-width:0;
   box-shadow: inset 0 0 0 2px #0b1626, 0 8px 24px var(--shadow);
 }
 .player.open{ border-color:#0bbd7a; box-shadow: 0 0 0 2px rgba(11,189,122,0.2) inset; }
@@ -633,22 +668,43 @@ button.chip:hover{ border-color:#17f0ff; }
 }
 
 /* Quick bet grid */
-.quickbets{ grid-column: 1 / -1; background: var(--panel-2); border:1px solid #1a2a44; border-radius:10px; padding:8px; margin-top:8px; }
+.quickbets{ grid-column: 1 / -1; min-width:0; max-width:100%; background: var(--panel-2); border:1px solid #1a2a44; border-radius:10px; padding:8px; margin-top:8px; }
 .quickbets .title{ font-size:12px; color:var(--muted); margin-bottom:6px; }
-.horse-grid{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:6px; }
-.horse-grid.eight{ grid-template-columns: repeat(8, minmax(0,1fr)); }
-@media (max-width: 1100px){
-  .horse-grid.eight{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+.horse-grid,
+.horse-grid.eight,
+.sidebar.four-up .horse-grid.eight{
+  display:grid;
+  grid-template-columns:repeat(8, minmax(0, 1fr));
+  width:100%;
+  min-width:0;
+  gap:3px;
+  justify-content:stretch;
 }
-.horse-btn{ background:#0f2037; border:1px solid #244766; color:#e6f1ff; border-radius:8px; padding:8px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; user-select:none; min-height:52px; }
-.horse-btn .num{ font-size:14px; font-weight:800; color:#17f0ff; }
-.horse-btn .name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; color:#bfe0ff; max-width:100%; }
-.horse-btn .stake{ font-size:11px; color:var(--accent-3); font-weight:700; min-height:14px; }
-.horse-btn .od{ font-size:11px; color:#9fd3ff; }
+.horse-btn{ background:#0f2037; border:1px solid #244766; color:#e6f1ff; border-radius:8px; padding:3px 1px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; cursor:pointer; user-select:none; min-height:0; min-width:0; width:100%; overflow:hidden; }
+.horse-btn .num{ font-size:13px; font-weight:800; color:#17f0ff; line-height:1.1; max-width:100%; }
+.horse-btn .name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:10px; color:#bfe0ff; width:100%; min-width:0; max-width:100%; line-height:1.15; text-align:center; }
+.horse-btn .stake{ font-size:10px; color:var(--accent-3); font-weight:700; min-height:0; line-height:1.1; max-width:100%; overflow:hidden; }
+.horse-btn .stake:empty{ display:none; }
+.horse-btn .od{
+  font-size:11px; color:#9fd3ff; padding:0; margin:0; line-height:1.1;
+  background:none; border:none; border-radius:0; box-shadow:none;
+  max-width:100%; min-width:0; white-space:nowrap; overflow:visible; text-overflow:clip;
+  flex:0 0 auto; transform-origin:center center;
+}
 .horse-btn.selected{ outline:2px solid #a85cff; box-shadow: 0 0 0 2px rgba(168,92,255,0.25) inset; }
 .horse-btn.has-bet{ background:#0b3a2e; border-color:#0bbd7a; }
-.qb-controls{ display:flex; gap:6px; margin-top:6px; }
-.qb-controls button{ background:#0f2037; border:1px solid #244766; color:#e6f1ff; padding:4px 8px; border-radius:8px; }
+.horse-btn.place-1{ border-color:#ffd166; box-shadow:inset 0 0 0 2px #ffd166, 0 0 8px rgba(255,209,102,0.45); }
+.horse-btn.place-2{ border-color:#d7dee8; box-shadow:inset 0 0 0 2px #eef2f6, 0 0 8px rgba(215,222,232,0.4); }
+.horse-btn.place-3{ border-color:#cd8a4a; box-shadow:inset 0 0 0 2px #e0a36a, 0 0 8px rgba(205,138,74,0.4); }
+.qb-controls{ display:flex; flex-wrap:nowrap; gap:4px; margin-top:6px; width:100%; min-width:0; }
+.qb-controls button{
+  flex:1 1 0; min-width:0;
+  background:#0f2037; border:1px solid #0bbd7a; color:#00ffa3;
+  padding:4px 2px; border-radius:8px;
+  font-size:11px; font-weight:800; letter-spacing:0.01em;
+  white-space:nowrap; text-align:center;
+  text-shadow:0 0 6px rgba(0,255,163,0.45);
+}
 .selhorse{ display:flex; align-items:center; gap:8px; padding:6px 8px; background:#0f2037; border:1px solid #244766; border-radius:8px; margin-bottom:6px; }
 .selhorse img{ width:36px; height:26px; object-fit:contain; image-rendering: pixelated; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.45)); }
 .selhorse .label{ font-size:12px; color:#bfe0ff; }
@@ -656,11 +712,10 @@ button.chip:hover{ border-color:#17f0ff; }
 .horse-btn.payout{ outline: 2px solid #ffd166; box-shadow: 0 0 0 2px rgba(255,209,102,0.35) inset; animation: btnPulse 800ms ease-in-out infinite; }
 @keyframes btnPulse { 0%{ outline-width:2px; } 50%{ outline-width:4px; } 100%{ outline-width:2px; } }
 
-/* Odds chips */
-.odds{
-  display:flex; gap:4px; flex-wrap:nowrap;
-  flex:1 1 auto; min-width:0; margin-left:auto;
-  overflow:hidden; justify-content:flex-end;
+.horse-grid-fit{
+  width:100%;
+  min-width:0;
+  overflow:hidden;
 }
 .od{ background:#0a2237; border:1px solid #234260; border-radius:6px; padding:2px 5px; font-size:1em; white-space:nowrap; flex:0 0 auto; }
 
@@ -793,16 +848,115 @@ dialog.horse-edit-dialog::backdrop{
 .track-outer.is-3d .parallax,
 .track-outer.is-3d .finish-flag,
 .track-outer.is-3d .course-posts-layer{ visibility:hidden; }
-.track-outer.is-3d .infield-board.show{
-  left:auto;
-  right:clamp(4px, 1.2cqw, 10px);
-  top:clamp(4px, 1.2cqw, 10px);
-  transform:none;
-  width:min(230px, 34cqw);
-  height:auto;
-  max-width:min(230px, 34cqw);
-  max-height:42%;
-  z-index:6;
+.track-outer.is-3d .infield-board{ display:none; }
+.gb-ticker{
+  display:none;
+  position:relative;
+  width:100%;
+  height:44px;
+  margin-top:8px;
+  padding:0 10px;
+  box-sizing:border-box;
+  overflow:hidden;
+  align-items:center;
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(23,240,255,0.12), transparent 55%),
+    linear-gradient(165deg, rgba(8,18,32,0.94), rgba(12,24,44,0.9));
+  border:1px solid rgba(23,240,255,0.4);
+  border-radius:10px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+.track-outer.is-3d + .gb-ticker{ display:flex; }
+.gb-ticker-track{
+  display:flex;
+  width:max-content;
+  align-items:center;
+  white-space:nowrap;
+  animation:gbTicker 36s linear infinite;
+  transition:opacity .45s ease;
+}
+.gb-ticker-track.is-dissolving{ opacity:0; }
+.gb-tick-run{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding-right:8px;
+}
+.gb-tick-race{
+  display:inline-flex;
+  align-items:center;
+  padding:2px;
+  border-radius:8px;
+  border:1px solid #e2b34a;
+  background:linear-gradient(180deg, #4a3810, #161006);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.55), 0 0 8px rgba(255,209,102,0.28);
+}
+.gb-tick-race-in{
+  display:inline-flex;
+  align-items:center;
+  padding:2px 10px;
+  border-radius:5px;
+  border:1px solid #ffe566;
+  background:linear-gradient(180deg, rgba(92,70,14,0.98), rgba(28,20,4,0.98));
+  color:#ffe566;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  text-shadow:0 0 6px rgba(255,214,80,0.7);
+}
+.gb-tick-item{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:2px 7px 2px 2px;
+  border-radius:6px;
+  background:rgba(8,12,20,0.82);
+  border:1px solid color-mix(in srgb, var(--tick) 75%, #fff);
+  box-shadow:0 0 8px color-mix(in srgb, var(--tick) 55%, transparent);
+}
+.gb-tick-pos{
+  min-width:18px;
+  height:18px;
+  padding:0 3px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:3px;
+  background:var(--tick);
+  color:var(--ink);
+  font-size:11px;
+  font-weight:900;
+  line-height:1;
+}
+.gb-tick-id,
+.gb-tick-name{
+  color:var(--tick);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.02em;
+  text-shadow:
+    0 0 1px #000,
+    1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000;
+}
+.gb-tick-item.place-1{ border-color:#ffd166; box-shadow:0 0 8px rgba(255,209,102,0.8); }
+.gb-tick-item.place-2{ border-color:#d7dee8; box-shadow:0 0 8px rgba(215,222,232,0.75); }
+.gb-tick-item.place-3{ border-color:#cd8a4a; box-shadow:0 0 8px rgba(205,138,74,0.75); }
+.gb-tick-item img{
+  width:32px;
+  height:24px;
+  object-fit:contain;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,0.65));
+}
+.gb-tick-next{
+  font-size:12px;
+  font-weight:800;
+  color:#ffd166;
+}
+@keyframes gbTicker{
+  from{ transform:translateX(0); }
+  to{ transform:translateX(-50%); }
 }
 .track-outer.is-3d .results-overlay{
   align-items:flex-start; justify-content:flex-end;
@@ -813,28 +967,27 @@ dialog.horse-edit-dialog::backdrop{
 }
 .cam-hud{
   position:absolute;
-  top:clamp(4px, 1.2cqw, 8px);
-  left:clamp(4px, 1.4cqw, 10px);
+  top:8px; left:10px;
   z-index:6;
   display:none; flex-direction:column; gap:1px;
   color:#e8f7ff; pointer-events:none;
   background:rgba(6,12,22,0.5);
   border:1px solid rgba(23,240,255,0.28);
-  border-radius:clamp(4px, 1cqw, 8px);
-  padding:clamp(2px, 0.6cqw, 5px) clamp(4px, 1cqw, 8px);
+  border-radius:8px;
+  padding:5px 8px;
   text-shadow:0 1px 2px #000;
-  max-width:min(240px, 32cqw);
+  max-width:min(240px, 46%);
   box-sizing:border-box;
 }
-.track-outer.is-3d .cam-hud{ display:flex; }
+.track-outer.is-3d .cam-hud{ display:none; }
 .cam-hud strong{
-  font-size:clamp(8px, 1.45cqw, 11px);
-  letter-spacing:0.08em; text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:0.12em; text-transform:uppercase;
 }
 .cam-hud span{
-  font-size:clamp(7px, 1.2cqw, 10px);
+  font-size:10px;
   color:#9fd3ff; letter-spacing:0.02em;
-  white-space:normal; line-height:1.25;
+  white-space:nowrap; line-height:1.25;
 }
 .cam-bar{
   position:absolute; left:50%; bottom:8px; z-index:6;
@@ -844,7 +997,7 @@ dialog.horse-edit-dialog::backdrop{
   transform-origin:center bottom;
   pointer-events:none;
 }
-.track-outer.is-3d .cam-bar{ display:flex; }
+.track-outer.is-3d .cam-bar{ display:none; }
 .cam-bar button{
   pointer-events:auto;
   background:rgba(8,16,28,0.78);
@@ -900,20 +1053,27 @@ dialog.horse-edit-dialog::backdrop{
     font-size:16px;
   }
   .balance{ font-size:13px; gap:8px; }
-  .horse-btn{ min-height:44px; padding:6px 3px; }
+  .player header{ flex-wrap:nowrap; gap:8px; }
+  .player .name{ flex:1 1 auto; min-width:0; }
+  .balance{ flex:0 0 auto; white-space:nowrap; font-size:12px; gap:6px; }
+  .quickbets{ padding:6px; margin-top:4px; }
+  .horse-btn{ padding:3px 5px; }
+  .horse-btn .num{ font-size:12px; }
   .horse-btn .name{ font-size:10px; }
+  .horse-btn .od{ font-size:10px; }
+  .horse-btn .stake{ font-size:10px; }
   .mybets .line{ flex-wrap:wrap; }
   .brand{ flex-wrap:wrap; min-width:0; }
   .brand .title{ flex:0 0 auto; }
   .brand .subtitle{ white-space:normal; min-width:0; flex:1 1 12rem; }
-  .info-chips{ flex-wrap:wrap; overflow:visible; row-gap:6px; }
-  .odds{
-    flex:1 1 100%;
+  .info-chips{
+    display:flex;
     flex-wrap:wrap;
     overflow:visible;
-    justify-content:flex-start;
-    margin-left:0;
+    row-gap:6px;
   }
+  .info-chips > .chip,
+  .info-chips > .status{ width:auto; flex:0 1 auto; }
   .horse-strip-btn .hs-meta{ flex-direction:column; gap:0; }
   .horse-strip-btn img{ height:auto !important; max-height:36px; }
   .results-card,
@@ -961,8 +1121,10 @@ body.view-3d .scanlines{ opacity:0.16; }
 .roulette-layer[hidden]{ display:none !important; }
 .roulette-panel{
   width:min(1120px, 100%);
-  max-height:calc(100vh - 28px);
+  max-height:calc(100vh - 16px);
   overflow:auto;
+  display:flex;
+  flex-direction:column;
   background:
     radial-gradient(120% 80% at 50% -10%, #1a3a28 0%, #0c1a14 42%, #091018 100%);
   border:1px solid #c6a15a;
@@ -974,6 +1136,150 @@ body.view-3d .scanlines{ opacity:0.16; }
 .rl-head, .rl-foot{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
 }
+.casino-nav{ display:flex; align-items:center; gap:8px; min-width:0; flex:1; }
+.casino-arrow{
+  width:42px; height:42px; flex:0 0 auto; border-radius:999px;
+  font-size:28px; line-height:1; padding:0;
+  border-color:#c6a15a; color:#f3d48a;
+}
+.rl-head .casino-arrow{
+  width:42px; height:42px; padding:0;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+.casino-view[hidden]{ display:none !important; }
+.roulette-panel.fit-window{ overflow:hidden; }
+.roulette-panel.fit-window .casino-view[data-game="roulette"]{
+  display:flex; flex-direction:column; min-height:0;
+}
+.casino-card{
+  width:48px; height:66px; border-radius:6px; flex:0 0 auto;
+  background:linear-gradient(#fff, #f3efe6);
+  border:1px solid #d9d3c7; color:#171717;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:16px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.28);
+}
+.casino-card.red{ color:#c81e1e; }
+.casino-card.back{
+  background:repeating-linear-gradient(45deg, #142f72, #142f72 6px, #1d4ed8 6px, #1d4ed8 12px);
+  border-color:#0b1c44; color:transparent;
+}
+.pk-table, .bj-table{
+  background:radial-gradient(circle at 50% 42%, #147a45, #06341d 72%);
+  border:8px solid #6b4420;
+  border-radius:28px;
+  padding:14px;
+  box-shadow:inset 0 0 0 3px rgba(226,179,74,0.35);
+}
+.pk-top, .pk-bot{ display:flex; justify-content:space-between; gap:10px; }
+.pk-mid{ min-height:92px; margin:10px 0; text-align:center; }
+.pk-seat{
+  width:min(240px, 48%);
+  background:rgba(4,12,10,0.78);
+  border:1px solid rgba(255,209,102,0.28);
+  border-radius:10px;
+  padding:6px 8px;
+  box-sizing:border-box;
+}
+.pk-seat.on{ border-color:#ffd166; box-shadow:0 0 0 1px #ffd166; }
+.pk-seat .nm{ font-size:13px; font-weight:800; color:#f3d48a; }
+.pk-seat .st, .pk-seat .rk{ font-size:11px; color:#b7d7ea; }
+.pk-cards, .bj-cards{ display:flex; gap:4px; margin-top:4px; min-height:66px; }
+.pk-pot{ font-weight:800; color:#ffd166; letter-spacing:0.06em; }
+.pk-msg, .bj-msg, .slot-msg{ margin-top:6px; color:#e7f6ff; font-size:14px; font-weight:700; }
+.bj-row{ display:flex; align-items:center; gap:10px; margin:8px 0; }
+.bj-row span{ width:64px; font-weight:800; color:#f3d48a; }
+.bj-row b{ color:#fff; font-size:14px; }
+.slot-wrap{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+.slot-cabinet{
+  width:min(760px, 100%);
+  background:linear-gradient(180deg, #6d1820 0%, #3a0c12 38%, #14080b 100%);
+  border:4px solid #e2b34a;
+  border-radius:18px;
+  padding:12px 12px 14px;
+  box-shadow:inset 0 0 0 3px #4a2414, 0 16px 30px rgba(0,0,0,0.45);
+  overflow:visible;
+}
+.slot-cabinet.win{ box-shadow:inset 0 0 0 3px #ffe566, 0 0 18px rgba(255,209,102,0.45); }
+.slot-marquee{
+  text-align:center; font-weight:900; letter-spacing:0.16em;
+  color:#2a1400; background:linear-gradient(#ffe7a3, #e2b34a);
+  border-radius:8px; padding:6px 8px; margin-bottom:8px;
+}
+.slot-glass{
+  --sym:50px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.slot-reels{
+  display:flex; gap:8px; padding:10px;
+  background:linear-gradient(#1a120c, #0c0a08);
+  border-radius:12px; border:3px solid #c6a15a;
+  position:relative;
+}
+.slot-reels:after{
+  content:"";
+  position:absolute; left:8px; right:8px; top:50%; height:2px;
+  background:#ffd166; opacity:0.9;
+  box-shadow:0 0 6px rgba(255,209,102,0.65);
+  transform:translateY(-1px);
+  z-index:2; pointer-events:none;
+}
+.slot-reel{
+  width:62px; height:calc(var(--sym) * 3); overflow:hidden; border-radius:8px;
+  background:#111; border:2px solid #2c2418;
+  box-shadow:inset 0 10px 16px rgba(0,0,0,0.35);
+}
+.slot-sym{
+  height:var(--sym); display:flex; align-items:center; justify-content:center;
+  font-size:32px; background:linear-gradient(#fffaf0, #f0d7a4);
+  border-bottom:1px solid #c9a56a; color:#1a1208;
+}
+.slot-sym[data-sym="bar"]{ font-size:15px; font-weight:900; letter-spacing:0.06em; }
+.slot-sym[data-sym="seven"],
+.slot-sym[data-sym="chest"]{
+  background:radial-gradient(circle at 50% 38%, #3a160c, #140806);
+}
+.slot-sym svg{ width:46px; height:46px; display:block; }
+.slot-line{
+  margin-top:8px;
+  min-height:22px;
+  text-align:center;
+  color:#ffe7a3;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:0.04em;
+}
+.slot-handle{
+  width:56px; height:calc(var(--sym) * 3);
+  border:0; background:transparent; cursor:grab;
+  position:relative; padding:0; flex:0 0 auto;
+  touch-action:none;
+}
+.slot-handle:active{ cursor:grabbing; }
+.slot-arm{
+  position:absolute; left:22px; top:20px; bottom:18px; width:12px;
+  border-radius:8px;
+  background:linear-gradient(90deg, #8d97a3, #f4f7fb 42%, #66707c);
+  box-shadow:inset 0 0 0 1px #2a2418;
+}
+.slot-knob{
+  position:absolute; left:8px; top:4px; width:40px; height:40px; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #ffb4b4, #d31212 58%, #6d1010);
+  box-shadow:0 4px 0 #4a1010, inset 0 -4px 6px rgba(0,0,0,0.25);
+  z-index:2;
+  transition:top .65s cubic-bezier(.16,1.15,.32,1);
+}
+.slot-handle.pulled .slot-knob{
+  top:calc(100% - 46px);
+  transition:top .12s ease-out;
+}
+.slot-pay{ margin-top:8px; text-align:center; color:#f3d48a; font-size:12px; font-weight:700; }
+.slot-buttons{ display:flex; gap:8px; justify-content:center; margin-top:8px; }
+.slot-buttons button{
+  min-width:52px; background:#1a120c; color:#ffe7a3; border:1px solid #e2b34a;
+  border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer;
+}
+.slot-buttons button.on, .slot-buttons button.primary{ background:#e2b34a; color:#2a1400; }
 .rl-head h2{
   margin:0; font-size:22px; letter-spacing:0.14em; text-transform:uppercase;
   color:#f3d48a;
@@ -992,19 +1298,24 @@ body.view-3d .scanlines{ opacity:0.16; }
 }
 .rl-main{
   display:grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap:14px;
-  margin:12px 0;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  gap:10px;
+  margin:8px 0 6px;
+  align-items:center;
+  min-height:0;
 }
-.rl-wheel-col{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+.rl-wheel-col{ display:flex; flex-direction:column; align-items:center; gap:6px; }
 #rouletteWheel{
-  width:260px; height:260px; border-radius:50%;
+  width:min(360px, 40vh);
+  height:min(360px, 40vh);
+  border-radius:50%;
   background:#1a1208;
   box-shadow:0 0 0 6px #3a2a14, 0 10px 24px rgba(0,0,0,0.45);
 }
 .rl-call{
-  min-height:2.4em; text-align:center; font-weight:800; color:#ffd166; font-size:14px;
+  min-height:0; text-align:center; font-weight:800; color:#ffd166; font-size:13px;
 }
+.rl-call:empty{ display:none; }
 .rl-history{ display:flex; flex-wrap:wrap; gap:4px; justify-content:center; min-height:22px; }
 .rl-hist{
   min-width:22px; height:22px; padding:0 4px; border-radius:11px;
@@ -1044,10 +1355,57 @@ body.view-3d .scanlines{ opacity:0.16; }
   border:1px dashed #fff; color:#041018; font-size:8px; font-weight:900;
   display:inline-flex; align-items:center; justify-content:center;
 }
+.rl-main > div{ min-width:0; }
 .rl-inside{
-  display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:34px;
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap:4px;
+  width:100%;
+  margin-top:8px;
 }
-.rl-inside p{ margin:0; color:#9fd3ff; font-size:12px; align-self:center; }
+.rl-inside p{
+  grid-column:1 / -1;
+  margin:0 0 2px;
+  color:#f3d48a;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.rl-sidebet{
+  min-width:0;
+  width:100%;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  min-height:44px;
+  padding:4px 6px;
+  background:#146b45;
+  border:1px solid #d4b36a;
+  border-radius:4px;
+  color:#fff;
+  cursor:pointer;
+}
+.rl-sidebet b{
+  font-size:12px;
+  font-weight:800;
+  line-height:1.15;
+  text-align:center;
+  white-space:normal;
+}
+.rl-sidebet span{
+  font-size:10px;
+  font-weight:800;
+  color:#ffe7a3;
+  letter-spacing:0.04em;
+}
+.rl-sidebet:hover{ outline:2px solid #ffd166; }
+.rl-sidebet:disabled{ opacity:0.45; cursor:default; }
+.pk-sizer{ display:flex; gap:4px; flex-wrap:wrap; }
+.pk-sizer button.on{ background:#3a2c08; border-color:#ffd166; color:#ffd166; }
 .rl-foot{ flex-wrap:wrap; }
 .rl-players, .rl-chips, .rl-actions{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .rl-player{ display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:92px; }
@@ -1094,6 +1452,10 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
   .rl-cell{ font-size:11px; }
   .rl-cell.out{ font-size:9px; letter-spacing:0; line-height:1.05; }
+  .slot-glass{ --sym:36px; }
+  .slot-reel{ width:44px; }
+  .slot-sym svg{ width:32px; height:32px; }
+  .pk-table, .bj-table{ border-width:4px; border-radius:16px; padding:8px; }
 }
 </style>
 </head>
@@ -1110,33 +1472,22 @@ body.view-3d .scanlines{ opacity:0.16; }
       <div class="info-chips">
         <div class="chip"><strong>State</strong><span id="stateChip">BETTING OPEN</span></div>
         <div class="status" id="betStatus"><span class="dot"></span><span id="betText">BETTING OPEN</span> <span class="countdown" id="betCountdown">(00:20)</span></div>
-        <button type="button" class="chip" id="countdownChip" title="Betting countdown and next-race wait. Cycles 10, 15, 20, 25, and 30 seconds."><strong>Countdown</strong><span id="countdown">15</span>s</button>
-        <button type="button" class="chip" id="courseChipBtn" title="Course. Cycles Grass Day, Dirt Sunset, Night Neon, and Cyber Grid."><strong>Course</strong><span id="courseChip">Grass Day</span></button>
-        <div class="odds" id="topOdds"></div>
+        <button type="button" class="chip" id="countdownChip" title="Betting countdown and next-race wait. Cycles 10, 15, 20, 25, and 30 seconds."><strong>Countdown</strong><span id="countdown">20</span>s</button>
+        <button type="button" class="chip" id="courseChipBtn" title="Course. Cycles Grass Day, Dirt Sunset, Chariot Sands, Night Neon, and Cyber Grid."><strong>Course</strong><span id="courseChip">Grass Day</span></button>
+        <button type="button" class="chip" id="cameraChip" title="Camera. Cycles Broadcast, Rail, Chase, Finish, Grandstand, Drone, Jockey, and Orbit."><strong>Camera</strong><span id="cameraChipLabel">Orbit</span></button>
+        <button type="button" class="chip" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps."><strong>Laps</strong><span id="lapsChip">1</span></button>
+        <button type="button" class="chip" id="btnCommentary" title="Toggle race commentary"><strong>Commentary</strong><span id="commentaryChipLabel">Off</span></button>
       </div>
       <div class="controls">
         <button class="admin active" id="btnToggleView" title="Swap flat track and 3D broadcast">View: 3D</button>
-        <select id="cameraSelect" title="Camera">
-          <option value="broadcast">Broadcast</option>
-          <option value="rail">Rail</option>
-          <option value="chase">Chase</option>
-          <option value="finish">Finish Line</option>
-          <option value="stands">Grandstand</option>
-          <option value="drone">Drone</option>
-          <option value="jockey">Jockey</option>
-          <option value="orbit" selected>Orbit</option>
-        </select>
-        <button class="admin" id="btnCourse" title="Course setting. Cycles Grass Day, Dirt Sunset, Night Neon, and Cyber Grid.">Grass Day</button>
+        <button class="admin" id="btnCourse" title="Course setting. Cycles Grass Day, Dirt Sunset, Chariot Sands, Night Neon, and Cyber Grid.">Grass Day</button>
         <button class="admin" id="btnToggleTrack">Track: Course</button>
-        <button class="admin" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps.">Laps: 1</button>
         <button class="admin" id="btnChamp">Championship: Off</button>
         <button class="admin" id="btnStartRace">Start Race Now</button>
         <button class="admin" id="btnBetToggle">Open Betting</button>
-        <button class="admin" id="btnNextHeat">Next Heat</button>
-        <button class="admin" id="btnCommentary">Commentary</button>
         <button class="admin" id="btnRules">📜 Rules</button>
         <button class="admin" id="btnOddsMode">Odds: Fixed</button>
-        <button class="admin" id="btnRoulette" title="Open roulette. Pauses the horse race.">Roulette</button>
+        <button class="admin" id="btnRoulette" title="Open the casino. Roulette, Texas Hold'em, blackjack, and the fruit machine. Pauses the horse race.">Roulette</button>
       </div>
       <div class="horse-strip-wrap">
         <div class="horse-strip" id="horseStrip" aria-label="Horse standings"></div>
@@ -1246,6 +1597,9 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" data-cam="orbit">Orbit</button>
         </div>
       </div>
+      <div class="gb-ticker" id="gbTicker">
+        <div class="gb-ticker-track" id="gbTickerTrack"></div>
+      </div>
     </div>
 
     <!-- SIDEBAR PLAYERS -->
@@ -1267,16 +1621,21 @@ body.view-3d .scanlines{ opacity:0.16; }
 <div id="rouletteLayer" class="roulette-layer" hidden>
   <div class="roulette-panel" role="dialog" aria-modal="true" aria-labelledby="rouletteTitle" tabindex="-1">
     <header class="rl-head">
-      <div>
-        <h2 id="rouletteTitle">Roulette</h2>
-        <p id="roulettePause">Horse racing is paused</p>
+      <div class="casino-nav">
+        <button type="button" class="casino-arrow" id="casinoPrev" aria-label="Previous game">‹</button>
+        <div>
+          <h2 id="rouletteTitle">Roulette</h2>
+          <p id="roulettePause">Horse racing is paused · 1 of 4</p>
+        </div>
+        <button type="button" class="casino-arrow" id="casinoNext" aria-label="Next game">›</button>
       </div>
       <button type="button" id="rouletteClose">Back to the race</button>
     </header>
+    <div class="casino-view" data-game="roulette">
     <div class="rl-main">
       <div class="rl-wheel-col">
         <canvas id="rouletteWheel" width="640" height="640" aria-label="Roulette wheel"></canvas>
-        <div id="rouletteCall" class="rl-call">Pick a player, a chip, and a number.</div>
+        <div id="rouletteCall" class="rl-call"></div>
         <div id="rouletteHistory" class="rl-history"></div>
       </div>
       <div>
@@ -1293,6 +1652,67 @@ body.view-3d .scanlines{ opacity:0.16; }
         <button type="button" id="rouletteSpin" class="primary">Spin</button>
       </div>
     </footer>
+    </div>
+    <div class="casino-view" data-game="holdem" hidden>
+      <div id="pkTable" class="pk-table"></div>
+      <p class="pk-msg" id="pkMsg">Deal to play Texas Hold'em against three computer players.</p>
+      <footer class="rl-foot">
+        <div id="pkPlayers" class="rl-players"></div>
+        <div class="rl-actions">
+          <button type="button" id="pkFold">Fold</button>
+          <button type="button" id="pkCall">Check</button>
+          <div class="pk-sizer" id="pkSizer">
+            <button type="button" data-raise="10">10</button>
+            <button type="button" data-raise="20" class="on">20</button>
+            <button type="button" data-raise="50">50</button>
+            <button type="button" data-raise="100">100</button>
+          </div>
+          <button type="button" id="pkRaise">Raise 20</button>
+          <button type="button" id="pkAllIn">All-in</button>
+          <button type="button" id="pkDeal" class="primary">Deal</button>
+        </div>
+      </footer>
+    </div>
+    <div class="casino-view" data-game="blackjack" hidden>
+      <div class="bj-table">
+        <div class="bj-row"><span>Dealer</span><div id="bjDealer" class="bj-cards"></div><b id="bjDealerTot"></b></div>
+        <div class="bj-row"><span>You</span><div id="bjPlayer" class="bj-cards"></div><b id="bjPlayerTot"></b></div>
+        <div class="bj-msg" id="bjMsg">Pick a chip and deal.</div>
+      </div>
+      <footer class="rl-foot">
+        <div id="bjPlayers" class="rl-players"></div>
+        <div id="bjChips" class="rl-chips"></div>
+        <div class="rl-actions">
+          <button type="button" id="bjDeal" class="primary">Deal</button>
+          <button type="button" id="bjHit">Hit</button>
+          <button type="button" id="bjStand">Stand</button>
+          <button type="button" id="bjDouble">Double</button>
+        </div>
+      </footer>
+    </div>
+    <div class="casino-view" data-game="slots" hidden>
+      <div class="slot-wrap">
+        <div class="slot-cabinet" id="slotCabinet">
+          <div class="slot-marquee">ARCADE FRUIT</div>
+          <div class="slot-glass">
+            <div class="slot-reels" id="slotReels" aria-label="Fruit machine reels"></div>
+            <button type="button" class="slot-handle" id="slotHandle" aria-label="Pull handle">
+              <span class="slot-arm"></span>
+              <span class="slot-knob"></span>
+            </button>
+          </div>
+          <div class="slot-pay">Middle line · Gold Chest ×120 · Lucky 7 ×80 · BAR ×50 · two cherries ×2</div>
+          <div class="slot-buttons" id="slotBets">
+            <button type="button" data-bet="5">5</button>
+            <button type="button" data-bet="10" class="on">10</button>
+            <button type="button" data-bet="25">25</button>
+            <button type="button" id="slotSpin" class="primary">SPIN</button>
+          </div>
+          <div class="slot-line" id="slotMsg">Pull the handle or press spin.</div>
+        </div>
+        <div id="slotPlayers" class="rl-players"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1305,7 +1725,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   </ul>
   <p>Trials: Top 2 from Trial A and Top 2 from Trial B advance to the Final. Final bet menu shows each qualifier’s trial result tag.</p>
   <p>View swaps the flat track for a 3D broadcast. Pick a camera along the bottom, drag in Orbit, and scroll to zoom. V and C do the same from the keyboard.</p>
-  <p>Roulette uses the same player banks. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and red, black, odd, even, 1–18 and 19–36 pay 1:1. The horse race stays paused while the table is open. The wheel on the flat course, and the roulette table in the 3D infield, both open that game. Laps sets the race to 1, 2, or 3 circuits and starts at 1.</p>
+  <p>Roulette uses the same player banks. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and red, black, odd, even, 1–18 and 19–36 pay 1:1. The arrows in that window also open Texas Hold'em against computer players, blackjack, and the fruit machine. The horse race stays paused while the table is open. The wheel on the flat course, and the roulette table in the 3D infield, both open that game. Laps sets the race to 1, 2, or 3 circuits and starts at 1.</p>
   <div style="display:flex; gap:8px; justify-content:flex-end;">
     <button onclick="document.getElementById('rulesDialog').close()">Close</button>
   </div>
@@ -1367,6 +1787,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   "courses": [
     { "id": "grass", "name": "Grass Day" },
     { "id": "dirt",  "name": "Dirt Sunset" },
+    { "id": "chariot", "name": "Chariot Sands" },
     { "id": "night", "name": "Night Neon" },
     { "id": "cyber", "name": "Cyber Grid" }
   ],
@@ -1387,20 +1808,20 @@ body.view-3d .scanlines{ opacity:0.16; }
     { "id": 4, "name": "Player 4", "bankroll": 250, "totalWinnings": 0, "bets": [] }
   ],
   "settings": {
-    "countdownSec": 15,
-    "betCountdownSec": 15,
+    "countdownSec": 20,
+    "betCountdownSec": 20,
     "houseMargin": 1.15,
     "oddsClampMin": 1.5,
     "oddsClampMax": 15.0,
     "placeFactor": 0.5,
     "quinellaFactor": 0.25,
-    "resultsNextCountdownSec": 15
+    "resultsNextCountdownSec": 20
   }
 }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js"></script>
+<script src="view3d.js?v=chariotdust"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING
@@ -1503,7 +1924,6 @@ body.view-3d .scanlines{ opacity:0.16; }
     btnCourse: document.getElementById('btnCourse'),
     btnBetToggle: document.getElementById('btnBetToggle'),
     btnStartRace: document.getElementById('btnStartRace'),
-    btnNextHeat: document.getElementById('btnNextHeat'),
     btnRules: document.getElementById('btnRules'),
     btnChamp: document.getElementById('btnChamp'),
     btnCommentary: document.getElementById('btnCommentary'),
@@ -1718,6 +2138,34 @@ body.view-3d .scanlines{ opacity:0.16; }
     });
 
     // Finish post is drawn in #coursePostsLayer (above the striped finish flag)
+    addChariotMetae(group);
+  }
+
+  function addChariotMetae(group){
+    const geom = getVisualLane(2.55);
+    let left = null;
+    let right = null;
+    for (let i = 0; i < 96; i++){
+      const p = stadiumPointAt(i / 96, geom);
+      if (!left || p.x < left.x) left = p;
+      if (!right || p.x > right.x) right = p;
+    }
+    [left, right].forEach(p => {
+      if (!p) return;
+      const dir = p.x >= 500 ? -1 : 1;
+      const g = svgEl('g', { class: 'chariot-meta' });
+      [-16, 0, 16].forEach((dy, i) => {
+        const x = p.x + dir * 10;
+        const y = p.y + dy;
+        g.appendChild(svgEl('polygon', {
+          points: `${x},${y - 18} ${x - 7},${y + 8} ${x + 7},${y + 8}`,
+          fill: i === 1 ? '#8a5a32' : '#efe6d4',
+          stroke: '#6a5340',
+          'stroke-width': 1
+        }));
+      });
+      group.appendChild(g);
+    });
   }
 
   // Bend and straight take the same time, but their lengths differ by lane, so a
@@ -1965,7 +2413,9 @@ body.view-3d .scanlines{ opacity:0.16; }
     const minPx = 8;
     let size = maxPx;
     row.style.fontSize = size + 'px';
-    while (size > minPx && row.scrollWidth > row.clientWidth + 1){
+    const tight = () => row.scrollWidth > row.clientWidth + 1
+      || [...row.children].some(el => el.scrollWidth > el.clientWidth + 1);
+    while (size > minPx && tight()){
       size -= 0.5;
       row.style.fontSize = size + 'px';
     }
@@ -2125,6 +2575,12 @@ body.view-3d .scanlines{ opacity:0.16; }
       apron: '#4a3424', railOut: '#f6e7c8', railIn: '#e8c56b',
       lane: 'rgba(255,236,200,0.22)', frame: '#3a2418', frameStroke: '#c4844a', plaza: '#1a100c'
     },
+    chariot: {
+      track: ['#c4955a', '#a67c45', '#8d6236'],
+      infield: '#c4a06a', infieldStroke: '#8a6844',
+      apron: '#6e5840', railOut: '#d9c4a4', railIn: '#efe6d4',
+      lane: 'rgba(90,60,30,0.22)', frame: '#5c4632', frameStroke: '#c4a574', plaza: '#3a2c20'
+    },
     night: {
       track: ['#2f6a3e', '#1d4a2c', '#14361f'],
       infield: '#102818', infieldStroke: 'rgba(120,170,255,0.28)',
@@ -2160,10 +2616,10 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
 
   function applyCourseSkin(id){
-    els.track.classList.remove('grass','dirt','night','cyber');
+    els.track.classList.remove('grass','dirt','chariot','night','cyber');
     els.track.classList.add(id);
     if (els.parallax){
-      els.parallax.classList.remove('grass','dirt','night','cyber');
+      els.parallax.classList.remove('grass','dirt','chariot','night','cyber');
       els.parallax.classList.add(id);
     }
     const grid = els.parallax && els.parallax.querySelector('.grid');
@@ -2334,8 +2790,8 @@ body.view-3d .scanlines{ opacity:0.16; }
         btn.type = 'button';
         btn.className = 'horse-btn';
         btn.dataset.horseId = String(id);
-        btn.innerHTML = `<span class="num">H${id}</span><span class="name">${h.name}</span><span class="stake"></span><span class="od">${fr}</span>`;
-        applyHorseTextStyle(btn.querySelector('.name'), h);
+        btn.title = h.name;
+        btn.innerHTML = `<span class="num">H${id}</span><span class="stake"></span><span class="od">${fr}</span>`;
         btn.onclick = ()=> toggleWinBet(id);
         horseButtons.set(id, btn);
         grid.appendChild(btn);
@@ -2344,7 +2800,17 @@ body.view-3d .scanlines{ opacity:0.16; }
 
       const qbCtrls = document.createElement('div'); qbCtrls.className = 'qb-controls';
       const clearBets = document.createElement('button'); clearBets.textContent = 'Clear Bets';
+      const add50 = document.createElement('button');
+      add50.type = 'button';
+      add50.textContent = '+50';
+      add50.title = 'Add 50 to the bank';
+      const add100 = document.createElement('button');
+      add100.type = 'button';
+      add100.textContent = '+100';
+      add100.title = 'Add 100 to the bank';
       qbCtrls.appendChild(clearBets);
+      qbCtrls.appendChild(add50);
+      qbCtrls.appendChild(add100);
       qb.appendChild(qbCtrls);
 
       clearBets.onclick = ()=>{
@@ -2354,6 +2820,12 @@ body.view-3d .scanlines{ opacity:0.16; }
         updateBankrollDisplays();
         syncBetButtons();
       };
+      const addBank = (amount) => {
+        p.bankroll += amount;
+        updateBankrollDisplays();
+      };
+      add50.onclick = () => addBank(50);
+      add100.onclick = () => addBank(100);
 
       function syncBetButtons(){
         const stakeByHorse = new Map();
@@ -2444,6 +2916,59 @@ body.view-3d .scanlines{ opacity:0.16; }
       syncBetButtons();
     });
     syncPlayerBar();
+    fitHorseGrids();
+  }
+
+  function fitHorseGrids(){
+    document.querySelectorAll('.horse-grid').forEach(grid => {
+      let host = grid.parentElement;
+      if (!host || !host.classList.contains('horse-grid-fit')){
+        host = document.createElement('div');
+        host.className = 'horse-grid-fit';
+        grid.parentNode.insertBefore(host, grid);
+        host.appendChild(grid);
+      }
+      grid.style.transform = '';
+      host.style.height = '';
+      const player = grid.closest('.player');
+      const pad = player ? parseFloat(getComputedStyle(player).paddingLeft) + parseFloat(getComputedStyle(player).paddingRight) : 0;
+      const qb = grid.closest('.quickbets');
+      const qpad = qb ? parseFloat(getComputedStyle(qb).paddingLeft) + parseFloat(getComputedStyle(qb).paddingRight) : 0;
+      const avail = player ? Math.max(0, player.clientWidth - pad - qpad) : host.clientWidth;
+      const natural = grid.scrollWidth;
+      if (avail >= 8 && natural > avail + 1){
+        const scale = Math.min(1, avail / natural);
+        grid.style.transformOrigin = 'top left';
+        grid.style.transform = `scale(${scale})`;
+        host.style.height = Math.ceil(grid.offsetHeight * scale) + 'px';
+      }
+    });
+    document.querySelectorAll('.horse-btn .od').forEach(od => {
+      od.style.fontSize = '';
+      od.style.transform = '';
+      const btn = od.parentElement;
+      const avail = btn ? btn.clientWidth - 2 : 0;
+      if (avail < 8) return;
+      let size = 11;
+      od.style.fontSize = size + 'px';
+      while (size > 8 && od.scrollWidth > avail){
+        size -= 0.5;
+        od.style.fontSize = size + 'px';
+      }
+      if (od.scrollWidth > avail + 1){
+        od.style.transform = `scale(${avail / od.scrollWidth})`;
+      }
+    });
+    document.querySelectorAll('.qb-controls').forEach(row => {
+      const btns = [...row.querySelectorAll('button')];
+      let size = 12;
+      btns.forEach(b => { b.style.fontSize = size + 'px'; });
+      const tight = () => btns.some(b => b.scrollWidth > b.clientWidth + 1);
+      while (size > 8 && tight()){
+        size -= 0.5;
+        btns.forEach(b => { b.style.fontSize = size + 'px'; });
+      }
+    });
   }
 
   function oddsChipsHTML(){
@@ -2581,7 +3106,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   const COUNTDOWN_STEPS = [10, 15, 20, 25, 30];
 
   function countdownSec(){
-    const n = GAME.settings.countdownSec || GAME.settings.betCountdownSec || 15;
+    const n = GAME.settings.countdownSec || GAME.settings.betCountdownSec || 20;
     return COUNTDOWN_STEPS.includes(n) ? n : COUNTDOWN_STEPS[0];
   }
 
@@ -2916,7 +3441,10 @@ body.view-3d .scanlines{ opacity:0.16; }
           r.winnerAnnounced = true;
           setFinishLineLight('#ff3b3b'); // red when winner crosses
         }
-        if (pos <= 3) settleReadyBets();
+        if (pos <= 3){
+          settleReadyBets();
+          paintPlaceMedals();
+        }
         updateGraphicsBoard();
       }
     });
@@ -2927,6 +3455,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     // update DOM
     renderRacePositions();
     updateHorseStrip();
+    paintRaceTicker();
     updateCoursePostLights();
     if ((r.laps || 1) > 1){
       const heatEl = document.getElementById('gbHeatName');
@@ -3149,6 +3678,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         clearResultsCountdown();
         proceedAfterResults();
       }
+      paintRaceTicker();
     };
     updateTimer();
     resultsCountdownTid = setInterval(updateTimer, 200);
@@ -3281,11 +3811,12 @@ body.view-3d .scanlines{ opacity:0.16; }
     els.subtitle.textContent = `${cup.name} • ${heatLabel(GAME.state.heat)} • ${courseName}`;
     els.courseChip.textContent = courseName;
     els.stateChip.textContent = GAME.state.phase.replace('_',' ');
-    const open = GAME.state.phase === 'BETTING_OPEN';
+    const racing = GAME.state.phase === 'RACING';
+    const open = GAME.state.phase === 'BETTING_OPEN' || GAME.state.phase === 'RESULTS';
     els.betStatus.classList.toggle('closed', !open);
-    els.betText.textContent = open ? 'BETTING OPEN' : (GAME.state.phase==='RACING' ? 'RACING' : 'BETTING CLOSED');
+    els.betText.textContent = racing ? 'RACING' : (open ? 'BETTING OPEN' : 'BETTING CLOSED');
     showCountdownSetting();
-    if (open){
+    if (GAME.state.phase === 'BETTING_OPEN'){
       const ms = GAME.state.countdownEndAt - Date.now();
       els.betCountdown.textContent = `(${msToClock(ms)})`;
     } else {
@@ -3330,6 +3861,17 @@ body.view-3d .scanlines{ opacity:0.16; }
     updateBankrollDisplays();
     updateHorseStrip(true);
     updateGraphicsBoard();
+    paintPlaceMedals();
+  }
+  function paintPlaceMedals(){
+    document.querySelectorAll('.horse-btn').forEach(btn => btn.classList.remove('place-1', 'place-2', 'place-3'));
+    if (!race || !race.order) return;
+    if (GAME.state.phase !== 'RACING' && GAME.state.phase !== 'RESULTS') return;
+    race.order.slice(0, 3).forEach((id, i) => {
+      document.querySelectorAll('.horse-btn[data-horse-id="' + id + '"]').forEach(btn => {
+        btn.classList.add('place-' + (i + 1));
+      });
+    });
   }
 
   function updatePlayerBorders(){
@@ -3570,6 +4112,291 @@ body.view-3d .scanlines{ opacity:0.16; }
     graphicsLastFeatId = h.id;
   }
 
+  const TICKER_COLOURS = {
+    1: '#ff4d4d',
+    2: '#5aa2ff',
+    3: '#ffd24a',
+    4: '#c084fc',
+    5: '#ff8a3d',
+    6: '#3ddeb0',
+    7: '#ff6eb4',
+    8: '#f4f7fb'
+  };
+
+  function tickerInk(hex){
+    const n = String(hex || '').replace('#', '');
+    if (n.length < 6) return '#fff8e8';
+    const r = parseInt(n.slice(0, 2), 16);
+    const g = parseInt(n.slice(2, 4), 16);
+    const b = parseInt(n.slice(4, 6), 16);
+    const y = (r * 299 + g * 587 + b * 114) / 1000;
+    return y > 160 ? '#14120c' : '#fff8e8';
+  }
+
+  function tickerColour(id){
+    const h = GAME.horses.find(x => x.id === id);
+    const custom = h && h.style && h.style.color && h.style.color.toLowerCase() !== '#bfe0ff';
+    const tick = custom ? h.style.color : (TICKER_COLOURS[id] || '#ffd166');
+    return { tick, ink: tickerInk(tick) };
+  }
+
+  function escapeTicker(text){
+    return String(text || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function raceTickerModel(){
+    let results = false;
+    let entries = [];
+    if (race && race.horses && (GAME.state.phase === 'RACING' || GAME.state.phase === 'RESULTS')){
+      results = GAME.state.phase === 'RESULTS' || !!race.done;
+      const sorted = race.horses.slice().sort((a, b) => {
+        if (a.finished && b.finished) return a.finishTime - b.finishTime;
+        if (a.finished) return -1;
+        if (b.finished) return 1;
+        return b.x - a.x;
+      });
+      entries = sorted.map((h, i) => ({
+        id: h.id,
+        tag: String(i + 1),
+        medal: h.finished && i < 3 ? i + 1 : 0
+      }));
+    } else {
+      const ids = (GAME.state.entered || []).slice().sort((a, b) => (GAME.state.odds[a] || 99) - (GAME.state.odds[b] || 99));
+      entries = ids.map((id, i) => ({ id, tag: String(i + 1), medal: 0 }));
+    }
+    const title = results ? `${raceDisplayName()} · RESULTS` : raceDisplayName();
+    const key = title + '|' + entries.map(e => e.tag + ':' + e.id + (e.medal ? 'm' + e.medal : '')).join(',');
+    return { results, title, entries, key };
+  }
+
+  function tickerRunHTML(model){
+    const horses = model.entries.map(e => {
+      const h = GAME.horses.find(x => x.id === e.id);
+      const pal = tickerColour(e.id);
+      const name = escapeTicker(h ? h.name : '');
+      const src = escapeTicker(h ? h.sprite : '');
+      const place = e.medal ? ' place-' + e.medal : '';
+      return `<span class="gb-tick-item${place}" style="--tick:${pal.tick};--ink:${pal.ink}"><span class="gb-tick-pos">${escapeTicker(e.tag)}</span><img src="${src}" alt=""><span class="gb-tick-name">${name}</span></span>`;
+    }).join('');
+    return `<span class="gb-tick-run"><span class="gb-tick-race"><span class="gb-tick-race-in">${escapeTicker(model.title)}</span></span>${horses}</span>`;
+  }
+
+  let tickerAnim = null;
+  let tickerHoldX = null;
+  let tickerMode = 'scroll';
+  let tickerResultsAt = 0;
+  let tickerFadeToken = 0;
+
+  function stopTickerAnim(){
+    if (tickerAnim){
+      tickerAnim.cancel();
+      tickerAnim = null;
+    }
+  }
+
+  function holdTicker(){
+    const track = document.getElementById('gbTickerTrack');
+    if (!track || tickerHoldX == null) return;
+    stopTickerAnim();
+    track.style.animation = 'none';
+    track.style.transform = 'translateX(' + tickerHoldX + 'px)';
+  }
+
+  function tickerTranslateX(){
+    const track = document.getElementById('gbTickerTrack');
+    if (!track) return 0;
+    const matrix = new DOMMatrix(getComputedStyle(track).transform);
+    return matrix.m41 || 0;
+  }
+  function startTickerScroll(fromX){
+    const track = document.getElementById('gbTickerTrack');
+    if (!track) return;
+    const x = fromX != null ? fromX : (tickerHoldX != null ? tickerHoldX : tickerTranslateX());
+    stopTickerAnim();
+    const width = Math.max(1, track.scrollWidth / 2);
+    track.style.animation = 'none';
+    track.style.transform = 'none';
+    tickerHoldX = null;
+    tickerAnim = track.animate(
+      [{ transform: 'translateX(' + x + 'px)' }, { transform: 'translateX(' + (x - width) + 'px)' }],
+      { duration: 36000, iterations: Infinity, easing: 'linear' }
+    );
+  }
+
+  function releaseTickerScroll(){
+    const track = document.getElementById('gbTickerTrack');
+    stopTickerAnim();
+    tickerHoldX = null;
+    tickerMode = 'scroll';
+    tickerResultsAt = 0;
+    if (!track) return;
+    track.style.animation = '';
+    track.style.transform = '';
+  }
+
+  function writeTicker(model, keepHold){
+    const track = document.getElementById('gbTickerTrack');
+    const bar = document.getElementById('gbTicker');
+    if (!track) return;
+    const horse = keepHold ? track.querySelector('.gb-tick-item') : null;
+    const horseLeft = horse && bar ? horse.getBoundingClientRect().left : null;
+    track.dataset.text = model.key;
+    track.dataset.title = model.title;
+    const run = tickerRunHTML(model);
+    track.innerHTML = run + run;
+    if (!keepHold) return;
+    holdTicker();
+    const nextHorse = track.querySelector('.gb-tick-item');
+    if (horseLeft == null || !nextHorse) return;
+    const dx = nextHorse.getBoundingClientRect().left - horseLeft;
+    if (Math.abs(dx) < 0.5) return;
+    tickerHoldX -= dx;
+    holdTicker();
+  }
+
+  function dissolveTicker(model){
+    const track = document.getElementById('gbTickerTrack');
+    if (!track || track.classList.contains('is-dissolving')) return;
+    const token = ++tickerFadeToken;
+    track.classList.add('is-dissolving');
+    setTimeout(() => {
+      if (token !== tickerFadeToken) return;
+      releaseTickerScroll();
+      writeTicker(model, false);
+      requestAnimationFrame(() => track.classList.remove('is-dissolving'));
+    }, 420);
+  }
+
+  function tickerBetweenRaces(model){
+    const track = document.getElementById('gbTickerTrack');
+    const prev = track && track.dataset.title ? track.dataset.title : '';
+    if (!prev || prev === model.title) return false;
+    if (model.title.indexOf('RESULTS') !== -1) return false;
+    return true;
+  }
+
+  function freezeTicker(){
+    const track = document.getElementById('gbTickerTrack');
+    if (!track) return;
+    const matrix = new DOMMatrix(getComputedStyle(track).transform);
+    tickerHoldX = matrix.m41 || 0;
+    holdTicker();
+  }
+
+  function tickerEdge(bar){
+    const box = bar.getBoundingClientRect();
+    const pad = parseFloat(getComputedStyle(bar).paddingLeft) || 0;
+    return box.left + bar.clientLeft + pad;
+  }
+  function pinLeadToEdge(){
+    const track = document.getElementById('gbTickerTrack');
+    const bar = document.getElementById('gbTicker');
+    if (!track || !bar || tickerHoldX == null) return;
+    const edge = tickerEdge(bar);
+    let dx = null;
+    let best = 99;
+    track.querySelectorAll('.gb-tick-run').forEach(run => {
+      const horse = run.querySelector('.gb-tick-item');
+      if (!horse) return;
+      const delta = horse.getBoundingClientRect().left - edge;
+      if (Math.abs(delta) < best){
+        best = Math.abs(delta);
+        dx = delta;
+      }
+    });
+    if (dx == null || best < 0.5 || best > 16) return;
+    tickerHoldX -= dx;
+    holdTicker();
+  }
+  function leadHorseReady(){
+    const track = document.getElementById('gbTickerTrack');
+    const bar = document.getElementById('gbTicker');
+    if (!track || !bar) return false;
+    const edge = tickerEdge(bar);
+    return [...track.querySelectorAll('.gb-tick-run')].some(run => {
+      const title = run.querySelector('.gb-tick-race');
+      const horse = run.querySelector('.gb-tick-item');
+      if (!title || !horse) return false;
+      const titleBox = title.getBoundingClientRect();
+      const lead = horse.getBoundingClientRect();
+      if (titleBox.right > edge - 1) return false;
+      return lead.left <= edge + 1 && lead.left >= edge - 14 && lead.right > edge + 8;
+    });
+  }
+
+  function paintRaceTicker(){
+    const board = document.getElementById('infieldBoard');
+    const track = document.getElementById('gbTickerTrack');
+    if (!board || !track) return;
+    const model = raceTickerModel();
+    board.classList.toggle('is-results', model.results);
+    const racing = GAME.state.phase === 'RACING' && race && !race.done;
+    const results = !!(model.results && race);
+
+    if (!racing && !results){
+      if (track.classList.contains('is-dissolving')) return;
+      if (track.dataset.text === model.key){
+        if (tickerMode !== 'scroll') releaseTickerScroll();
+        return;
+      }
+      if (tickerBetweenRaces(model)){
+        dissolveTicker(model);
+        return;
+      }
+      releaseTickerScroll();
+      writeTicker(model, false);
+      return;
+    }
+
+    if (racing){
+      if (tickerMode !== 'live'){
+        if (track.dataset.text !== model.key){
+          const x = tickerTranslateX();
+          writeTicker(model, false);
+          startTickerScroll(x);
+        }
+        if (leadHorseReady()){
+          tickerMode = 'live';
+          freezeTicker();
+          writeTicker(model, true);
+          pinLeadToEdge();
+        }
+        return;
+      }
+      if (track.dataset.text !== model.key) writeTicker(model, true);
+      else holdTicker();
+      return;
+    }
+
+    if (tickerMode !== 'results' && tickerMode !== 'scroll-results'){
+      if (tickerMode === 'live' || leadHorseReady()){
+        if (tickerHoldX == null) freezeTicker();
+        tickerMode = 'results';
+        tickerResultsAt = performance.now();
+        writeTicker(model, true);
+        pinLeadToEdge();
+      }
+      return;
+    }
+    if (tickerMode === 'results'){
+      if (!tickerResultsAt) tickerResultsAt = performance.now();
+      if (performance.now() - tickerResultsAt < 5000){
+        if (track.dataset.text !== model.key) writeTicker(model, true);
+        else holdTicker();
+        return;
+      }
+      tickerMode = 'scroll-results';
+      if (track.dataset.text !== model.key) writeTicker(model, false);
+      startTickerScroll();
+      return;
+    }
+    if (track.dataset.text !== model.key){
+      const x = tickerTranslateX();
+      writeTicker(model, false);
+      startTickerScroll(x);
+    }
+  }
+
   function updateGraphicsBoard(){
     const board = document.getElementById('infieldBoard');
     if (!board) return;
@@ -3661,6 +4488,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     }
     graphicsLastStage = stage;
     graphicsLastPlaceCount = (race && race.order) ? race.order.length : 0;
+    paintRaceTicker();
     // Fit after stage DOM (e.g. winner actions / horse art) has applied
     requestAnimationFrame(() => fitInfieldBoard());
   }
@@ -3747,42 +4575,19 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (!board || !inner || !track) return;
     if (!board.classList.contains('show')) return;
     if (GAME.state.viewMode === '3d'){
-      const parent = board.parentElement;
-      const parentW = parent ? parent.clientWidth : board.clientWidth;
-      const parentH = parent ? parent.clientHeight : board.clientHeight;
       board.style.width = '';
       board.style.height = '';
       board.style.maxWidth = '';
       board.style.maxHeight = '';
       board.style.left = '';
       board.style.top = '';
+      board.style.right = '';
+      board.style.bottom = '';
       board.style.transform = '';
-      inner.style.transform = 'none';
-      inner.style.transformOrigin = '';
-      inner.style.zoom = '1';
-      inner.style.width = 'max-content';
-      inner.style.maxWidth = 'none';
-      const naturalW = Math.max(1, inner.offsetWidth);
-      const naturalH = Math.max(1, inner.offsetHeight);
+      inner.style.transform = '';
+      inner.style.zoom = '';
       inner.style.width = '';
       inner.style.maxWidth = '';
-      const pad = 6;
-      const availW = Math.max(36, Math.min(230, parentW * 0.34) - pad);
-      const availH = Math.max(28, parentH * 0.4 - pad);
-      const scale = Math.min(availW / naturalW, availH / naturalH, 1);
-      if (scale > 0.995){
-        inner.style.zoom = '';
-        board.style.width = '';
-        board.style.height = '';
-        board.style.maxWidth = '';
-        board.style.maxHeight = '';
-        return;
-      }
-      inner.style.zoom = String(scale);
-      board.style.width = 'fit-content';
-      board.style.height = 'auto';
-      board.style.maxWidth = Math.ceil(availW + pad) + 'px';
-      board.style.maxHeight = Math.ceil(availH + pad) + 'px';
       return;
     }
     if (GAME.state.trackMode !== 'course') return;
@@ -4084,14 +4889,17 @@ body.view-3d .scanlines{ opacity:0.16; }
   // Betting toggle
   if (els.btnBetToggle){
     els.btnBetToggle.onclick = () => {
+      if (GAME.state.phase === 'RACING' || GAME.state.phase === 'RESULTS') return;
       if (GAME.state.phase === 'BETTING_OPEN') closeBetting();
-      else if (GAME.state.phase !== 'RACING') openBetting();
+      else openBetting();
       updateBetToggleLabel();
     };
   }
   function updateBetToggleLabel(){
     if (!els.btnBetToggle) return;
-    const text = GAME.state.phase === 'BETTING_OPEN' ? 'Close Betting' : 'Open Betting';
+    const text = GAME.state.phase === 'RESULTS'
+      ? 'Betting Open'
+      : (GAME.state.phase === 'BETTING_OPEN' ? 'Close Betting' : 'Open Betting');
     setControlLabel(els.btnBetToggle, text);
     scheduleFitTopBar();
   }
@@ -4128,7 +4936,8 @@ body.view-3d .scanlines{ opacity:0.16; }
   document.getElementById('btnLaps').onclick = () => {
     if (GAME.state.phase === 'RACING') return;
     GAME.state.laps = (GAME.state.laps % 3) + 1;
-    setControlLabel(document.getElementById('btnLaps'), `Laps: ${GAME.state.laps}`);
+    const lapsChip = document.getElementById('lapsChip');
+    if (lapsChip) lapsChip.textContent = String(GAME.state.laps);
     // Lap length is stored for the next start. It does not redraw the grid.
     const heatEl = document.getElementById('gbHeatName');
     if (heatEl && GAME.state.phase !== 'RACING' && GAME.state.phase !== 'RESULTS'){
@@ -4157,11 +4966,6 @@ body.view-3d .scanlines{ opacity:0.16; }
     resetActiveCountdown();
   };
   els.btnStartRace.onclick = () => beginRaceStartCountdown();
-  els.btnNextHeat.onclick = () => {
-    if (GAME.state.phase !== 'RACING') {
-      advanceHeat();
-    }
-  };
   els.btnRules.onclick = () => document.getElementById('rulesDialog').showModal();
 
   // ---------- Roulette ----------
@@ -4357,6 +5161,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       };
       host.appendChild(btn);
     });
+    paintCasinoPlayers();
     const chips = document.getElementById('rouletteChips');
     if (chips && !chips.childElementCount){
       ROULETTE_CHIPS.forEach(v => {
@@ -4396,7 +5201,12 @@ body.view-3d .scanlines{ opacity:0.16; }
     const add = (label, odds, numbers, anchor) => {
       const b = document.createElement('button');
       b.type = 'button';
-      b.textContent = `${label} · ${odds}:1`;
+      b.className = 'rl-sidebet';
+      const name = document.createElement('b');
+      name.textContent = label;
+      const price = document.createElement('span');
+      price.textContent = odds + ':1';
+      b.append(name, price);
       b.disabled = roulette.spinning;
       b.onclick = () => placeRouletteBet({ type: label, numbers, odds, label, anchor });
       host.appendChild(b);
@@ -4549,6 +5359,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     roulette.history.unshift(n);
     if (roulette.history.length > 14) roulette.history.length = 14;
     roulette.spinning = false;
+    casinoLock(false);
     const parts = [...byPlayer.entries()].map(([id, net]) => {
       const p = roulettePlayer(id);
       const name = p ? p.name : 'Player';
@@ -4587,6 +5398,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     roulette.spinning = true;
     const closeBtn = document.getElementById('rouletteClose');
     if (closeBtn) closeBtn.disabled = true;
+    casinoLock(true);
     paintRouletteInside();
     setRouletteCall('No more bets.');
     const frame = (now) => {
@@ -4634,11 +5446,12 @@ body.view-3d .scanlines{ opacity:0.16; }
       const panel = layer.querySelector('.roulette-panel');
       if (panel) panel.focus();
     }
-    setRouletteCall('Pick a player, a chip, and a spot. The race stays paused.');
+    setRouletteCall('');
+    showCasino(casinoIndex);
   }
 
   function closeRoulette(){
-    if (roulette.spinning) return;
+    if (roulette.spinning || slots.spinning || bj.phase === 'play') return;
     if (roulette.raf) cancelAnimationFrame(roulette.raf);
     roulette.bets.forEach(bet => refundRouletteBet(bet, bet.stake));
     roulette.bets = [];
@@ -4648,6 +5461,870 @@ body.view-3d .scanlines{ opacity:0.16; }
     releaseCommentaryFromRoulette();
     const layer = document.getElementById('rouletteLayer');
     if (layer) layer.hidden = true;
+  }
+
+  const CASINO = [
+    { id:'roulette', title:'Roulette' },
+    { id:'holdem', title:"Texas Hold'em" },
+    { id:'blackjack', title:'Blackjack' },
+    { id:'slots', title:'Fruit Machine' }
+  ];
+  let casinoIndex = 0;
+  const holdem = {
+    seats: [], button: 0, board: [], deck: [], pot: 0, bet: 0, raises: 0,
+    turn: -1, street: 'idle', sb: 5, bb: 10, minRaise: 10, raiseSize: 20, timer: 0, token: 0,
+    playerId: 1, msg: "Deal to play Texas Hold'em against three computer players."
+  };
+  const bj = { deck: [], player: [], dealer: [], bet: 10, stake: 0, phase: 'bet', hide: true, msg: 'Pick a chip and deal.' };
+  const LUCKY7 = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="#3a120c" stroke="#ffd166" stroke-width="3"/><circle cx="32" cy="32" r="23" fill="#140606" stroke="#e2b34a" stroke-width="1.5"/><path d="M15 15h36l-3.5 8H36L21 51h-10l16-28H15z" fill="#ff241c" stroke="#fff4c2" stroke-width="1.4" stroke-linejoin="round"/><path d="M20 18h26" stroke="#fff" stroke-width="1.6" opacity="0.55"/></svg>';
+  const GOLD_CHEST = '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="8" width="52" height="48" rx="6" fill="#2a1408" stroke="#ffd166" stroke-width="3"/><path d="M14 30c0-10 8-16 18-16s18 6 18 16v4H14z" fill="#ffe08a" stroke="#8a5a12" stroke-width="2"/><rect x="12" y="32" width="40" height="18" rx="2" fill="#e2b34a" stroke="#8a5a12" stroke-width="2"/><rect x="29" y="36" width="6" height="10" rx="1" fill="#5c3810"/><circle cx="32" cy="40" r="1.7" fill="#fff6d0"/><path d="M12 37h40" stroke="#fff1c2" stroke-width="1.5" opacity="0.75"/></svg>';
+  const SLOT_GLYPH = { cherry:'🍒', lemon:'🍋', orange:'🍊', plum:'🍇', bell:'🔔', bar:'BAR', seven:LUCKY7, chest:GOLD_CHEST };
+  const SLOT_NAME = { cherry:'CHERRY', lemon:'LEMON', orange:'ORANGE', plum:'PLUM', bell:'BELL', bar:'BAR', seven:'LUCKY 7', chest:'GOLD CHEST' };
+  const SLOT_PAY = {
+    cherry:{ 5:16, 4:8, 3:3 },
+    lemon:{ 5:12, 4:6, 3:2 },
+    orange:{ 5:12, 4:6, 3:2 },
+    plum:{ 5:18, 4:8, 3:4 },
+    bell:{ 5:30, 4:12, 3:5 },
+    bar:{ 5:50, 4:20, 3:8 },
+    seven:{ 5:80, 4:30, 3:12 },
+    chest:{ 5:120, 4:40, 3:15 }
+  };
+  const slots = { strip: [], bet: 10, spinning: false, timer: 0, built: false };
+
+  function casinoSpendable(p){
+    if (!p) return 0;
+    return Math.max(0, p.bankroll - currentCommittedStake(p));
+  }
+  function casinoHuman(){
+    return roulettePlayer(roulette.playerId) || activePlayers()[0] || null;
+  }
+  function casinoBusy(){
+    return !!(roulette.spinning || slots.spinning || bj.phase === 'play');
+  }
+  function casinoLock(on){
+    const busy = !!(on || casinoBusy());
+    const prev = document.getElementById('casinoPrev');
+    const next = document.getElementById('casinoNext');
+    const closeBtn = document.getElementById('rouletteClose');
+    if (prev) prev.disabled = busy;
+    if (next) next.disabled = busy;
+    if (closeBtn) closeBtn.disabled = busy;
+  }
+  function showCasino(index){
+    if (casinoBusy()) return;
+    const n = CASINO.length;
+    casinoIndex = ((index % n) + n) % n;
+    const game = CASINO[casinoIndex];
+    document.querySelectorAll('.casino-view').forEach(view => {
+      view.hidden = view.dataset.game !== game.id;
+    });
+    const title = document.getElementById('rouletteTitle');
+    if (title) title.textContent = game.title;
+    const sub = document.getElementById('roulettePause');
+    if (sub) sub.textContent = 'Horse racing is paused · ' + (casinoIndex + 1) + ' of ' + n;
+    const panel = document.querySelector('.roulette-panel');
+    if (panel) panel.classList.toggle('fit-window', game.id === 'roulette');
+    if (game.id === 'holdem'){
+      pkRender();
+      if (holdem.paused) holdem.paused();
+    }
+    if (game.id === 'blackjack') bjRender();
+    if (game.id === 'slots') slotEnsure();
+    paintCasinoPlayers();
+    casinoLock(false);
+  }
+  function paintCasinoPlayers(){
+    ['pkPlayers', 'bjPlayers', 'slotPlayers'].forEach(id => {
+      const host = document.getElementById(id);
+      if (!host) return;
+      host.innerHTML = '';
+      activePlayers().forEach(p => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'rl-player' + (p.id === roulette.playerId ? ' on' : '');
+        const name = document.createElement('b');
+        name.textContent = p.name;
+        const bank = document.createElement('span');
+        bank.textContent = 'Bank ' + formatMoney(casinoSpendable(p));
+        btn.append(name, bank);
+        btn.onclick = () => {
+          if (casinoBusy() || (holdem.street !== 'idle' && holdem.street !== 'showdown')) return;
+          roulette.playerId = p.id;
+          paintRoulettePlayers();
+        };
+        host.appendChild(btn);
+      });
+    });
+  }
+  function casinoCard(card, faceDown){
+    const el = document.createElement('div');
+    el.className = 'casino-card';
+    if (faceDown || card == null){
+      el.classList.add('back');
+      return el;
+    }
+    const suit = card >> 4;
+    const rank = card & 15;
+    if (suit === 1 || suit === 2) el.classList.add('red');
+    el.textContent = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'][rank] + '♣♦♥♠'[suit];
+    return el;
+  }
+  function pkShuffle(n){
+    const deck = [];
+    for (let s = 0; s < 4; s++) for (let r = 0; r < 13; r++) deck.push((s << 4) | r);
+    const copies = n || 1;
+    const full = [];
+    for (let i = 0; i < copies; i++) full.push(...deck);
+    for (let i = full.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = full[i]; full[i] = full[j]; full[j] = t;
+    }
+    return full;
+  }
+  function pkRank(c){ return c & 15; }
+  function pkSuit(c){ return c >> 4; }
+  function pkCmp(a, b){
+    const n = Math.max(a.length, b.length);
+    for (let i = 0; i < n; i++){
+      const d = (a[i] || 0) - (b[i] || 0);
+      if (d) return d;
+    }
+    return 0;
+  }
+  function pkFiveScore(cards){
+    const ranks = cards.map(pkRank).sort((a, b) => a - b);
+    const suits = cards.map(pkSuit);
+    const flush = suits.every(s => s === suits[0]);
+    const count = Array(13).fill(0);
+    ranks.forEach(r => { count[r] += 1; });
+    const uniq = [...new Set(ranks)];
+    let straightHigh = -1;
+    if (uniq.length === 5){
+      if (uniq[4] - uniq[0] === 4) straightHigh = uniq[4];
+      else if (uniq.join(',') === '0,1,2,3,12') straightHigh = 3;
+    }
+    const groups = count.map((n, r) => ({ n, r })).filter(g => g.n).sort((a, b) => b.n - a.n || b.r - a.r);
+    if (flush && straightHigh >= 0) return [8, straightHigh];
+    if (groups[0].n === 4) return [7, groups[0].r, groups[1].r];
+    if (groups[0].n === 3 && groups[1].n === 2) return [6, groups[0].r, groups[1].r];
+    if (flush) return [5, ...ranks.slice().reverse()];
+    if (straightHigh >= 0) return [4, straightHigh];
+    if (groups[0].n === 3) return [3, ...groups.map(g => g.r)];
+    if (groups[0].n === 2 && groups[1].n === 2) return [2, groups[0].r, groups[1].r, groups[2].r];
+    if (groups[0].n === 2) return [1, ...groups.map(g => g.r)];
+    return [0, ...ranks.slice().reverse()];
+  }
+  function pkBest(cards){
+    let best = null;
+    const n = cards.length;
+    const consider = (hand) => {
+      const score = pkFiveScore(hand);
+      if (!best || pkCmp(score, best) > 0) best = score;
+    };
+    if (n <= 5){ consider(cards.slice()); return best; }
+    for (let a = 0; a < n; a++)
+      for (let b = a + 1; b < n; b++)
+        for (let c = b + 1; c < n; c++)
+          for (let d = c + 1; d < n; d++)
+            for (let e = d + 1; e < n; e++)
+              consider([cards[a], cards[b], cards[c], cards[d], cards[e]]);
+    return best;
+  }
+  const PK_CAT = ['High card','Pair','Two pair','Three of a kind','Straight','Flush','Full house','Four of a kind','Straight flush'];
+  function pkPreflop(hole){
+    const a = pkRank(hole[0]);
+    const b = pkRank(hole[1]);
+    const hi = Math.max(a, b);
+    const lo = Math.min(a, b);
+    let s = (hi + lo) / 24;
+    if (a === b) s = 0.5 + hi / 24;
+    if (pkSuit(hole[0]) === pkSuit(hole[1])) s += 0.06;
+    if (hi - lo === 1) s += 0.05;
+    if (hi >= 10 && lo >= 8) s += 0.08;
+    return Math.max(0.05, Math.min(0.98, s));
+  }
+  function pkEquity(hole, board, deckLeft){
+    const need = 5 - board.length;
+    const bag = deckLeft.slice();
+    let wins = 0;
+    let ties = 0;
+    const trials = 24;
+    for (let i = 0; i < trials; i++){
+      for (let k = 0; k < need + 2; k++){
+        const j = k + Math.floor(Math.random() * (bag.length - k));
+        const t = bag[k]; bag[k] = bag[j]; bag[j] = t;
+      }
+      const opp = [bag[0], bag[1]];
+      const brd = board.concat(bag.slice(2, 2 + need));
+      const cmp = pkCmp(pkBest(hole.concat(brd)), pkBest(opp.concat(brd)));
+      if (cmp > 0) wins += 1;
+      else if (cmp === 0) ties += 1;
+    }
+    return (wins + ties * 0.5) / trials;
+  }
+  function pkStillIn(seat){ return seat && !seat.out && !seat.folded; }
+  function pkNextOccupied(from){
+    for (let i = 1; i <= 4; i++){
+      const ix = (from + i) % 4;
+      if (holdem.seats[ix] && !holdem.seats[ix].out) return ix;
+    }
+    return -1;
+  }
+  function pkEnsure(){
+    if (holdem.seats.length) return;
+    holdem.seats = [
+      { kind:'human', name:'You', stack:0, hole:[], folded:false, out:false, allin:false, streetBet:0, acted:false, rankName:'' },
+      { kind:'ai', name:'Velvet Chip', stack:400, hole:[], folded:false, out:false, allin:false, streetBet:0, acted:false, rankName:'' },
+      { kind:'ai', name:'Rail Ace', stack:400, hole:[], folded:false, out:false, allin:false, streetBet:0, acted:false, rankName:'' },
+      { kind:'ai', name:'Night Stand', stack:400, hole:[], folded:false, out:false, allin:false, streetBet:0, acted:false, rankName:'' }
+    ];
+  }
+  function pkQueue(fn, ms){
+    const token = holdem.token;
+    clearTimeout(holdem.timer);
+    const run = () => {
+      if (token !== holdem.token) return;
+      const view = document.querySelector('.casino-view[data-game="holdem"]');
+      if (view && view.hidden){
+        holdem.paused = () => { holdem.paused = null; run(); };
+        return;
+      }
+      fn();
+    };
+    holdem.timer = setTimeout(run, ms);
+  }
+  function pkPayer(){
+    return roulettePlayer(holdem.playerId) || casinoHuman();
+  }
+  function pkTake(seat, amount){
+    const pay = Math.max(0, Math.min(seat.stack, amount));
+    seat.stack -= pay;
+    seat.streetBet += pay;
+    holdem.pot += pay;
+    if (seat.kind === 'human' && pay){
+      const p = pkPayer();
+      if (p) p.bankroll -= pay;
+    }
+    if (seat.stack <= 0){
+      seat.stack = 0;
+      seat.allin = true;
+    }
+    updateBankrollDisplays();
+    return pay;
+  }
+  function pkRender(){
+    pkEnsure();
+    const host = document.getElementById('pkTable');
+    const msg = document.getElementById('pkMsg');
+    if (msg) msg.textContent = holdem.msg;
+    if (!host) return;
+    host.innerHTML = '';
+    const human = casinoHuman();
+    const seatNode = (ix) => {
+      const seat = holdem.seats[ix];
+      const el = document.createElement('div');
+      el.className = 'pk-seat' + (ix === holdem.turn ? ' on' : '');
+      const nm = document.createElement('div');
+      nm.className = 'nm';
+      nm.textContent = (seat.kind === 'human' && human ? human.name : seat.name) + (seat.folded ? ' folded' : '') + (seat.out ? ' sitting out' : '');
+      const st = document.createElement('div');
+      st.className = 'st';
+      if (seat.kind === 'human') st.textContent = 'Bank ' + formatMoney(human ? casinoSpendable(human) : 0);
+      else st.textContent = 'Stack ' + Math.round(seat.stack);
+      const cards = document.createElement('div');
+      cards.className = 'pk-cards';
+      const reveal = holdem.street === 'showdown';
+      if (seat.hole && seat.hole.length && !seat.out && !(seat.folded && seat.kind !== 'human')){
+        seat.hole.forEach(card => cards.appendChild(casinoCard(card, seat.kind !== 'human' && !reveal)));
+      }
+      el.append(nm, st, cards);
+      if (seat.rankName && reveal && pkStillIn(seat)){
+        const rk = document.createElement('div');
+        rk.className = 'rk';
+        rk.textContent = seat.rankName;
+        el.appendChild(rk);
+      }
+      return el;
+    };
+    const top = document.createElement('div');
+    top.className = 'pk-top';
+    top.append(seatNode(1), seatNode(2));
+    const mid = document.createElement('div');
+    mid.className = 'pk-mid';
+    const board = document.createElement('div');
+    board.className = 'pk-cards';
+    board.style.justifyContent = 'center';
+    holdem.board.forEach(card => board.appendChild(casinoCard(card, false)));
+    const pot = document.createElement('div');
+    pot.className = 'pk-pot';
+    const street = holdem.street === 'idle' ? '' : (' · ' + holdem.street);
+    pot.textContent = 'Pot ' + holdem.pot + street;
+    mid.append(board, pot);
+    const bot = document.createElement('div');
+    bot.className = 'pk-bot';
+    bot.append(seatNode(3), seatNode(0));
+    host.append(top, mid, bot);
+    pkSyncButtons();
+    paintCasinoPlayers();
+  }
+  function pkSyncButtons(){
+    const fold = document.getElementById('pkFold');
+    const call = document.getElementById('pkCall');
+    const raise = document.getElementById('pkRaise');
+    const deal = document.getElementById('pkDeal');
+    const me = holdem.seats.find(s => s.kind === 'human');
+    const myTurn = !!(me && holdem.turn >= 0 && holdem.seats[holdem.turn] === me && pkStillIn(me) && !me.allin);
+    const need = myTurn ? Math.max(0, holdem.bet - me.streetBet) : 0;
+    if (fold) fold.disabled = !myTurn || need === 0;
+    if (call){
+      call.disabled = !myTurn;
+      call.textContent = myTurn && need === 0 ? 'Check' : (myTurn ? ('Call ' + need) : 'Call');
+    }
+    if (raise){
+      const raiseBy = Math.max(holdem.minRaise || holdem.bb, holdem.raiseSize || holdem.bb);
+      const room = me ? me.stack - need : 0;
+      raise.disabled = !myTurn || room < raiseBy;
+      raise.textContent = 'Raise ' + raiseBy;
+    }
+    const allin = document.getElementById('pkAllIn');
+    if (allin) allin.disabled = !myTurn || !me || me.stack <= 0;
+    const live = holdem.street === 'preflop' || holdem.street === 'flop' || holdem.street === 'turn' || holdem.street === 'river';
+    if (deal) deal.disabled = live;
+  }
+  function pkHuman(action){
+    const ix = holdem.seats.findIndex(s => s.kind === 'human');
+    if (ix < 0 || holdem.turn !== ix) return;
+    pkApply(ix, action, holdem.raiseSize);
+  }
+  function pkWho(seat){
+    return seat.kind === 'human' ? 'You' : seat.name;
+  }
+  function pkChoose(seat){
+    const need = Math.max(0, holdem.bet - seat.streetBet);
+    const bias = seat.name === 'Rail Ace' ? 0.08 : seat.name === 'Night Stand' ? 0.03 : -0.03;
+    let strength = (holdem.board.length ? pkEquity(seat.hole, holdem.board, holdem.deck) : pkPreflop(seat.hole)) + bias;
+    strength += (Math.random() - 0.5) * 0.08;
+    const opponents = holdem.seats.filter(s => s !== seat && pkStillIn(s)).length;
+    if (opponents > 1) strength -= 0.06 * (opponents - 1);
+    const room = seat.stack - need;
+    const pot = Math.max(holdem.bb, holdem.pot + need);
+    const price = need <= 0 ? 0 : need / (holdem.pot + need);
+    const minRaise = holdem.minRaise || holdem.bb;
+    const canRaise = room >= minRaise;
+    if (need === 0){
+      if (strength > 0.9 || (strength > 0.82 && seat.stack < pot)) return { action:'allin' };
+      if (strength > 0.7 && canRaise) return { action:'raise', size: Math.max(minRaise, Math.min(seat.stack, pot)) };
+      return { action:'call' };
+    }
+    if (strength > 0.9 && room > 0) return { action:'allin' };
+    if (strength > 0.74 && canRaise && need < seat.stack * 0.45){
+      const size = Math.max(minRaise, Math.round((pot * 0.7) / 10) * 10);
+      return { action:'raise', size: Math.min(size, room) };
+    }
+    const pricedIn = strength + 0.04 >= price && (strength > 0.4 || need <= holdem.bb);
+    const committed = need >= seat.stack * 0.45;
+    if (pricedIn && !(committed && strength < 0.62)) return { action:'call' };
+    if (room <= 0 && strength + 0.02 >= price) return { action:'call' };
+    return { action:'fold' };
+  }
+  function pkApply(ix, action, size){
+    const seat = holdem.seats[ix];
+    if (!seat || holdem.turn !== ix || !pkStillIn(seat)) return;
+    if (!{ preflop:1, flop:1, turn:1, river:1 }[holdem.street]) return;
+    const need = Math.max(0, holdem.bet - seat.streetBet);
+    const who = pkWho(seat);
+    if ((action === 'fold' && need === 0) || (action !== 'allin' && action !== 'raise' && action !== 'fold' && action !== 'call')) action = 'call';
+    if (action === 'fold' && need === 0) action = 'call';
+    if (action === 'fold'){
+      seat.folded = true;
+      seat.acted = true;
+      holdem.msg = who + (seat.kind === 'human' ? ' fold.' : ' folds.');
+      pkAdvance();
+      return;
+    }
+    if ((action === 'raise' || action === 'allin') && seat.stack > need){
+      const minRaise = holdem.minRaise || holdem.bb;
+      const want = action === 'allin' ? seat.stack - need : Math.max(minRaise, size || holdem.raiseSize || holdem.bb);
+      const extra = Math.min(seat.stack - need, want);
+      const full = extra >= minRaise;
+      if (action === 'raise' && !full && extra < seat.stack - need){
+        action = 'call';
+      } else {
+        pkTake(seat, need + extra);
+        if (seat.streetBet > holdem.bet){
+          const bumped = seat.streetBet - holdem.bet;
+          holdem.bet = seat.streetBet;
+          if (full){
+            holdem.minRaise = Math.max(minRaise, bumped);
+            holdem.raises += 1;
+            holdem.seats.forEach(s => {
+              if (s !== seat && pkStillIn(s) && !s.allin) s.acted = false;
+            });
+          }
+        }
+        seat.acted = true;
+        holdem.msg = seat.allin
+          ? (who + (seat.kind === 'human' ? ' are all-in.' : ' is all-in.'))
+          : (who + (seat.kind === 'human' ? ' raise to ' : ' raises to ') + holdem.bet + '.');
+        pkAdvance();
+        return;
+      }
+    }
+    pkTake(seat, need);
+    seat.acted = true;
+    if (seat.allin) holdem.msg = who + (seat.kind === 'human' ? ' call all-in.' : ' calls all-in.');
+    else if (need === 0) holdem.msg = who + (seat.kind === 'human' ? ' check.' : ' checks.');
+    else holdem.msg = who + (seat.kind === 'human' ? ' call ' : ' calls ') + need + '.';
+    pkAdvance();
+  }
+  function pkBettingClosed(){
+    return holdem.seats.filter(pkStillIn).every(s => s.allin || (s.acted && s.streetBet === holdem.bet));
+  }
+  function pkNextIndex(from){
+    for (let i = 1; i <= 4; i++){
+      const ix = (from + i) % 4;
+      const seat = holdem.seats[ix];
+      if (pkStillIn(seat) && !seat.allin) return ix;
+    }
+    return -1;
+  }
+  function pkAward(seat){
+    holdem.turn = -1;
+    if (seat){
+      if (seat.kind === 'human'){
+        const p = pkPayer();
+        if (p) p.bankroll += holdem.pot;
+        holdem.msg = 'You win ' + holdem.pot + '.';
+      } else {
+        seat.stack += holdem.pot;
+        holdem.msg = seat.name + ' wins ' + holdem.pot + '.';
+      }
+    }
+    holdem.pot = 0;
+    holdem.street = 'showdown';
+    holdem.button = pkNextOccupied(holdem.button);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    pkRender();
+  }
+  function pkShowdown(){
+    holdem.street = 'showdown';
+    holdem.turn = -1;
+    const live = holdem.seats.filter(pkStillIn);
+    let best = null;
+    let winners = [];
+    live.forEach(seat => {
+      seat.score = pkBest(seat.hole.concat(holdem.board));
+      seat.rankName = PK_CAT[seat.score[0]] || '';
+      if (!best || pkCmp(seat.score, best) > 0){
+        best = seat.score;
+        winners = [seat];
+      } else if (pkCmp(seat.score, best) === 0) winners.push(seat);
+    });
+    const share = winners.length ? Math.floor(holdem.pot / winners.length) : 0;
+    let extra = winners.length ? holdem.pot - share * winners.length : 0;
+    winners.forEach(seat => {
+      const gain = share + (extra > 0 ? 1 : 0);
+      if (extra > 0) extra -= 1;
+      if (seat.kind === 'human'){
+        const p = pkPayer();
+        if (p) p.bankroll += gain;
+      } else seat.stack += gain;
+    });
+    const hand = best ? PK_CAT[best[0]] : 'the pot';
+    holdem.msg = (winners.length ? winners.map(s => s.kind === 'human' ? 'You' : s.name).join(' and ') : 'Nobody') + ' wins with ' + hand + '.';
+    holdem.pot = 0;
+    holdem.button = pkNextOccupied(holdem.button);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    pkRender();
+  }
+  function pkRunout(){
+    while (holdem.board.length < 5 && holdem.deck.length) holdem.board.push(holdem.deck.pop());
+    pkShowdown();
+  }
+  function pkNextStreet(){
+    const next = { preflop:'flop', flop:'turn', turn:'river' }[holdem.street];
+    if (!next){ pkShowdown(); return; }
+    const count = next === 'flop' ? 3 : 1;
+    for (let i = 0; i < count; i++) holdem.board.push(holdem.deck.pop());
+    holdem.street = next;
+    holdem.bet = 0;
+    holdem.raises = 0;
+    holdem.minRaise = holdem.bb;
+    holdem.seats.forEach(s => {
+      s.streetBet = 0;
+      s.acted = !pkStillIn(s) || s.allin;
+    });
+    holdem.turn = -1;
+    holdem.msg = next.charAt(0).toUpperCase() + next.slice(1) + '.';
+    pkRender();
+    pkQueue(() => {
+      holdem.turn = holdem.button;
+      pkAdvance();
+    }, 480);
+  }
+  function pkAdvance(){
+    const live = holdem.seats.filter(pkStillIn);
+    if (live.length <= 1){ pkAward(live[0] || null); return; }
+    if (!pkBettingClosed()){
+      const nx = pkNextIndex(holdem.turn);
+      if (nx < 0){ pkRunout(); return; }
+      holdem.turn = nx;
+      pkRender();
+      if (holdem.seats[nx].kind === 'ai') pkQueue(() => {
+        const plan = pkChoose(holdem.seats[nx]);
+        pkApply(nx, plan.action, plan.size);
+      }, 700);
+      return;
+    }
+    const canAct = live.filter(s => !s.allin);
+    if (canAct.length <= 1 || holdem.street === 'river'){
+      if (holdem.street === 'river' && canAct.length > 1) pkShowdown();
+      else pkRunout();
+      return;
+    }
+    pkNextStreet();
+  }
+  function pkOpenBetting(preflop){
+    holdem.raises = 0;
+    holdem.minRaise = holdem.bb;
+    holdem.seats.forEach(s => {
+      s.streetBet = 0;
+      s.acted = !pkStillIn(s) || s.allin;
+    });
+    if (preflop){
+      const liveCount = holdem.seats.filter(s => !s.out).length;
+      const sbIx = liveCount === 2 ? holdem.button : pkNextOccupied(holdem.button);
+      const bbIx = pkNextOccupied(sbIx);
+      pkTake(holdem.seats[sbIx], holdem.sb);
+      pkTake(holdem.seats[bbIx], holdem.bb);
+      holdem.bet = Math.max(holdem.seats[sbIx].streetBet, holdem.seats[bbIx].streetBet);
+      holdem.turn = bbIx;
+    } else {
+      holdem.bet = 0;
+      holdem.turn = holdem.button;
+    }
+    pkAdvance();
+  }
+  function pkStartHand(){
+    if (holdem.street === 'preflop' || holdem.street === 'flop' || holdem.street === 'turn' || holdem.street === 'river') return;
+    pkEnsure();
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < holdem.bb){
+      holdem.msg = 'You need at least ' + holdem.bb + ' in the bank for the big blind.';
+      pkRender();
+      return;
+    }
+    holdem.token += 1;
+    clearTimeout(holdem.timer);
+    holdem.playerId = human.id;
+    holdem.deck = pkShuffle(1);
+    holdem.board = [];
+    holdem.pot = 0;
+    holdem.seats.forEach(seat => {
+      seat.folded = false;
+      seat.allin = false;
+      seat.acted = false;
+      seat.streetBet = 0;
+      seat.hole = [];
+      seat.rankName = '';
+      seat.out = seat.kind === 'ai' && seat.stack < holdem.sb;
+      if (seat.kind === 'human'){
+        seat.stack = casinoSpendable(human);
+        seat.name = human.name;
+        seat.out = false;
+      }
+    });
+    if (holdem.seats[holdem.button].out) holdem.button = pkNextOccupied(holdem.button);
+    holdem.seats.forEach(seat => {
+      if (!seat.out) seat.hole = [holdem.deck.pop(), holdem.deck.pop()];
+    });
+    holdem.street = 'preflop';
+    holdem.msg = 'Blinds are ' + holdem.sb + ' and ' + holdem.bb + '.';
+    pkOpenBetting(true);
+  }
+
+  function bjShoe(){ return pkShuffle(4); }
+  function bjDraw(){
+    if (bj.deck.length < 1) bj.deck = bjShoe();
+    return bj.deck.pop();
+  }
+  function bjTotal(cards){
+    let total = 0;
+    let aces = 0;
+    cards.forEach(card => {
+      const rank = card & 15;
+      if (rank === 12){ aces += 1; total += 11; }
+      else if (rank >= 8) total += 10;
+      else total += rank + 2;
+    });
+    while (total > 21 && aces){ total -= 10; aces -= 1; }
+    return total;
+  }
+  function bjPaintChips(){
+    const host = document.getElementById('bjChips');
+    if (!host || host.childElementCount) return;
+    [5, 10, 25, 50].forEach(v => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rl-chipbtn' + (v === bj.bet ? ' on' : '');
+      btn.textContent = String(v);
+      btn.onclick = () => {
+        if (bj.phase === 'play') return;
+        bj.bet = v;
+        host.querySelectorAll('.rl-chipbtn').forEach(el => el.classList.toggle('on', Number(el.textContent) === v));
+      };
+      host.appendChild(btn);
+    });
+  }
+  function bjRender(){
+    const dealer = document.getElementById('bjDealer');
+    const player = document.getElementById('bjPlayer');
+    const dealerTot = document.getElementById('bjDealerTot');
+    const playerTot = document.getElementById('bjPlayerTot');
+    const msg = document.getElementById('bjMsg');
+    if (dealer){
+      dealer.innerHTML = '';
+      bj.dealer.forEach((card, i) => dealer.appendChild(casinoCard(card, bj.hide && i === 1)));
+    }
+    if (player){
+      player.innerHTML = '';
+      bj.player.forEach(card => player.appendChild(casinoCard(card, false)));
+    }
+    if (dealerTot) dealerTot.textContent = bj.dealer.length ? String(bj.hide ? bjTotal([bj.dealer[0]]) : bjTotal(bj.dealer)) : '';
+    if (playerTot) playerTot.textContent = bj.player.length ? String(bjTotal(bj.player)) : '';
+    if (msg) msg.textContent = bj.msg;
+    const play = bj.phase === 'play';
+    const deal = document.getElementById('bjDeal');
+    const hit = document.getElementById('bjHit');
+    const stand = document.getElementById('bjStand');
+    const dbl = document.getElementById('bjDouble');
+    if (deal) deal.disabled = play;
+    if (hit) hit.disabled = !play;
+    if (stand) stand.disabled = !play;
+    const human = casinoHuman();
+    if (dbl) dbl.disabled = !(play && bj.player.length === 2 && human && casinoSpendable(human) >= bj.stake);
+    bjPaintChips();
+  }
+  function bjSettle(){
+    const human = casinoHuman();
+    const playerTotal = bjTotal(bj.player);
+    const dealerTotal = bjTotal(bj.dealer);
+    const playerNatural = bj.player.length === 2 && playerTotal === 21;
+    const dealerNatural = bj.dealer.length === 2 && dealerTotal === 21;
+    let pay = 0;
+    if (playerTotal > 21) bj.msg = 'Bust. The dealer takes the bet.';
+    else if (playerNatural && !dealerNatural){
+      pay = bj.stake + Math.floor(bj.stake * 3 / 2);
+      bj.msg = 'Blackjack pays 3 to 2. +' + pay;
+    } else if (dealerNatural && !playerNatural) bj.msg = 'Dealer blackjack.';
+    else if (playerNatural && dealerNatural){
+      pay = bj.stake;
+      bj.msg = 'Push.';
+    } else if (dealerTotal > 21 || playerTotal > dealerTotal){
+      pay = bj.stake * 2;
+      bj.msg = (dealerTotal > 21 ? 'Dealer busts. You win. +' : 'You win. +') + pay;
+    } else if (playerTotal === dealerTotal){
+      pay = bj.stake;
+      bj.msg = 'Push.';
+    } else bj.msg = 'Dealer wins.';
+    if (human && pay) human.bankroll += pay;
+    bj.phase = 'bet';
+    bj.hide = false;
+    casinoLock(false);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    bjRender();
+  }
+  function bjStart(){
+    if (bj.phase === 'play') return;
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < bj.bet){
+      bj.msg = 'Not enough in the bank for that chip.';
+      bjRender();
+      return;
+    }
+    if (bj.deck.length < 20) bj.deck = bjShoe();
+    bj.stake = bj.bet;
+    human.bankroll -= bj.stake;
+    bj.player = [bjDraw(), bjDraw()];
+    bj.dealer = [bjDraw(), bjDraw()];
+    bj.phase = 'play';
+    bj.hide = true;
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    if (bjTotal(bj.player) === 21 || bjTotal(bj.dealer) === 21){
+      bj.hide = false;
+      bjSettle();
+      return;
+    }
+    bj.msg = 'Hit, stand, or double.';
+    casinoLock(true);
+    bjRender();
+  }
+  function bjHitCard(){
+    if (bj.phase !== 'play') return;
+    bj.player.push(bjDraw());
+    if (bjTotal(bj.player) > 21){
+      bj.hide = false;
+      bj.msg = 'Bust.';
+      bjSettle();
+      return;
+    }
+    bj.msg = 'Hit or stand.';
+    bjRender();
+  }
+  function bjStandPat(){
+    if (bj.phase !== 'play') return;
+    bj.hide = false;
+    while (bjTotal(bj.dealer) < 17) bj.dealer.push(bjDraw());
+    bjSettle();
+  }
+  function bjDoubleDown(){
+    if (bj.phase !== 'play' || bj.player.length !== 2) return;
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < bj.stake){
+      bj.msg = 'Not enough in the bank to double.';
+      bjRender();
+      return;
+    }
+    human.bankroll -= bj.stake;
+    bj.stake *= 2;
+    bj.player.push(bjDraw());
+    updateBankrollDisplays();
+    if (bjTotal(bj.player) > 21){
+      bj.hide = false;
+      bj.msg = 'Bust.';
+      bjSettle();
+      return;
+    }
+    bjStandPat();
+  }
+
+  function slotSymH(){
+    const glass = document.querySelector('.slot-glass');
+    const n = glass ? parseFloat(getComputedStyle(glass).getPropertyValue('--sym')) : 60;
+    return n || 60;
+  }
+  function slotEnsure(){
+    if (slots.built) return;
+    const host = document.getElementById('slotReels');
+    if (!host) return;
+    const spec = [['cherry', 7], ['lemon', 6], ['orange', 6], ['plum', 5], ['bell', 4], ['bar', 3], ['seven', 2], ['chest', 1]];
+    slots.strip = [];
+    spec.forEach(([id, n]) => { for (let i = 0; i < n; i++) slots.strip.push(id); });
+    for (let i = slots.strip.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = slots.strip[i]; slots.strip[i] = slots.strip[j]; slots.strip[j] = t;
+    }
+    host.innerHTML = '';
+    const len = slots.strip.length;
+    const h = slotSymH();
+    for (let reel = 0; reel < 5; reel++){
+      const windowEl = document.createElement('div');
+      windowEl.className = 'slot-reel';
+      const strip = document.createElement('div');
+      strip.className = 'slot-strip';
+      for (let n = 0; n < 12; n++){
+        slots.strip.forEach(id => {
+          const cell = document.createElement('div');
+          cell.className = 'slot-sym';
+          cell.dataset.sym = id;
+          const glyph = SLOT_GLYPH[id];
+          if (glyph.charAt(0) === '<') cell.innerHTML = glyph;
+          else cell.textContent = glyph;
+          strip.appendChild(cell);
+        });
+      }
+      const park = len + 2 + reel * 3;
+      strip.style.transform = 'translateY(' + (-((park - 1) * h)) + 'px)';
+      windowEl.appendChild(strip);
+      host.appendChild(windowEl);
+    }
+    slots.built = true;
+  }
+  function slotPull(){
+    if (slots.spinning) return;
+    slotEnsure();
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < slots.bet){
+      const msg = document.getElementById('slotMsg');
+      if (msg) msg.textContent = 'Not enough in the bank for that bet.';
+      return;
+    }
+    human.bankroll -= slots.bet;
+    slots.spinning = true;
+    const startMsg = document.getElementById('slotMsg');
+    if (startMsg) startMsg.textContent = 'Spinning…';
+    casinoLock(true);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    const handle = document.getElementById('slotHandle');
+    const len = slots.strip.length;
+    const h = slotSymH();
+    const idx = [0, 1, 2, 3, 4].map(() => Math.floor(Math.random() * len));
+    const loops = [4, 5, 6, 7, 8];
+    const strips = [...document.querySelectorAll('#slotReels .slot-strip')];
+    let pending = strips.length;
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(slots.timer);
+      strips.forEach((el, reel) => {
+        el.style.transition = 'none';
+        el.style.transform = 'translateY(' + (-((len + idx[reel] - 1) * h)) + 'px)';
+      });
+      const ids = idx.map(i => slots.strip[i]);
+      const counts = {};
+      ids.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+      let mult = 0;
+      let label = '';
+      Object.keys(counts).forEach(id => {
+        const n = counts[id];
+        const table = SLOT_PAY[id] || {};
+        const pay = n >= 5 ? table[5] : n === 4 ? table[4] : n === 3 ? table[3] : 0;
+        if (pay > mult){
+          mult = pay;
+          label = (SLOT_NAME[id] || id) + ' ×' + n;
+        }
+      });
+      if ((counts.cherry || 0) >= 2 && mult < 2){
+        mult = 2;
+        label = 'two cherries';
+      }
+      const win = slots.bet * mult;
+      if (win) human.bankroll += win;
+      slots.spinning = false;
+      const cab = document.getElementById('slotCabinet');
+      if (cab) cab.classList.toggle('win', win > 0);
+      const msg = document.getElementById('slotMsg');
+      if (msg){
+        const line = ids.map(id => SLOT_NAME[id] || id).join('  ');
+        msg.textContent = win ? (line + ' — ' + label + ' pays ' + win) : (line + ' — no win');
+      }
+      if (handle) handle.classList.remove('pulled');
+      casinoLock(false);
+      updateBankrollDisplays();
+      paintRoulettePlayers();
+    };
+    strips.forEach((el, reel) => {
+      el.style.transition = 'none';
+      el.style.transform = 'translateY(' + (-((len + idx[reel] - 1) * h)) + 'px)';
+      void el.offsetWidth;
+      const target = loops[reel] * len + idx[reel];
+      el.style.transition = 'transform ' + (1.15 + reel * 0.35) + 's cubic-bezier(.12,.7,.08,1)';
+      el.style.transform = 'translateY(' + (-((target - 1) * h)) + 'px)';
+      el.addEventListener('transitionend', function onEnd(ev){
+        if (ev.propertyName !== 'transform') return;
+        el.removeEventListener('transitionend', onEnd);
+        pending -= 1;
+        if (pending <= 0) finish();
+      });
+    });
+    slots.timer = setTimeout(finish, 3600);
   }
 
   function setupRoulette(){
@@ -4663,8 +6340,73 @@ body.view-3d .scanlines{ opacity:0.16; }
     const spin = document.getElementById('rouletteSpin');
     if (spin) spin.onclick = spinRoulette;
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && GAME.state.rouletteOpen) closeRoulette();
+      if (!GAME.state.rouletteOpen) return;
+      if (e.key === 'Escape') closeRoulette();
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
+        const tag = e.target && e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        e.preventDefault();
+        showCasino(casinoIndex + (e.key === 'ArrowRight' ? 1 : -1));
+      }
     });
+    const prev = document.getElementById('casinoPrev');
+    const next = document.getElementById('casinoNext');
+    if (prev) prev.onclick = () => showCasino(casinoIndex - 1);
+    if (next) next.onclick = () => showCasino(casinoIndex + 1);
+    const pkDeal = document.getElementById('pkDeal');
+    const pkFold = document.getElementById('pkFold');
+    const pkCall = document.getElementById('pkCall');
+    const pkRaise = document.getElementById('pkRaise');
+    if (pkDeal) pkDeal.onclick = pkStartHand;
+    if (pkFold) pkFold.onclick = () => pkHuman('fold');
+    if (pkCall) pkCall.onclick = () => pkHuman('call');
+    if (pkRaise) pkRaise.onclick = () => pkHuman('raise');
+    const pkAllIn = document.getElementById('pkAllIn');
+    if (pkAllIn) pkAllIn.onclick = () => pkHuman('allin');
+    document.querySelectorAll('#pkSizer [data-raise]').forEach(btn => {
+      btn.onclick = () => {
+        holdem.raiseSize = Number(btn.dataset.raise);
+        document.querySelectorAll('#pkSizer [data-raise]').forEach(el => el.classList.toggle('on', el === btn));
+        pkSyncButtons();
+      };
+    });
+    const bjDeal = document.getElementById('bjDeal');
+    const bjHit = document.getElementById('bjHit');
+    const bjStand = document.getElementById('bjStand');
+    const bjDouble = document.getElementById('bjDouble');
+    if (bjDeal) bjDeal.onclick = bjStart;
+    if (bjHit) bjHit.onclick = bjHitCard;
+    if (bjStand) bjStand.onclick = bjStandPat;
+    if (bjDouble) bjDouble.onclick = bjDoubleDown;
+    bjPaintChips();
+    const slotHandle = document.getElementById('slotHandle');
+    const slotSpinBtn = document.getElementById('slotSpin');
+    const slotRelease = () => {
+      if (!slotHandle || !slotHandle.classList.contains('pulled')) return;
+      slotHandle.classList.remove('pulled');
+      slotPull();
+    };
+    if (slotHandle){
+      slotHandle.onpointerdown = (e) => {
+        if (slots.spinning) return;
+        e.preventDefault();
+        slotHandle.classList.add('pulled');
+        if (slotHandle.setPointerCapture){
+          try { slotHandle.setPointerCapture(e.pointerId); } catch (err) {}
+        }
+      };
+      slotHandle.onpointerup = slotRelease;
+      slotHandle.onpointercancel = slotRelease;
+    }
+    if (slotSpinBtn) slotSpinBtn.onclick = slotPull;
+    document.querySelectorAll('#slotBets [data-bet]').forEach(btn => {
+      btn.onclick = () => {
+        if (slots.spinning) return;
+        slots.bet = Number(btn.dataset.bet);
+        document.querySelectorAll('#slotBets [data-bet]').forEach(el => el.classList.toggle('on', el === btn));
+      };
+    });
+    slotEnsure();
     const wheelBtn = document.getElementById('trackRouletteBtn');
     if (wheelBtn) wheelBtn.onclick = openRoulette;
     setupTrackRoulette();
@@ -4836,6 +6578,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   new ResizeObserver(() => {
     placeFinishFlag();
     fitInfieldBoard();
+    fitHorseGrids();
   }).observe(document.body);
 
   // ---------- Commentary audio ----------
@@ -4852,7 +6595,11 @@ body.view-3d .scanlines{ opacity:0.16; }
       commentaryAudio.volume = 0;
     } catch(e) { commentaryAudio = null; }
     if (els.btnCommentary){
-      const sync = () => els.btnCommentary.classList.toggle('active', commentaryEnabled);
+      const sync = () => {
+        els.btnCommentary.classList.toggle('active', commentaryEnabled);
+        const label = document.getElementById('commentaryChipLabel');
+        if (label) label.textContent = commentaryEnabled ? 'On' : 'Off';
+      };
       els.btnCommentary.onclick = async () => {
         commentaryEnabled = !commentaryEnabled;
         sync();

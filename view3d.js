@@ -40,6 +40,13 @@
       trackA: '#8a5730', trackB: '#a56b3e', infield: '#6d8a3c', apron: '#3a2c24', ground: '#3a2a20',
       dust: '#c9a27a', tree: '#3e6a32', railE: '#000000', railEI: 0, spotI: 0.2, cyber: false
     },
+    chariot: {
+      skyTop: '#7eb6e8', skyBot: '#f6e2c4', fog: '#ecd4b0', fogNear: 50, fogFar: 175,
+      sun: '#ffe0a8', sunDisk: 1.15, sunPos: [30, 36, 18], hemiSky: '#ffe8c8', hemiGround: '#c4a06a',
+      sunI: 1.32, fill: '#f0d8b8', fillI: 0.42, exposure: 1.08,
+      trackA: '#c4955a', trackB: '#8d6236', infield: '#c4a06a', apron: '#6e5840', ground: '#5a4330',
+      dust: '#e6d2a8', tree: '#6a8a48', railE: '#000000', railEI: 0, spotI: 0.15, cyber: false, chariot: true
+    },
     night: {
       skyTop: '#02040c', skyBot: '#102038', fog: '#070b14', fogNear: 30, fogFar: 140,
       sun: '#e4ecff', sunDisk: 0.22, sunPos: [-18, 34, -14], hemiSky: '#243656', hemiGround: '#0a1018',
@@ -95,6 +102,8 @@
       const canvas = document.getElementById('view3dCanvas');
       const btn = document.getElementById('btnToggleView');
       const sel = document.getElementById('cameraSelect');
+      const cameraChip = document.getElementById('cameraChip');
+      const cameraChipLabel = document.getElementById('cameraChipLabel');
       const bar = document.getElementById('camBar');
       const hudName = document.getElementById('camHudName');
       const hudHint = document.getElementById('camHudHint');
@@ -349,12 +358,14 @@
         for (let y = 0; y < 64; y++) {
           for (let x = 0; x < 256; x++) {
             const stripe = Math.floor(x / 16) % 2;
-            const base = stripe ? cb : ca;
+            const base = kind === 'chariot'
+              ? ca.clone().lerp(cb, (Math.sin(x * 0.17) * 0.5 + 0.5) * 0.65 + (Math.sin(y * 0.9) * 0.5 + 0.5) * 0.35)
+              : (stripe ? cb : ca);
             let r = base.r, gg = base.g, b = base.b;
-            const n = (Math.random() - 0.5) * (kind === 'cyber' ? 0.04 : 0.07);
+            const n = (Math.random() - 0.5) * (kind === 'cyber' ? 0.04 : kind === 'chariot' ? 0.11 : 0.07);
             r = Math.min(1, Math.max(0, r + n));
-            gg = Math.min(1, Math.max(0, gg + n));
-            b = Math.min(1, Math.max(0, b + n));
+            gg = Math.min(1, Math.max(0, gg + n * 0.85));
+            b = Math.min(1, Math.max(0, b + n * 0.55));
             if (kind === 'cyber' && (x % 32 === 0 || y % 16 === 0)) {
               r = x % 32 === 0 ? 0.05 : 0.9;
               gg = 0.95; b = 1;
@@ -1290,8 +1301,12 @@
         const railMat = new THREE.MeshStandardMaterial({ color: 0xf7fbff, roughness: 0.35, metalness: 0.12, side: THREE.DoubleSide });
         const railIn = new THREE.MeshStandardMaterial({ color: 0xf4c542, roughness: 0.4, metalness: 0.08, side: THREE.DoubleSide });
         worldGroup.add(new THREE.Mesh(wallGeo(outerRail, 0.05, 0.86, 8), railMat));
-        worldGroup.add(new THREE.Mesh(wallGeo(innerRail, 0.05, 0.78, 8), railMat));
-        worldGroup.add(new THREE.Mesh(wallGeo(innerRail, 0.78, 0.96, 8), railIn));
+        const innerWall = new THREE.Mesh(wallGeo(innerRail, 0.05, 0.78, 8), railMat);
+        const innerCap = new THREE.Mesh(wallGeo(innerRail, 0.78, 0.96, 8), railIn);
+        worldGroup.add(innerWall);
+        worldGroup.add(innerCap);
+        refs.innerWall = innerWall;
+        refs.innerCap = innerCap;
         addPosts(worldGroup, outerRail, railMat);
         addPosts(worldGroup, innerRail, railMat);
         refs.railMat = railMat;
@@ -1334,6 +1349,7 @@
         const shrubGeo = new THREE.SphereGeometry(0.42, 7, 6);
         const shrubMat = new THREE.MeshStandardMaterial({ color: 0x2f8a3a, roughness: 0.85 });
         const shrubSpots = [];
+        refs.shrubs = [];
         const shrubCols = 16;
         const shrubRows = 9;
         for (let iz = 0; iz < shrubRows; iz++) {
@@ -1350,6 +1366,7 @@
             s.position.set(x, 0.28, z);
             s.scale.setScalar(0.6 + (h % 50) / 80);
             worldGroup.add(s);
+            refs.shrubs.push(s);
             shrubSpots.push({ x, z });
           }
         }
@@ -1399,6 +1416,36 @@
 
         addInfieldRoulette(worldGroup);
         addCoursePylons();
+        addChariotMarkers(innerRail);
+      }
+
+      function addChariotMarkers(innerRail) {
+        let left = innerRail[0];
+        let right = innerRail[0];
+        innerRail.forEach(p => {
+          if (p.x < left.x) left = p;
+          if (p.x > right.x) right = p;
+        });
+        const group = new THREE.Group();
+        const stone = new THREE.MeshStandardMaterial({ color: 0xefe6d4, roughness: 0.72 });
+        const bronze = new THREE.MeshStandardMaterial({ color: 0x8a5a32, roughness: 0.45, metalness: 0.35 });
+        const coneGeo = new THREE.ConeGeometry(0.42, 1.55, 8);
+        [left, right].forEach(end => {
+          const dir = end.x >= 0 ? -1 : 1;
+          const x = end.x + dir * 1.15;
+          const z = end.z;
+          const plinth = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.22, 2.4), stone);
+          plinth.position.set(x, 0.14, z);
+          group.add(plinth);
+          [-0.62, 0, 0.62].forEach((zOff, i) => {
+            const cone = new THREE.Mesh(coneGeo, i === 1 ? bronze : stone);
+            cone.position.set(x + dir * 0.08, 0.95, z + zOff);
+            group.add(cone);
+          });
+        });
+        group.visible = !!(PAL[game.state.course] && PAL[game.state.course].chariot);
+        worldGroup.add(group);
+        refs.chariot = group;
       }
 
       const ROULETTE_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
@@ -2174,6 +2221,11 @@
         flagPivots = [];
         refs.spots = [];
         refs.bulbs = [];
+        refs.innerWall = null;
+        refs.innerCap = null;
+        refs.chariot = null;
+        refs.shrubs = [];
+        refs.hedgeMat = null;
         worldGroup = new THREE.Group();
         scene.add(worldGroup);
         ensureGeo();
@@ -2260,18 +2312,31 @@
         if (refs.infieldMat) refs.infieldMat.color.set(skin.infield);
         if (refs.groundMat) refs.groundMat.color.set(skin.ground);
         if (refs.apronMat) refs.apronMat.color.set(skin.apron);
-        if (refs.hedgeMat) refs.hedgeMat.color.set(skin.cyber ? '#0a3a32' : '#1f6b32');
         if (refs.shrubMat) refs.shrubMat.color.set(skin.cyber ? '#0d4a40' : skin.tree);
         if (refs.crownMat) refs.crownMat.color.set(skin.tree);
+        const chariot = !!skin.chariot;
         if (refs.railMat) {
+          refs.railMat.color.set(chariot ? 0xd7cbb6 : 0xf7fbff);
+          refs.railMat.roughness = chariot ? 0.82 : 0.35;
+          refs.railMat.metalness = chariot ? 0.02 : 0.12;
           refs.railMat.emissive.set(skin.railE);
           refs.railMat.emissiveIntensity = skin.railEI;
         }
         if (refs.railIn && refs.railIn !== refs.railMat) {
-          refs.railIn.color.set(skin.cyber ? 0xff3df6 : 0xf4c542);
+          refs.railIn.color.set(chariot ? 0xefe4d0 : (skin.cyber ? 0xff3df6 : 0xf4c542));
           refs.railIn.emissive.set(skin.cyber ? 0xff3df6 : 0x000000);
           refs.railIn.emissiveIntensity = skin.cyber ? 0.8 : 0;
         }
+        if (refs.innerWall) refs.innerWall.scale.y = chariot ? 1.45 : 1;
+        if (refs.innerCap) refs.innerCap.scale.y = chariot ? 1.45 : 1;
+        if (refs.lineMat) {
+          refs.lineMat.color.set(chariot ? 0x6a4a28 : 0xffffff);
+          if (refs.lineMat.opacity != null) refs.lineMat.opacity = chariot ? 0.1 : 0.28;
+        }
+        if (refs.hedgeMat) refs.hedgeMat.color.set(chariot ? 0xcbb89a : (skin.cyber ? 0x0a3a32 : 0x1f6b32));
+        if (refs.shrubs) refs.shrubs.forEach(s => { s.visible = !chariot; });
+        if (refs.chariot) refs.chariot.visible = chariot;
+        if (refs.roofMat) refs.roofMat.color.set(chariot ? 0xb08968 : 0x2a3548);
         if (refs.trees) refs.trees.visible = !skin.cyber;
         if (refs.pylons) refs.pylons.visible = !!skin.cyber;
         refs.spots.forEach((s, i) => {
@@ -2289,7 +2354,8 @@
           refs.seatMats.forEach((m, i) => {
             const day = i % 2 ? 0x1d4e89 : 0x8d2942;
             const night = i % 2 ? 0x10243f : 0x4a1828;
-            m.color.set(skin.spotI > 1 ? night : day);
+            const sand = i % 2 ? 0xb85a3c : 0xd8c4a0;
+            m.color.set(chariot ? sand : (skin.spotI > 1 ? night : day));
           });
         }
         dustPool.forEach(p => p.sprite.material.color.set(skin.dust));
@@ -2801,6 +2867,7 @@
         if (sel) sel.value = id;
         if (bar) bar.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.cam === id));
         const cam = CAMS.find(c => c.id === id);
+        if (cameraChipLabel) cameraChipLabel.textContent = cam ? cam.label : id;
         if (hudName) hudName.textContent = cam ? cam.label : id;
         if (hudHint) {
           hudHint.textContent = id === 'orbit'
@@ -2816,6 +2883,7 @@
 
       if (btn) btn.onclick = () => setActive(!active);
       if (sel) sel.onchange = () => setCamera(sel.value);
+      if (cameraChip) cameraChip.onclick = () => cycle(1);
       if (bar) {
         bar.querySelectorAll('button').forEach(b => {
           b.onclick = () => setCamera(b.dataset.cam);
@@ -2914,11 +2982,8 @@
           if (active && renderer) rebuildField();
         },
         onCourse() {
-          if (active && renderer) {
-            applySkin();
-          } else {
-            worldDirty = true;
-          }
+          worldDirty = true;
+          if (active && renderer) rebuildWorld();
         },
         onTrack() {
           worldDirty = true;
