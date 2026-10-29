@@ -75,7 +75,11 @@ img{ display:block; }
   background-clip:text;
   color: transparent;
   text-shadow: 0 0 10px #0ff6, 0 0 20px #f3f6;
+  border:0;
+  padding:0;
+  cursor:pointer;
 }
+button.title:hover{ filter:brightness(1.15); }
 .brand .subtitle{
   color:#ffd166; /* gold style */
   font-weight:700;
@@ -815,6 +819,57 @@ dialog.horse-edit-dialog::backdrop{
   border-color:#17f0ff; background:#123049;
 }
 .horse-edit-dialog .he-actions button:hover{ border-color:#17f0ff; }
+
+dialog.rules-dialog{
+  border:1px solid #e2b34a;
+  border-radius:16px;
+  padding:0;
+  width:min(520px, calc(100vw - 24px));
+  max-width:calc(100vw - 24px);
+  background:linear-gradient(165deg, #121c2e, #0a1018);
+  color:#e8f1ff;
+  box-shadow:0 18px 50px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(23,240,255,0.18);
+}
+dialog.rules-dialog::backdrop{ background:rgba(4,10,18,0.72); }
+.rules-wrap{ padding:16px 18px 14px; display:flex; flex-direction:column; gap:12px; }
+.rules-wrap h3{
+  margin:0;
+  font-size:18px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.rules-wrap section{
+  margin:0;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(226,179,74,0.35);
+  background:rgba(8,16,28,0.72);
+}
+.rules-wrap h4{
+  margin:0 0 6px;
+  font-size:12px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:#ffd166;
+}
+.rules-wrap p{ margin:0; color:#d7e6f8; font-size:14px; line-height:1.45; }
+.rules-wrap p + p{ margin-top:6px; }
+.rules-actions{ display:flex; justify-content:flex-end; }
+.rules-actions button{
+  background:#0f2037;
+  border:1px solid #17f0ff;
+  color:#eafff6;
+  border-radius:8px;
+  padding:8px 14px;
+  font-weight:800;
+  letter-spacing:0.06em;
+  cursor:pointer;
+}
+.rules-actions button:hover{ border-color:#ffd166; color:#ffd166; }
 
 .results-overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:4; pointer-events:none; }
 .results-card{
@@ -1656,7 +1711,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   <div class="topbar">
     <div class="top-left">
       <div class="brand">
-        <div class="title">Arcade Racing</div>
+        <button type="button" class="title" id="brandTitle">Arcade Racing</button>
         <div class="subtitle" id="subtitle">KINGDOMS OF TREASURE STAKES • Trial A • Grass Day</div>
       </div>
       <div class="info-chips">
@@ -1666,7 +1721,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         <button type="button" class="chip" id="courseChipBtn" title="Course. Cycles Grass Day, Dirt Sunset, Chariot Sands, Night Neon, and Cyber Grid."><strong>Course</strong><span id="courseChip">Grass Day</span></button>
         <button type="button" class="chip" id="cameraChip" title="Camera. Cycles Broadcast, Rail, Chase, Finish, Grandstand, Drone, Jockey, and Orbit."><strong>Camera</strong><span id="cameraChipLabel">Orbit</span></button>
         <button type="button" class="chip" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps."><strong>Laps</strong><span id="lapsChip">1</span></button>
-        <button type="button" class="chip" id="btnCommentary" title="Toggle race commentary"><strong>Commentary</strong><span id="commentaryChipLabel">Off</span></button>
+        <button type="button" class="chip" id="btnCommentary" title="Commentary"><strong>Commentary</strong></button>
       </div>
       <div class="controls">
         <button class="admin active" id="btnToggleView" title="Swap flat track and 3D broadcast">View: 3D</button>
@@ -1675,8 +1730,8 @@ body.view-3d .scanlines{ opacity:0.16; }
         <button class="admin" id="btnChamp">Championship: Off</button>
         <button class="admin" id="btnStartRace">Start Race Now</button>
         <button class="admin" id="btnBetToggle">Open Betting</button>
-        <button class="admin" id="btnRules">📜 Rules</button>
         <button class="admin" id="btnOddsMode">Odds: Fixed</button>
+        <button class="admin" id="btnFruit" title="Open the fruit machine">🍇FRUIT🍋</button>
         <button class="admin" id="btnRoulette" title="Open the casino. Roulette, Texas Hold'em, blackjack, and the fruit machine. Pauses the horse race.">Roulette</button>
       </div>
       <div class="horse-strip-wrap">
@@ -1922,17 +1977,29 @@ body.view-3d .scanlines{ opacity:0.16; }
 </div>
 
 <!-- RULES MODAL (simple) -->
-<dialog id="rulesDialog">
-  <h3>Rules & Payouts</h3>
-  <p>Tap a horse button to bet 10 on WIN. Tap again to add 10 more. Clear Bets removes all wagers for that player.</p>
-  <ul>
-    <li><b>WIN</b>: stake × odds(winner)</li>
-  </ul>
-  <p>Trials: Top 2 from Trial A and Top 2 from Trial B advance to the Final. Final bet menu shows each qualifier’s trial result tag.</p>
-  <p>View swaps the flat track for a 3D broadcast. Pick a camera along the bottom, drag in Orbit, and scroll to zoom. V and C do the same from the keyboard.</p>
-  <p>Roulette uses the same player banks. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and red, black, odd, even, 1–18 and 19–36 pay 1:1. The arrows in that window also open Texas Hold'em against computer players, blackjack, and the fruit machine. The horse race stays paused while the table is open. The wheel on the flat course, and the roulette table in the 3D infield, both open that game. Laps sets the race to 1, 2, or 3 circuits and starts at 1.</p>
-  <div style="display:flex; gap:8px; justify-content:flex-end;">
-    <button onclick="document.getElementById('rulesDialog').close()">Close</button>
+<dialog id="rulesDialog" class="rules-dialog">
+  <div class="rules-wrap">
+    <h3>Arcade Racing</h3>
+    <section>
+      <h4>Betting</h4>
+      <p>Tap a horse to add 10 on a win. Tap again to add another 10. Clear Bets removes that player’s wagers. +50 and +100 add to the bank.</p>
+      <p>A win pays stake × the horse’s odds.</p>
+    </section>
+    <section>
+      <h4>Trials</h4>
+      <p>The top two from Trial A and the top two from Trial B go through to the Final.</p>
+    </section>
+    <section>
+      <h4>The race</h4>
+      <p>View switches between the flat track and the 3D broadcast. Laps sets 1, 2, or 3 circuits. The camera button on the picture cycles the broadcast view.</p>
+    </section>
+    <section>
+      <h4>Casino</h4>
+      <p>Roulette, Texas Hold’em, blackjack, and the fruit machine use the same player banks. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1.</p>
+    </section>
+    <div class="rules-actions">
+      <button type="button" id="rulesClose">Close</button>
+    </div>
   </div>
 </dialog>
 
@@ -2129,7 +2196,6 @@ body.view-3d .scanlines{ opacity:0.16; }
     btnCourse: document.getElementById('btnCourse'),
     btnBetToggle: document.getElementById('btnBetToggle'),
     btnStartRace: document.getElementById('btnStartRace'),
-    btnRules: document.getElementById('btnRules'),
     btnChamp: document.getElementById('btnChamp'),
     btnCommentary: document.getElementById('btnCommentary'),
     tickerText: document.getElementById('tickerText'),
@@ -5035,7 +5101,11 @@ body.view-3d .scanlines{ opacity:0.16; }
     resetActiveCountdown();
   };
   els.btnStartRace.onclick = () => beginRaceStartCountdown();
-  els.btnRules.onclick = () => document.getElementById('rulesDialog').showModal();
+  const brandTitle = document.getElementById('brandTitle');
+  const rulesDialog = document.getElementById('rulesDialog');
+  const rulesClose = document.getElementById('rulesClose');
+  if (brandTitle && rulesDialog) brandTitle.onclick = () => rulesDialog.showModal();
+  if (rulesClose && rulesDialog) rulesClose.onclick = () => rulesDialog.close();
 
   // ---------- Roulette ----------
   const ROULETTE_WHEEL = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
@@ -6522,6 +6592,17 @@ body.view-3d .scanlines{ opacity:0.16; }
     buildRouletteFelt();
     const openBtn = document.getElementById('btnRoulette');
     if (openBtn) openBtn.onclick = openRoulette;
+    const fruitBtn = document.getElementById('btnFruit');
+    if (fruitBtn) fruitBtn.onclick = () => {
+      const ix = CASINO.findIndex(g => g.id === 'slots');
+      if (ix < 0) return;
+      if (!GAME.state.rouletteOpen){
+        casinoIndex = ix;
+        openRoulette();
+        return;
+      }
+      showCasino(ix);
+    };
     const closeBtn = document.getElementById('rouletteClose');
     if (closeBtn) closeBtn.onclick = closeRoulette;
     const undo = document.getElementById('rouletteUndo');
@@ -6804,8 +6885,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (els.btnCommentary){
       const sync = () => {
         els.btnCommentary.classList.toggle('active', commentaryEnabled);
-        const label = document.getElementById('commentaryChipLabel');
-        if (label) label.textContent = commentaryEnabled ? 'On' : 'Off';
+        els.btnCommentary.title = commentaryEnabled ? 'Commentary on' : 'Commentary';
       };
       els.btnCommentary.onclick = async () => {
         commentaryEnabled = !commentaryEnabled;
