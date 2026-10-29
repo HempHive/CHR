@@ -862,7 +862,7 @@ dialog.horse-edit-dialog::backdrop{
   font-size:14px;
   flex-direction:column;
   align-items:flex-start;
-  gap:0.15em;
+  gap:0;
   pointer-events:none;
   box-sizing:border-box;
 }
@@ -904,27 +904,49 @@ dialog.horse-edit-dialog::backdrop{
   color:transparent;
   text-shadow:0 0 10px #0ff6, 0 0 20px #f3f6;
 }
-.race-board-body{
-  display:none;
-  flex-direction:column;
+.race-board-drawer{
+  display:grid;
+  grid-template-rows:0fr;
   align-self:stretch;
   width:0;
   min-width:100%;
+  margin-top:0;
+  transition:grid-template-rows .38s cubic-bezier(.2,.7,.2,1), margin-top .38s cubic-bezier(.2,.7,.2,1);
+}
+.race-board.is-open .race-board-drawer{
+  grid-template-rows:1fr;
+  margin-top:0.15em;
+}
+.race-board-clip{
+  min-height:0;
+  overflow:hidden;
+}
+.race-board-body{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-width:0;
   box-sizing:border-box;
   gap:0.12em;
   min-height:0;
   overflow:hidden;
   padding:0.2em;
   border-radius:8px;
-  pointer-events:auto;
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(-0.55em);
   background:
     radial-gradient(120% 100% at 50% 0%, rgba(23,240,255,0.12), transparent 55%),
     linear-gradient(165deg, rgba(8,18,32,0.9), rgba(12,24,44,0.86));
   border:1px solid rgba(23,240,255,0.4);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
-  transition:opacity .45s ease;
+  transition:opacity .32s ease, transform .38s cubic-bezier(.2,.7,.2,1);
 }
-.race-board.is-open .race-board-body{ display:flex; }
+.race-board.is-open .race-board-body{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
 .race-board-body.is-dissolving{ opacity:0; }
 .gb-tick-item{
   display:flex;
@@ -1246,6 +1268,12 @@ body.view-3d .scanlines{ opacity:0.16; }
 .pk-cards, .bj-cards{ display:flex; gap:4px; margin-top:4px; min-height:66px; }
 .pk-pot{ font-weight:800; color:#ffd166; letter-spacing:0.06em; }
 .pk-msg, .bj-msg, .slot-msg{ margin-top:6px; color:#e7f6ff; font-size:14px; font-weight:700; }
+.pk-msg{
+  white-space:nowrap;
+  overflow:hidden;
+  text-align:center;
+  line-height:1.3;
+}
 .bj-row{ display:flex; align-items:center; gap:10px; margin:8px 0; }
 .bj-row span{ width:64px; font-weight:800; color:#f3d48a; }
 .bj-row b{ color:#fff; font-size:14px; }
@@ -1540,6 +1568,27 @@ body.view-3d .scanlines{ opacity:0.16; }
 .rl-sidebet:disabled{ opacity:0.45; cursor:default; }
 .pk-sizer{ display:flex; gap:4px; flex-wrap:wrap; }
 .pk-sizer button.on{ background:#3a2c08; border-color:#ffd166; color:#ffd166; }
+.casino-view[data-game="holdem"] .rl-foot{
+  flex-direction:column;
+  align-items:stretch;
+  gap:8px;
+}
+.casino-view[data-game="holdem"] .rl-actions{
+  flex-wrap:nowrap;
+  width:100%;
+  min-width:0;
+  gap:4px;
+  font-size:14px;
+}
+.casino-view[data-game="holdem"] .rl-actions button{
+  flex:1 1 0;
+  min-width:0;
+  padding:0.5em 0.3em;
+  font-size:1em;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.casino-view[data-game="holdem"] .pk-sizer{ display:contents; }
 .rl-foot{ flex-wrap:wrap; }
 .rl-players, .rl-chips, .rl-actions{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .rl-player{ display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:92px; }
@@ -1738,11 +1787,15 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" data-cam="orbit">Orbit</button>
         </div>
         <button type="button" class="race-cam" id="raceCam" title="Camera">Orbit</button>
-        <div class="race-board is-open" id="raceBoard">
-          <button type="button" class="race-board-toggle" id="raceBoardToggle" aria-expanded="true" aria-controls="raceBoardBody">
+        <div class="race-board" id="raceBoard">
+          <button type="button" class="race-board-toggle" id="raceBoardToggle" aria-expanded="false" aria-controls="raceBoardBody">
             <span class="race-board-in"><span class="race-board-label">ARCADE RACING</span></span>
           </button>
-          <div class="race-board-body" id="raceBoardBody"></div>
+          <div class="race-board-drawer">
+            <div class="race-board-clip">
+              <div class="race-board-body" id="raceBoardBody"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1802,17 +1855,17 @@ body.view-3d .scanlines{ opacity:0.16; }
       <p class="pk-msg" id="pkMsg">Deal to play Texas Hold'em against three computer players.</p>
       <footer class="rl-foot">
         <div id="pkPlayers" class="rl-players"></div>
-        <div class="rl-actions">
+        <div class="rl-actions" id="pkActions">
           <button type="button" id="pkFold">Fold</button>
-          <button type="button" id="pkCall">Check</button>
+          <button type="button" id="pkAllIn">All-in</button>
           <div class="pk-sizer" id="pkSizer">
+            <button type="button" data-raise="100">100</button>
+            <button type="button" data-raise="50">50</button>
             <button type="button" data-raise="10">10</button>
             <button type="button" data-raise="20" class="on">20</button>
-            <button type="button" data-raise="50">50</button>
-            <button type="button" data-raise="100">100</button>
           </div>
           <button type="button" id="pkRaise">Raise 20</button>
-          <button type="button" id="pkAllIn">All-in</button>
+          <button type="button" id="pkCall">Check</button>
           <button type="button" id="pkDeal" class="primary">Deal</button>
         </div>
       </footer>
@@ -5313,12 +5366,12 @@ body.view-3d .scanlines{ opacity:0.16; }
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.clearRect(0, 0, w, h);
     if (zoom > 1.001){
-      const bx = cx + Math.cos(ballAngle) * ballR;
-      const by = cy + Math.sin(ballAngle) * ballR;
       g.save();
       g.translate(cx, cy);
       g.scale(zoom, zoom);
-      g.translate(-bx, -by);
+      g.translate(0, ballR);
+      g.rotate(-Math.PI / 2 - ballAngle);
+      g.translate(-cx, -cy);
     }
     g.beginPath();
     g.arc(cx, cy, R + 28, 0, Math.PI * 2);
@@ -5540,10 +5593,10 @@ body.view-3d .scanlines{ opacity:0.16; }
   const SLOT_NAME = { cherry:'CHERRY', lemon:'LEMON', orange:'ORANGE', plum:'PLUM', banana:'BANANA', bell:'BELL', bar:'BAR', seven:'LUCKY 7', chest:'GOLD CHEST' };
   const SLOT_PAY = {
     cherry:{ 5:50, 4:15, 3:5, 2:2 },
-    lemon:{ 5:60, 4:20, 3:6, 2:2 },
+    lemon:{ 5:5000, 4:1000, 3:150, 2:0 },
     orange:{ 5:60, 4:20, 3:6, 2:2 },
     plum:{ 5:120, 4:40, 3:10, 2:3 },
-    banana:{ 5:5000, 4:0, 3:0, 2:0 },
+    banana:{ 5:60, 4:20, 3:6, 2:2 },
     bell:{ 5:250, 4:70, 3:16, 2:5 },
     bar:{ 5:500, 4:120, 3:25, 2:8 },
     seven:{ 5:1000, 4:250, 3:40, 2:12 },
@@ -5775,6 +5828,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     const host = document.getElementById('pkTable');
     const msg = document.getElementById('pkMsg');
     if (msg) msg.textContent = holdem.msg;
+    fitPkMsg();
     if (!host) return;
     host.innerHTML = '';
     const human = casinoHuman();
@@ -5848,6 +5902,32 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (allin) allin.disabled = !myTurn || !me || me.stack <= 0;
     const live = holdem.street === 'preflop' || holdem.street === 'flop' || holdem.street === 'turn' || holdem.street === 'river';
     if (deal) deal.disabled = live;
+    fitPkActions();
+  }
+  function fitPkActions(){
+    const row = document.getElementById('pkActions');
+    if (!row || row.clientWidth < 20) return;
+    const buttons = [...row.querySelectorAll('button')];
+    buttons.forEach(b => {
+      b.style.flexGrow = String(Math.max(1, b.textContent.trim().length / 2.4));
+    });
+    let size = 14;
+    row.style.fontSize = size + 'px';
+    const tight = () => buttons.some(b => b.scrollWidth > b.clientWidth + 1);
+    while (size > 8 && tight()){
+      size -= 0.5;
+      row.style.fontSize = size.toFixed(1) + 'px';
+    }
+  }
+  function fitPkMsg(){
+    const msg = document.getElementById('pkMsg');
+    if (!msg || msg.clientWidth < 20) return;
+    let size = 14;
+    msg.style.fontSize = size + 'px';
+    while (size > 8 && msg.scrollWidth > msg.clientWidth + 1){
+      size -= 0.5;
+      msg.style.fontSize = size.toFixed(1) + 'px';
+    }
   }
   function pkHuman(action){
     const ix = holdem.seats.findIndex(s => s.kind === 'human');
@@ -6286,7 +6366,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   function paintSlotPays(){
     const body = document.getElementById('slotPaysBody');
     if (!body || body.dataset.ready) return;
-    const order = ['banana', 'chest', 'seven', 'bar', 'bell', 'plum', 'orange', 'lemon', 'cherry'];
+    const order = ['lemon', 'chest', 'seven', 'bar', 'bell', 'plum', 'orange', 'banana', 'cherry'];
     const mark = (n) => n ? '×' + n : '—';
     const rows = order.map(id => {
       const pay = SLOT_PAY[id];
@@ -6864,6 +6944,8 @@ body.view-3d .scanlines{ opacity:0.16; }
       placeFinishFlag();
       fitInfieldBoard();
       fitRaceBoard();
+      fitPkActions();
+      fitPkMsg();
       if (GAME.state.phase !== 'RACING') renderRacePositionsInitial();
       view3d.resize();
     });
