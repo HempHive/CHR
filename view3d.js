@@ -1599,6 +1599,7 @@
         addInfieldChess(parent);
         addInfieldMall(parent);
         addInfieldGridiron(parent);
+        addInfieldCricket(parent);
       }
 
       function insideInfield(x, z, level) {
@@ -1619,6 +1620,7 @@
         if (x > -5.5 && x < 5.5 && z > -5.5 && z < 5.5) return true;
         if (x > 8.8 && x < 26.0 && z > 0.35 && z < 11.2) return true;
         if (x > 8.0 && x < 26.9 && z > -11.85 && z < -2.95) return true;
+        if (x > 28.4 && x < 32.0 && z > -7.3 && z < 5.6) return true;
         return false;
       }
 
@@ -1675,6 +1677,7 @@
         const root = new THREE.Group();
         root.position.set(17.4, 0.03, 5.75);
         root.userData.kind = 'football';
+        root.userData.href = 'https://golaco.lol';
         const base = new THREE.Mesh(
           new THREE.BoxGeometry(15.4, 0.1, 9.2),
           new THREE.MeshStandardMaterial({ color: 0x1c7a34, roughness: 0.9 })
@@ -1977,6 +1980,48 @@
         addUprightGoal(root, 1, length / 2);
         parent.add(root);
         refs.gridironRoot = root;
+      }
+
+      function addInfieldCricket(parent) {
+        const length = 11.2;
+        const width = 2.35;
+        const root = new THREE.Group();
+        root.position.set(30.1, 0.03, -0.85);
+        root.userData.kind = 'cricket';
+        const strip = new THREE.Mesh(
+          new THREE.BoxGeometry(width, 0.08, length),
+          new THREE.MeshStandardMaterial({ color: 0xc6a15a, roughness: 0.88 })
+        );
+        strip.position.y = 0.08;
+        strip.receiveShadow = true;
+        strip.castShadow = true;
+        root.add(strip);
+        const creaseMat = new THREE.MeshStandardMaterial({ color: 0xf7f7f7, roughness: 0.45 });
+        [-1, 1].forEach(end => {
+          const z = end * (length / 2 - 0.55);
+          const pop = new THREE.Mesh(new THREE.BoxGeometry(width * 0.96, 0.02, 0.045), creaseMat);
+          pop.position.set(0, 0.13, z);
+          root.add(pop);
+          const bowl = new THREE.Mesh(new THREE.BoxGeometry(width * 0.72, 0.02, 0.04), creaseMat);
+          bowl.position.set(0, 0.13, end * (length / 2 - 0.22));
+          root.add(bowl);
+        });
+        const wood = new THREE.MeshStandardMaterial({ color: 0xf4f0e6, roughness: 0.5 });
+        [-1, 1].forEach(end => {
+          const z = end * (length / 2 - 0.16);
+          [-0.16, 0, 0.16].forEach(xOff => {
+            const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.038, 0.62, 6), wood);
+            stump.position.set(xOff, 0.43, z);
+            stump.castShadow = true;
+            root.add(stump);
+          });
+          const bail = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.028, 0.04), wood);
+          bail.position.set(0, 0.75, z);
+          bail.castShadow = true;
+          root.add(bail);
+        });
+        parent.add(root);
+        refs.cricketRoot = root;
       }
 
       function updateRoulette(dt) {
@@ -2798,7 +2843,7 @@
         function infieldHit(e) {
           if (!active || !camera || game.state.rouletteOpen) return null;
           pointerRay(e);
-          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.mallRoot, refs.gridironRoot, refs.jumboRoot].filter(Boolean);
+          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.mallRoot, refs.gridironRoot, refs.cricketRoot, refs.jumboRoot].filter(Boolean);
           const hits = raycaster.intersectObjects(roots, true);
           if (!hits.length) return null;
           let node = hits[0].object;
@@ -2844,8 +2889,8 @@
           const hit = infieldHit(e);
           if (!hit) return;
           if (hit.kind === 'roulette' && api.openRoulette) api.openRoulette();
-          else if (hit.kind === 'football' || hit.kind === 'chess' || hit.kind === 'gridiron' || hit.kind === 'mall') showComingSoon();
-          else if (hit.kind === 'ad' && hit.href) window.open(hit.href, '_blank', 'noopener,noreferrer');
+          else if ((hit.kind === 'football' || hit.kind === 'ad') && hit.href) window.open(hit.href, '_blank', 'noopener,noreferrer');
+          else if (hit.kind === 'chess' || hit.kind === 'gridiron' || hit.kind === 'mall' || hit.kind === 'cricket') showComingSoon();
         });
         canvas.addEventListener('pointercancel', () => { press = null; drag = null; });
       }
