@@ -4,6 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Arcade Horse Racing</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0f14">
 <style>
 /* =========================
    CSS VARIABLES / THEME
@@ -1993,7 +1998,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       </div>
       <div class="info-chips">
         <div class="chip"><strong>State</strong><span id="stateChip">OPEN BET</span></div>
-        <div class="status" id="betStatus"><span class="dot"></span><span id="betText">OPEN BET</span> <span class="countdown" id="betCountdown">(20)</span></div>
+        <div class="status" id="betStatus"><span class="dot"></span><span id="betText">OPEN BET</span> <span class="countdown" id="betCountdown">20</span></div>
         <button type="button" class="chip" id="countdownChip" title="Betting countdown and next-race wait. Cycles 10, 15, 20, 25, and 30 seconds."><strong>Countdown</strong><span id="countdown">20</span>s</button>
         <button type="button" class="chip" id="cameraChip" title="Camera. Cycles Broadcast, Rail, Chase, Finish, Grandstand, Drone, Jockey, and Orbit."><strong>Camera</strong><span id="cameraChipLabel">Orbit</span></button>
         <button type="button" class="chip" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps."><strong>Laps</strong><span id="lapsChip">1</span></button>
@@ -2395,7 +2400,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js?v=orbitjoin"></script>
+<script src="view3d.js?v=orbitlaps"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING
@@ -4256,10 +4261,12 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
 
   let resultsCountdownTid = null;
+  let resultsCountdownEndAt = 0;
   let resultsProceeded = false;
 
   function clearResultsCountdown(){
     if (resultsCountdownTid){ clearInterval(resultsCountdownTid); resultsCountdownTid = null; }
+    resultsCountdownEndAt = 0;
   }
 
   function proceedAfterResults(){
@@ -4300,15 +4307,15 @@ body.view-3d .scanlines{ opacity:0.16; }
     clearResultsCountdown();
     resultsProceeded = false;
     const total = countdownSec();
-    let endAt = Date.now() + total*1000;
+    resultsCountdownEndAt = Date.now() + total*1000;
     const nextLabel = GAME.state.championship ? 'heat' : 'race';
     const useInfieldBtn = GAME.state.trackMode === 'course' && !externalTimerEl;
     const updateTimer = () => {
       if (GAME.state.rouletteOpen){
-        endAt += 200;
+        resultsCountdownEndAt += 200;
         return;
       }
-      const ms = endAt - Date.now();
+      const ms = resultsCountdownEndAt - Date.now();
       const s = Math.max(0, Math.ceil(ms/1000));
       const clock = `00:${(s<10?'0':'')+s}`;
       if (useInfieldBtn){
@@ -4325,7 +4332,9 @@ body.view-3d .scanlines{ opacity:0.16; }
       if (ms <= 0) {
         clearResultsCountdown();
         proceedAfterResults();
+        return;
       }
+      renderTopbar();
       paintRaceBoard();
     };
     updateTimer();
@@ -4497,7 +4506,10 @@ body.view-3d .scanlines{ opacity:0.16; }
     showCountdownSetting();
     if (GAME.state.phase === 'BETTING_OPEN'){
       const ms = GAME.state.countdownEndAt - Date.now();
-      els.betCountdown.textContent = `(${msToClock(ms)})`;
+      els.betCountdown.textContent = msToClock(ms);
+    } else if (GAME.state.phase === 'RESULTS' && resultsCountdownEndAt){
+      const ms = resultsCountdownEndAt - Date.now();
+      els.betCountdown.textContent = msToClock(ms);
     } else {
       els.betCountdown.textContent = '';
     }

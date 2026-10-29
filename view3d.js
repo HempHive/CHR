@@ -2732,15 +2732,15 @@
             desiredLook.set(along.x, 0.8, along.z);
             orbitGlide = true;
             if (game.state.phase === 'RACING') {
-              const prog = api.raceLeaderProgress ? api.raceLeaderProgress() : 0;
-              if (prog > 0.8) {
+              const stretch = orbitStretch();
+              if (stretch > 0.8) {
                 orbitGlide = false;
                 let from = 0.8;
                 if (orbitHoldFinish != null) {
                   if (orbitHoldFinish <= 0.8) orbitHoldFinish = null;
                   else from = orbitHoldFinish;
                 }
-                const k = smoothstep(from, 0.96, prog);
+                const k = smoothstep(from, 0.96, stretch);
                 desiredLook.x += (anchor.pos.x - desiredLook.x) * k;
                 desiredLook.z += (anchor.pos.z - desiredLook.z) * k;
               } else {
@@ -2899,13 +2899,19 @@
         if (api.onViewChange) api.onViewChange();
       }
 
+      function orbitStretch() {
+        const race = api.getRace && api.getRace();
+        const laps = Math.max(1, (race && race.laps) || game.state.laps || 1);
+        const overall = api.raceLeaderProgress ? api.raceLeaderProgress() : 0;
+        return overall * laps - (laps - 1);
+      }
+
       function joinOrbit() {
         orbitFollowT = null;
         orbitLookT = null;
         orbitEase = false;
-        const racing = game.state.phase === 'RACING';
-        const prog = racing && api.raceLeaderProgress ? api.raceLeaderProgress() : 0;
-        orbitHoldFinish = racing && prog > 0.8 ? prog : null;
+        const stretch = game.state.phase === 'RACING' ? orbitStretch() : 0;
+        orbitHoldFinish = stretch > 0.8 ? stretch : null;
       }
 
       function setCamera(id) {
