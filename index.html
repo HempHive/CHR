@@ -250,7 +250,8 @@ button.chip.active strong{ color:#d7b4ff; }
   border-radius:16px;
   overflow:hidden;
   box-shadow: inset 0 0 0 2px #0b1626, 0 10px 30px var(--shadow);
-  container-type: inline-size;
+  container-type: size;
+  container-name: racevideo;
 }
 .controls-fit{
   width:100%;
@@ -852,15 +853,16 @@ dialog.horse-edit-dialog::backdrop{
 .race-board{
   display:none;
   position:absolute;
-  left:8px;
-  top:8px;
+  left:6px;
+  top:6px;
   z-index:6;
-  width:min(228px, 34%);
-  max-height:calc(100% - 16px);
+  width:min(114px, 17cqw);
+  max-height:calc(100cqh - 12px);
   flex-direction:column;
-  gap:4px;
+  gap:3px;
   pointer-events:none;
   box-sizing:border-box;
+  overflow:hidden;
 }
 .track-outer.is-3d .race-board{ display:flex; }
 .track-outer.is-3d .race-cam{ display:block; }
@@ -881,15 +883,18 @@ dialog.horse-edit-dialog::backdrop{
   align-items:center;
   justify-content:center;
   width:100%;
-  padding:3px 8px;
+  min-width:0;
+  padding:1px 3px;
   border-radius:5px;
   border:1px solid #ffe566;
   background:linear-gradient(180deg, rgba(92,70,14,0.98), rgba(28,20,4,0.98));
 }
 .race-board-label{
-  font-size:12px;
+  font-size:9px;
   font-weight:800;
-  letter-spacing:0.12em;
+  letter-spacing:0.04em;
+  line-height:1.15;
+  white-space:nowrap;
   text-transform:uppercase;
   background:linear-gradient(90deg, var(--accent), var(--accent-2));
   -webkit-background-clip:text;
@@ -900,10 +905,10 @@ dialog.horse-edit-dialog::backdrop{
 .race-board-body{
   display:none;
   flex-direction:column;
-  gap:3px;
+  gap:2px;
   min-height:0;
-  overflow:auto;
-  padding:4px;
+  overflow:hidden;
+  padding:2px;
   border-radius:8px;
   pointer-events:auto;
   background:
@@ -918,26 +923,29 @@ dialog.horse-edit-dialog::backdrop{
 .gb-tick-item{
   display:flex;
   align-items:center;
-  gap:4px;
+  gap:2px;
   min-width:0;
-  padding:2px 6px 2px 2px;
-  border-radius:6px;
+  flex:0 0 auto;
+  height:min(22px, calc((100cqh - 42px) / 8));
+  padding:0 2px 0 1px;
+  box-sizing:border-box;
+  border-radius:4px;
   background:rgba(8,12,20,0.82);
   border:1px solid color-mix(in srgb, var(--tick) 75%, #fff);
   box-shadow:0 0 8px color-mix(in srgb, var(--tick) 55%, transparent);
 }
 .gb-tick-pos{
   flex:0 0 auto;
-  min-width:18px;
-  height:18px;
-  padding:0 3px;
+  min-width:13px;
+  height:13px;
+  padding:0 1px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  border-radius:3px;
+  border-radius:2px;
   background:var(--tick);
   color:var(--ink);
-  font-size:11px;
+  font-size:9px;
   font-weight:900;
   line-height:1;
 }
@@ -947,9 +955,9 @@ dialog.horse-edit-dialog::backdrop{
   text-overflow:ellipsis;
   white-space:nowrap;
   color:var(--tick);
-  font-size:12px;
+  font-size:10px;
   font-weight:800;
-  letter-spacing:0.02em;
+  letter-spacing:0;
   text-shadow:
     0 0 1px #000,
     1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000;
@@ -959,8 +967,8 @@ dialog.horse-edit-dialog::backdrop{
 .gb-tick-item.place-3{ border-color:#cd8a4a; box-shadow:0 0 8px rgba(205,138,74,0.75); }
 .gb-tick-item img{
   flex:0 0 auto;
-  width:26px;
-  height:18px;
+  width:16px;
+  height:12px;
   object-fit:contain;
   image-rendering:pixelated;
   filter:drop-shadow(0 1px 1px rgba(0,0,0,0.65));
@@ -1125,12 +1133,13 @@ dialog.horse-edit-dialog::backdrop{
   .results-card .name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .results-card .btns{ flex-wrap:wrap; }
   .track-outer.is-3d .results-overlay{ padding:36px 6px 0 0; }
-  .race-board{ left:6px; top:6px; width:min(168px, 46%); }
+  .race-board{ left:4px; top:4px; width:min(84px, 23cqw); }
   .race-cam{ top:6px; right:6px; padding:3px 8px; font-size:11px; }
-  .race-board-label{ font-size:10px; letter-spacing:0.08em; }
-  .gb-tick-name{ font-size:11px; }
-  .gb-tick-item img{ width:22px; height:16px; }
-  .gb-tick-pos{ min-width:16px; height:16px; font-size:10px; }
+  .race-board-label{ font-size:8px; letter-spacing:0.02em; }
+  .gb-tick-name{ font-size:9px; }
+  .gb-tick-item{ height:min(18px, calc((100cqh - 36px) / 8)); }
+  .gb-tick-item img{ width:14px; height:10px; }
+  .gb-tick-pos{ min-width:12px; height:12px; font-size:8px; }
   .infield-board .gb-actions{ min-width:0; }
   #rulesDialog{
     width:min(480px, calc(100vw - 24px));
@@ -4257,7 +4266,7 @@ body.view-3d .scanlines{ opacity:0.16; }
       const name = escapeTicker(h ? h.name : '');
       const src = escapeTicker(h ? h.sprite : '');
       const place = e.medal ? ' place-' + e.medal : '';
-      return `<span class="gb-tick-item${place}" style="--tick:${pal.tick};--ink:${pal.ink}"><span class="gb-tick-pos">${escapeTicker(e.tag)}</span><img src="${src}" alt=""><span class="gb-tick-name">${name}</span></span>`;
+      return `<span class="gb-tick-item${place}" style="--tick:${pal.tick};--ink:${pal.ink}" title="${name}"><span class="gb-tick-pos">${escapeTicker(e.tag)}</span><img src="${src}" alt=""><span class="gb-tick-name">${name}</span></span>`;
     }).join('');
   }
 
