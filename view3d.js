@@ -104,6 +104,7 @@
       const sel = document.getElementById('cameraSelect');
       const cameraChip = document.getElementById('cameraChip');
       const cameraChipLabel = document.getElementById('cameraChipLabel');
+      const raceCam = document.getElementById('raceCam');
       const bar = document.getElementById('camBar');
       const hudName = document.getElementById('camHudName');
       const hudHint = document.getElementById('camHudHint');
@@ -540,7 +541,9 @@
             if (a.finished && b.finished) return (a.finishTime || 0) - (b.finishTime || 0);
             if (a.finished) return -1;
             if (b.finished) return 1;
-            return (b.x || 0) - (a.x || 0);
+            const dx = (b.x || 0) - (a.x || 0);
+            if (Math.abs(dx) > 0.0001) return dx;
+            return (a.laneIndex || 0) - (b.laneIndex || 0);
           });
         } else {
           const ids = (game.state.entered && game.state.entered.length)
@@ -2898,6 +2901,7 @@
         if (bar) bar.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.cam === id));
         const cam = CAMS.find(c => c.id === id);
         if (cameraChipLabel) cameraChipLabel.textContent = cam ? cam.label : id;
+        if (raceCam) raceCam.textContent = cam ? cam.label : id;
         if (hudName) hudName.textContent = cam ? cam.label : id;
         if (hudHint) {
           hudHint.textContent = id === 'orbit'
@@ -2914,6 +2918,7 @@
       if (btn) btn.onclick = () => setActive(!active);
       if (sel) sel.onchange = () => setCamera(sel.value);
       if (cameraChip) cameraChip.onclick = () => cycle(1);
+      if (raceCam) raceCam.onclick = () => cycle(1);
       if (bar) {
         bar.querySelectorAll('button').forEach(b => {
           b.onclick = () => setCamera(b.dataset.cam);

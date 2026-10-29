@@ -849,60 +849,47 @@ dialog.horse-edit-dialog::backdrop{
 .track-outer.is-3d .finish-flag,
 .track-outer.is-3d .course-posts-layer{ visibility:hidden; }
 .track-outer.is-3d .infield-board{ display:none; }
-.gb-ticker{
+.race-board{
   display:none;
-  position:relative;
-  width:100%;
-  height:44px;
-  margin-top:8px;
-  padding:0 10px;
+  position:absolute;
+  left:8px;
+  top:8px;
+  z-index:6;
+  width:min(228px, 34%);
+  max-height:calc(100% - 16px);
+  flex-direction:column;
+  gap:4px;
+  pointer-events:none;
   box-sizing:border-box;
-  overflow:hidden;
-  align-items:center;
-  background:
-    radial-gradient(120% 100% at 50% 0%, rgba(23,240,255,0.12), transparent 55%),
-    linear-gradient(165deg, rgba(8,18,32,0.94), rgba(12,24,44,0.9));
-  border:1px solid rgba(23,240,255,0.4);
-  border-radius:10px;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
 }
-.track-outer.is-3d + .gb-ticker{ display:flex; }
-.gb-ticker-track{
+.track-outer.is-3d .race-board{ display:flex; }
+.track-outer.is-3d .race-cam{ display:block; }
+.race-board-toggle{
+  pointer-events:auto;
   display:flex;
-  width:max-content;
-  align-items:center;
-  white-space:nowrap;
-  animation:gbTicker 36s linear infinite;
-  transition:opacity .45s ease;
-}
-.gb-ticker-track.is-dissolving{ opacity:0; }
-.gb-tick-run{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding-right:8px;
-}
-.gb-tick-race{
-  display:inline-flex;
-  align-items:center;
+  width:100%;
+  margin:0;
   padding:2px;
   border-radius:8px;
   border:1px solid #e2b34a;
   background:linear-gradient(180deg, #4a3810, #161006);
   box-shadow:0 0 0 1px rgba(0,0,0,0.55), 0 0 8px rgba(255,209,102,0.28);
+  cursor:pointer;
 }
-.gb-tick-race-in{
-  display:inline-flex;
+.race-board-in{
+  display:flex;
   align-items:center;
-  padding:2px 10px;
+  justify-content:center;
+  width:100%;
+  padding:3px 8px;
   border-radius:5px;
   border:1px solid #ffe566;
   background:linear-gradient(180deg, rgba(92,70,14,0.98), rgba(28,20,4,0.98));
 }
-.gb-tick-race-label{
-  font-size:13px;
+.race-board-label{
+  font-size:12px;
   font-weight:800;
-  letter-spacing:0.14em;
+  letter-spacing:0.12em;
   text-transform:uppercase;
   background:linear-gradient(90deg, var(--accent), var(--accent-2));
   -webkit-background-clip:text;
@@ -910,17 +897,37 @@ dialog.horse-edit-dialog::backdrop{
   color:transparent;
   text-shadow:0 0 10px #0ff6, 0 0 20px #f3f6;
 }
+.race-board-body{
+  display:none;
+  flex-direction:column;
+  gap:3px;
+  min-height:0;
+  overflow:auto;
+  padding:4px;
+  border-radius:8px;
+  pointer-events:auto;
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(23,240,255,0.12), transparent 55%),
+    linear-gradient(165deg, rgba(8,18,32,0.9), rgba(12,24,44,0.86));
+  border:1px solid rgba(23,240,255,0.4);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
+  transition:opacity .45s ease;
+}
+.race-board.is-open .race-board-body{ display:flex; }
+.race-board-body.is-dissolving{ opacity:0; }
 .gb-tick-item{
-  display:inline-flex;
+  display:flex;
   align-items:center;
   gap:4px;
-  padding:2px 7px 2px 2px;
+  min-width:0;
+  padding:2px 6px 2px 2px;
   border-radius:6px;
   background:rgba(8,12,20,0.82);
   border:1px solid color-mix(in srgb, var(--tick) 75%, #fff);
   box-shadow:0 0 8px color-mix(in srgb, var(--tick) 55%, transparent);
 }
 .gb-tick-pos{
+  flex:0 0 auto;
   min-width:18px;
   height:18px;
   padding:0 3px;
@@ -935,13 +942,14 @@ dialog.horse-edit-dialog::backdrop{
   line-height:1;
 }
 .gb-tick-name{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
   color:var(--tick);
-  font-family:"Avenir Next Condensed", "Arial Narrow", "Franklin Gothic Medium", "Nimbus Sans Narrow", sans-serif;
-  font-stretch:condensed;
-  font-size:10px;
-  font-weight:700;
-  letter-spacing:0.03em;
-  line-height:1;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.02em;
   text-shadow:
     0 0 1px #000,
     1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000;
@@ -950,20 +958,12 @@ dialog.horse-edit-dialog::backdrop{
 .gb-tick-item.place-2{ border-color:#d7dee8; box-shadow:0 0 8px rgba(215,222,232,0.75); }
 .gb-tick-item.place-3{ border-color:#cd8a4a; box-shadow:0 0 8px rgba(205,138,74,0.75); }
 .gb-tick-item img{
-  width:32px;
-  height:24px;
+  flex:0 0 auto;
+  width:26px;
+  height:18px;
   object-fit:contain;
   image-rendering:pixelated;
   filter:drop-shadow(0 1px 1px rgba(0,0,0,0.65));
-}
-.gb-tick-next{
-  font-size:12px;
-  font-weight:800;
-  color:#ffd166;
-}
-@keyframes gbTicker{
-  from{ transform:translateX(0); }
-  to{ transform:translateX(-50%); }
 }
 .track-outer.is-3d .results-overlay{
   align-items:flex-start; justify-content:flex-end;
@@ -987,6 +987,27 @@ dialog.horse-edit-dialog::backdrop{
   box-sizing:border-box;
 }
 .track-outer.is-3d .cam-hud{ display:none; }
+.race-cam{
+  display:none;
+  position:absolute;
+  top:8px;
+  right:8px;
+  z-index:6;
+  margin:0;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid rgba(226,179,74,0.9);
+  background:rgba(10,16,26,0.72);
+  color:#ffe566;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  line-height:1.2;
+  white-space:nowrap;
+  cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,0.35);
+}
 .cam-hud strong{
   font-size:11px;
   letter-spacing:0.12em; text-transform:uppercase;
@@ -1104,6 +1125,12 @@ dialog.horse-edit-dialog::backdrop{
   .results-card .name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .results-card .btns{ flex-wrap:wrap; }
   .track-outer.is-3d .results-overlay{ padding:36px 6px 0 0; }
+  .race-board{ left:6px; top:6px; width:min(168px, 46%); }
+  .race-cam{ top:6px; right:6px; padding:3px 8px; font-size:11px; }
+  .race-board-label{ font-size:10px; letter-spacing:0.08em; }
+  .gb-tick-name{ font-size:11px; }
+  .gb-tick-item img{ width:22px; height:16px; }
+  .gb-tick-pos{ min-width:16px; height:16px; font-size:10px; }
   .infield-board .gb-actions{ min-width:0; }
   #rulesDialog{
     width:min(480px, calc(100vw - 24px));
@@ -1626,9 +1653,13 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" data-cam="jockey">Jockey</button>
           <button type="button" data-cam="orbit">Orbit</button>
         </div>
-      </div>
-      <div class="gb-ticker" id="gbTicker">
-        <div class="gb-ticker-track" id="gbTickerTrack"></div>
+        <button type="button" class="race-cam" id="raceCam" title="Camera">Orbit</button>
+        <div class="race-board is-open" id="raceBoard">
+          <button type="button" class="race-board-toggle" id="raceBoardToggle" aria-expanded="true" aria-controls="raceBoardBody">
+            <span class="race-board-in"><span class="race-board-label">ARCADE RACING</span></span>
+          </button>
+          <div class="race-board-body" id="raceBoardBody"></div>
+        </div>
       </div>
     </div>
 
@@ -1851,7 +1882,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js?v=orbithome"></script>
+<script src="view3d.js?v=racecam"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING
@@ -3197,6 +3228,7 @@ body.view-3d .scanlines{ opacity:0.16; }
             renderRacePositionsInitial();
             placeFinishFlag();
           }
+          paintRaceBoard();
           // pulse player borders during countdown
           document.querySelectorAll('.player').forEach(el=>{
             el.classList.add('counting');
@@ -3285,6 +3317,7 @@ body.view-3d .scanlines{ opacity:0.16; }
           renderRacePositionsInitial();
           placeFinishFlag();
         }
+        paintRaceBoard();
         pulse();
         n -= 1;
       } else {
@@ -3482,7 +3515,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     // update DOM
     renderRacePositions();
     updateHorseStrip();
-    paintRaceTicker();
+    paintRaceBoard();
     updateCoursePostLights();
     if ((r.laps || 1) > 1){
       const heatEl = document.getElementById('gbHeatName');
@@ -3705,7 +3738,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         clearResultsCountdown();
         proceedAfterResults();
       }
-      paintRaceTicker();
+      paintRaceBoard();
     };
     updateTimer();
     resultsCountdownTid = setInterval(updateTimer, 200);
@@ -4171,7 +4204,24 @@ body.view-3d .scanlines{ opacity:0.16; }
     return String(text || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   }
 
-  function raceTickerModel(){
+  function gateBoardEntries(){
+    const layer = document.getElementById('horsesLayer');
+    const nodes = layer ? [...layer.querySelectorAll('.horse')] : [];
+    const rows = nodes.length
+      ? nodes.map(el => ({ id: Number(el.dataset.horseId), lane: Number(el.dataset.laneOffset) || 0 }))
+      : (GAME.state.entered || []).map((id, i) => ({ id, lane: i }));
+    rows.sort((a, b) => a.lane - b.lane || a.id - b.id);
+    return rows.map((row, i) => ({ id: row.id, tag: String(i + 1), medal: 0 }));
+  }
+
+  function countdownFieldShowing(){
+    if (GAME.state.phase === 'RACING' || GAME.state.phase === 'RESULTS') return false;
+    if (startCountdownTid) return true;
+    const overlay = document.getElementById('countOverlay');
+    return !!(overlay && overlay.style.display === 'flex');
+  }
+
+  function raceBoardModel(){
     let results = false;
     let entries = [];
     if (race && race.horses && (GAME.state.phase === 'RACING' || GAME.state.phase === 'RESULTS')){
@@ -4180,25 +4230,28 @@ body.view-3d .scanlines{ opacity:0.16; }
         if (a.finished && b.finished) return a.finishTime - b.finishTime;
         if (a.finished) return -1;
         if (b.finished) return 1;
-        return b.x - a.x;
+        const dx = b.x - a.x;
+        if (Math.abs(dx) > 0.0001) return dx;
+        return (a.laneIndex || 0) - (b.laneIndex || 0);
       });
       entries = sorted.map((h, i) => ({
         id: h.id,
         tag: String(i + 1),
         medal: h.finished && i < 3 ? i + 1 : 0
       }));
+    } else if (countdownFieldShowing()){
+      entries = gateBoardEntries();
     } else {
       const ids = (GAME.state.entered || []).slice().sort((a, b) => (GAME.state.odds[a] || 99) - (GAME.state.odds[b] || 99));
       entries = ids.map((id, i) => ({ id, tag: String(i + 1), medal: 0 }));
     }
-    const title = 'ARCADE RACING';
-    const raceMark = raceDisplayName() + '|' + GAME.state.cupIndex + '|' + GAME.state.heat + '|' + GAME.state.seed;
+    const raceMark = raceDisplayName() + '|' + GAME.state.cupIndex + '|' + GAME.state.heat + '|' + (GAME.state.entered || []).join(',');
     const key = raceMark + '|' + entries.map(e => e.tag + ':' + e.id + (e.medal ? 'm' + e.medal : '')).join(',');
-    return { results, title, raceMark, entries, key };
+    return { results, raceMark, entries, key };
   }
 
-  function tickerRunHTML(model){
-    const horses = model.entries.map(e => {
+  function raceBoardRows(model){
+    return model.entries.map(e => {
       const h = GAME.horses.find(x => x.id === e.id);
       const pal = tickerColour(e.id);
       const name = escapeTicker(h ? h.name : '');
@@ -4206,225 +4259,50 @@ body.view-3d .scanlines{ opacity:0.16; }
       const place = e.medal ? ' place-' + e.medal : '';
       return `<span class="gb-tick-item${place}" style="--tick:${pal.tick};--ink:${pal.ink}"><span class="gb-tick-pos">${escapeTicker(e.tag)}</span><img src="${src}" alt=""><span class="gb-tick-name">${name}</span></span>`;
     }).join('');
-    return `<span class="gb-tick-run"><span class="gb-tick-race"><span class="gb-tick-race-in"><span class="gb-tick-race-label">${escapeTicker(model.title)}</span></span></span>${horses}</span>`;
   }
 
-  let tickerAnim = null;
-  let tickerHoldX = null;
-  let tickerMode = 'scroll';
-  let tickerResultsAt = 0;
-  let tickerFadeToken = 0;
+  let boardFadeToken = 0;
 
-  function stopTickerAnim(){
-    if (tickerAnim){
-      tickerAnim.cancel();
-      tickerAnim = null;
-    }
+  function writeRaceBoard(model){
+    const body = document.getElementById('raceBoardBody');
+    if (!body) return;
+    body.dataset.text = model.key;
+    body.dataset.race = model.raceMark;
+    body.dataset.results = model.results ? '1' : '';
+    body.innerHTML = raceBoardRows(model);
   }
 
-  function holdTicker(){
-    const track = document.getElementById('gbTickerTrack');
-    if (!track || tickerHoldX == null) return;
-    stopTickerAnim();
-    track.style.animation = 'none';
-    track.style.transform = 'translateX(' + tickerHoldX + 'px)';
-  }
-
-  function tickerTranslateX(){
-    const track = document.getElementById('gbTickerTrack');
-    if (!track) return 0;
-    const matrix = new DOMMatrix(getComputedStyle(track).transform);
-    return matrix.m41 || 0;
-  }
-  function startTickerScroll(fromX){
-    const track = document.getElementById('gbTickerTrack');
-    if (!track) return;
-    const x = fromX != null ? fromX : (tickerHoldX != null ? tickerHoldX : tickerTranslateX());
-    stopTickerAnim();
-    const width = Math.max(1, track.scrollWidth / 2);
-    track.style.animation = 'none';
-    track.style.transform = 'none';
-    tickerHoldX = null;
-    tickerAnim = track.animate(
-      [{ transform: 'translateX(' + x + 'px)' }, { transform: 'translateX(' + (x - width) + 'px)' }],
-      { duration: 36000, iterations: Infinity, easing: 'linear' }
-    );
-  }
-
-  function releaseTickerScroll(){
-    const track = document.getElementById('gbTickerTrack');
-    stopTickerAnim();
-    tickerHoldX = null;
-    tickerMode = 'scroll';
-    tickerResultsAt = 0;
-    if (!track) return;
-    track.style.animation = '';
-    track.style.transform = '';
-  }
-
-  function writeTicker(model, keepHold){
-    const track = document.getElementById('gbTickerTrack');
-    const bar = document.getElementById('gbTicker');
-    if (!track) return;
-    const horse = keepHold ? track.querySelector('.gb-tick-item') : null;
-    const horseLeft = horse && bar ? horse.getBoundingClientRect().left : null;
-    track.dataset.text = model.key;
-    track.dataset.title = model.title;
-    track.dataset.race = model.raceMark;
-    track.dataset.results = model.results ? '1' : '';
-    const run = tickerRunHTML(model);
-    track.innerHTML = run + run;
-    if (!keepHold) return;
-    holdTicker();
-    const nextHorse = track.querySelector('.gb-tick-item');
-    if (horseLeft == null || !nextHorse) return;
-    const dx = nextHorse.getBoundingClientRect().left - horseLeft;
-    if (Math.abs(dx) < 0.5) return;
-    tickerHoldX -= dx;
-    holdTicker();
-  }
-
-  function dissolveTicker(model){
-    const track = document.getElementById('gbTickerTrack');
-    if (!track || track.classList.contains('is-dissolving')) return;
-    const token = ++tickerFadeToken;
-    track.classList.add('is-dissolving');
+  function dissolveRaceBoard(model){
+    const body = document.getElementById('raceBoardBody');
+    if (!body || body.classList.contains('is-dissolving')) return;
+    const token = ++boardFadeToken;
+    body.classList.add('is-dissolving');
     setTimeout(() => {
-      if (token !== tickerFadeToken) return;
-      releaseTickerScroll();
-      writeTicker(model, false);
-      requestAnimationFrame(() => track.classList.remove('is-dissolving'));
+      if (token !== boardFadeToken) return;
+      writeRaceBoard(model);
+      requestAnimationFrame(() => body.classList.remove('is-dissolving'));
     }, 420);
   }
 
-  function tickerBetweenRaces(model){
-    const track = document.getElementById('gbTickerTrack');
-    const prev = track && track.dataset.race ? track.dataset.race : '';
+  function raceBoardBetween(model){
+    const body = document.getElementById('raceBoardBody');
+    const prev = body && body.dataset.race ? body.dataset.race : '';
     if (!prev || model.results) return false;
-    if (track.dataset.results === '1') return true;
+    if (body.dataset.results === '1') return true;
     return prev !== model.raceMark;
   }
 
-  function freezeTicker(){
-    const track = document.getElementById('gbTickerTrack');
-    if (!track) return;
-    const matrix = new DOMMatrix(getComputedStyle(track).transform);
-    tickerHoldX = matrix.m41 || 0;
-    holdTicker();
-  }
-
-  function tickerEdge(bar){
-    const box = bar.getBoundingClientRect();
-    const pad = parseFloat(getComputedStyle(bar).paddingLeft) || 0;
-    return box.left + bar.clientLeft + pad;
-  }
-  function pinLeadToEdge(){
-    const track = document.getElementById('gbTickerTrack');
-    const bar = document.getElementById('gbTicker');
-    if (!track || !bar || tickerHoldX == null) return;
-    const edge = tickerEdge(bar);
-    let dx = null;
-    let best = 99;
-    track.querySelectorAll('.gb-tick-run').forEach(run => {
-      const horse = run.querySelector('.gb-tick-item');
-      if (!horse) return;
-      const delta = horse.getBoundingClientRect().left - edge;
-      if (Math.abs(delta) < best){
-        best = Math.abs(delta);
-        dx = delta;
-      }
-    });
-    if (dx == null || best < 0.5 || best > 16) return;
-    tickerHoldX -= dx;
-    holdTicker();
-  }
-  function leadHorseReady(){
-    const track = document.getElementById('gbTickerTrack');
-    const bar = document.getElementById('gbTicker');
-    if (!track || !bar) return false;
-    const edge = tickerEdge(bar);
-    return [...track.querySelectorAll('.gb-tick-run')].some(run => {
-      const title = run.querySelector('.gb-tick-race');
-      const horse = run.querySelector('.gb-tick-item');
-      if (!title || !horse) return false;
-      const titleBox = title.getBoundingClientRect();
-      const lead = horse.getBoundingClientRect();
-      if (titleBox.right > edge - 1) return false;
-      return lead.left <= edge + 1 && lead.left >= edge - 14 && lead.right > edge + 8;
-    });
-  }
-
-  function paintRaceTicker(){
-    const board = document.getElementById('infieldBoard');
-    const track = document.getElementById('gbTickerTrack');
-    if (!board || !track) return;
-    const model = raceTickerModel();
-    board.classList.toggle('is-results', model.results);
-    const racing = GAME.state.phase === 'RACING' && race && !race.done;
-    const results = !!(model.results && race);
-
-    if (!racing && !results){
-      if (track.classList.contains('is-dissolving')) return;
-      if (track.dataset.text === model.key){
-        if (tickerMode !== 'scroll') releaseTickerScroll();
-        return;
-      }
-      if (tickerBetweenRaces(model)){
-        dissolveTicker(model);
-        return;
-      }
-      releaseTickerScroll();
-      writeTicker(model, false);
+  function paintRaceBoard(){
+    const body = document.getElementById('raceBoardBody');
+    if (!body) return;
+    const model = raceBoardModel();
+    if (body.classList.contains('is-dissolving')) return;
+    if (body.dataset.text === model.key) return;
+    if (raceBoardBetween(model)){
+      dissolveRaceBoard(model);
       return;
     }
-
-    if (racing){
-      if (tickerMode !== 'live'){
-        if (track.dataset.text !== model.key){
-          const x = tickerTranslateX();
-          writeTicker(model, false);
-          startTickerScroll(x);
-        }
-        if (leadHorseReady()){
-          tickerMode = 'live';
-          freezeTicker();
-          writeTicker(model, true);
-          pinLeadToEdge();
-        }
-        return;
-      }
-      if (track.dataset.text !== model.key) writeTicker(model, true);
-      else holdTicker();
-      return;
-    }
-
-    if (tickerMode !== 'results' && tickerMode !== 'scroll-results'){
-      if (tickerMode === 'live' || leadHorseReady()){
-        if (tickerHoldX == null) freezeTicker();
-        tickerMode = 'results';
-        tickerResultsAt = performance.now();
-        writeTicker(model, true);
-        pinLeadToEdge();
-      }
-      return;
-    }
-    if (tickerMode === 'results'){
-      if (!tickerResultsAt) tickerResultsAt = performance.now();
-      if (performance.now() - tickerResultsAt < 5000){
-        if (track.dataset.text !== model.key) writeTicker(model, true);
-        else holdTicker();
-        return;
-      }
-      tickerMode = 'scroll-results';
-      if (track.dataset.text !== model.key) writeTicker(model, false);
-      startTickerScroll();
-      return;
-    }
-    if (track.dataset.text !== model.key){
-      const x = tickerTranslateX();
-      writeTicker(model, false);
-      startTickerScroll(x);
-    }
+    writeRaceBoard(model);
   }
 
   function updateGraphicsBoard(){
@@ -4518,7 +4396,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     }
     graphicsLastStage = stage;
     graphicsLastPlaceCount = (race && race.order) ? race.order.length : 0;
-    paintRaceTicker();
+    paintRaceBoard();
     // Fit after stage DOM (e.g. winner actions / horse art) has applied
     requestAnimationFrame(() => fitInfieldBoard());
   }
@@ -6738,6 +6616,16 @@ body.view-3d .scanlines{ opacity:0.16; }
     const sgg = document.getElementById('straightGroup');
     if (stg && sgg){ stg.style.display = GAME.state.trackMode==='course' ? 'block' : 'none'; sgg.style.display = GAME.state.trackMode==='course' ? 'none' : 'block'; }
     updateBetToggleLabel();
+    const raceBoardToggle = document.getElementById('raceBoardToggle');
+    if (raceBoardToggle){
+      raceBoardToggle.onclick = () => {
+        const board = document.getElementById('raceBoard');
+        if (!board) return;
+        const open = !board.classList.contains('is-open');
+        board.classList.toggle('is-open', open);
+        raceBoardToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      };
+    }
     setupCommentary();
     setupHorseEditor();
     setupRoulette();
