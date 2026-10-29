@@ -219,6 +219,12 @@ button.chip:hover{ border-color:#17f0ff; }
   border-radius:16px;
   overflow:hidden;
   box-shadow: inset 0 0 0 2px #0b1626, 0 10px 30px var(--shadow);
+  container-type: inline-size;
+}
+.controls-fit{
+  width:100%;
+  min-width:0;
+  overflow:hidden;
 }
 
 /* Course skins — peek through stadium SVG infield / edges */
@@ -788,11 +794,14 @@ dialog.horse-edit-dialog::backdrop{
 .track-outer.is-3d .finish-flag,
 .track-outer.is-3d .course-posts-layer{ visibility:hidden; }
 .track-outer.is-3d .infield-board.show{
-  left:auto; right:10px; top:10px; transform:none;
-  width:min(230px, 42%);
+  left:auto;
+  right:clamp(4px, 1.2cqw, 10px);
+  top:clamp(4px, 1.2cqw, 10px);
+  transform:none;
+  width:min(230px, 34cqw);
   height:auto;
-  max-width:min(230px, 42%);
-  max-height:48%;
+  max-width:min(230px, 34cqw);
+  max-height:42%;
   z-index:6;
 }
 .track-outer.is-3d .results-overlay{
@@ -803,27 +812,36 @@ dialog.horse-edit-dialog::backdrop{
   min-width:220px; max-width:min(340px, 48%);
 }
 .cam-hud{
-  position:absolute; top:8px; left:10px; z-index:6;
+  position:absolute;
+  top:clamp(4px, 1.2cqw, 8px);
+  left:clamp(4px, 1.4cqw, 10px);
+  z-index:6;
   display:none; flex-direction:column; gap:1px;
   color:#e8f7ff; pointer-events:none;
   background:rgba(6,12,22,0.5);
   border:1px solid rgba(23,240,255,0.28);
-  border-radius:8px; padding:5px 8px;
+  border-radius:clamp(4px, 1cqw, 8px);
+  padding:clamp(2px, 0.6cqw, 5px) clamp(4px, 1cqw, 8px);
   text-shadow:0 1px 2px #000;
-  max-width:min(240px, calc(50% - 16px));
+  max-width:min(240px, 32cqw);
   box-sizing:border-box;
 }
 .track-outer.is-3d .cam-hud{ display:flex; }
 .cam-hud strong{
-  font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+  font-size:clamp(8px, 1.45cqw, 11px);
+  letter-spacing:0.08em; text-transform:uppercase;
 }
 .cam-hud span{
-  font-size:10px; color:#9fd3ff; letter-spacing:0.02em;
+  font-size:clamp(7px, 1.2cqw, 10px);
+  color:#9fd3ff; letter-spacing:0.02em;
   white-space:normal; line-height:1.25;
 }
 .cam-bar{
-  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
-  display:none; gap:4px; justify-content:center; flex-wrap:wrap;
+  position:absolute; left:50%; bottom:8px; z-index:6;
+  display:none; gap:4px; justify-content:center; flex-wrap:nowrap;
+  width:max-content;
+  transform:translateX(-50%);
+  transform-origin:center bottom;
   pointer-events:none;
 }
 .track-outer.is-3d .cam-bar{ display:flex; }
@@ -843,24 +861,22 @@ dialog.horse-edit-dialog::backdrop{
   background:#17f0ff; color:#041018; border-color:#17f0ff;
 }
 @media (max-width: 720px){
-  .track-outer.is-3d .infield-board.show{
-    right:6px; top:6px;
-    width:min(168px, 46%);
-    max-width:min(168px, 46%);
-    max-height:46%;
+  .controls{
+    grid-template-columns:repeat(7, max-content);
+    width:max-content;
+    gap:4px;
+    transform-origin:top left;
   }
-  .track-outer.is-3d .infield-board .gb-inner{ gap:3px; padding:6px 7px; }
-  .infield-board .gb-brand{ font-size:11px; letter-spacing:0.06em; }
-  .infield-board .gb-race{ font-size:10px; max-width:100%; white-space:normal; }
-  .infield-board .gb-heat{ font-size:9px; letter-spacing:0.04em; }
-  .infield-board .gb-icon{ font-size:24px; }
-  .infield-board .gb-status{ font-size:12px; letter-spacing:0.04em; white-space:normal; }
-  .infield-board .gb-horse img{ width:40px; height:30px; }
-  .cam-hud{ top:6px; left:6px; padding:3px 6px; max-width:min(150px, calc(48% - 12px)); }
-  .cam-hud strong{ font-size:10px; letter-spacing:0.06em; }
-  .cam-hud span{ font-size:9px; }
-  .cam-bar{ left:4px; right:4px; bottom:4px; gap:3px; }
-  .cam-bar button{ padding:3px 7px; font-size:10px; }
+  .controls select,
+  .controls button{
+    width:auto;
+    min-height:0;
+    font-size:13px;
+    padding:6px 8px;
+    white-space:nowrap;
+  }
+  .controls select{ padding-right:18px; }
+  .cam-bar{ bottom:4px; gap:3px; }
   .players-bar{ flex-direction:column; gap:8px; }
   .sidebar,
   .sidebar.four-up{ grid-template-columns:1fr; gap:8px; }
@@ -898,15 +914,6 @@ dialog.horse-edit-dialog::backdrop{
     justify-content:flex-start;
     margin-left:0;
   }
-  .controls{ grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px; }
-  .controls select,
-  .controls button{
-    font-size:12px;
-    line-height:1.2;
-    min-height:40px;
-    padding:6px 4px;
-  }
-  .controls select{ padding-right:16px; }
   .horse-strip-btn .hs-meta{ flex-direction:column; gap:0; }
   .horse-strip-btn img{ height:auto !important; max-height:36px; }
   .results-card,
@@ -1999,14 +2006,59 @@ body.view-3d .scanlines{ opacity:0.16; }
     return el.scrollWidth > el.clientWidth + 1;
   }
 
+  function ensureControlsFitHost(root){
+    const parent = root.parentElement;
+    if (parent && parent.classList.contains('controls-fit')) return parent;
+    const host = document.createElement('div');
+    host.className = 'controls-fit';
+    parent.insertBefore(host, root);
+    host.appendChild(root);
+    return host;
+  }
+
   function fitTopControls(){
     const root = document.querySelector('.controls');
     if (!root) return;
     const items = [...root.querySelectorAll('select, button')];
     if (!items.length) return;
     const narrow = window.matchMedia('(max-width: 720px)').matches;
-    const maxPx = narrow ? 12 : 13;
-    const minPx = narrow ? 8 : 6;
+
+    function clearItemFit(){
+      items.forEach(el => {
+        el.style.fontSize = '';
+        el.style.width = '';
+        if (el.tagName !== 'BUTTON') return;
+        const label = el.querySelector('.ctl-label');
+        if (!label) return;
+        label.style.fontSize = '';
+        label.style.transform = '';
+      });
+    }
+
+    if (narrow){
+      const host = ensureControlsFitHost(root);
+      clearItemFit();
+      root.style.transform = 'none';
+      items.forEach(el => {
+        if (el.tagName !== 'SELECT') return;
+        el.style.width = Math.ceil(controlTextWidth(el, selectedControlText(el)) + 22) + 'px';
+      });
+      const avail = host.clientWidth;
+      const natural = Math.max(root.scrollWidth, root.offsetWidth);
+      if (avail < 8 || natural < 8) return;
+      const scale = Math.min(1, avail / natural);
+      root.style.transform = scale < 0.995 ? `scale(${scale})` : '';
+      host.style.height = Math.ceil(root.offsetHeight * scale) + 'px';
+      return;
+    }
+
+    root.style.transform = '';
+    if (root.parentElement && root.parentElement.classList.contains('controls-fit')){
+      root.parentElement.style.height = '';
+    }
+    clearItemFit();
+    const maxPx = 13;
+    const minPx = 6;
 
     function applySize(sz){
       items.forEach(el => {
@@ -3670,14 +3722,34 @@ body.view-3d .scanlines{ opacity:0.16; }
     btn.style.top = m.cy + 'px';
   }
 
+  function fitCamBar(){
+    const bar = document.querySelector('.cam-bar');
+    const frame = document.querySelector('.track-outer');
+    if (!bar || !frame) return;
+    if (!frame.classList.contains('is-3d')){
+      bar.style.transform = '';
+      return;
+    }
+    bar.style.transform = 'translateX(-50%)';
+    const avail = Math.max(40, frame.clientWidth - 12);
+    const natural = Math.max(1, bar.scrollWidth);
+    const scale = Math.min(1, avail / natural);
+    bar.style.transformOrigin = 'center bottom';
+    bar.style.transform = `translateX(-50%) scale(${scale})`;
+  }
+
   function fitInfieldBoard(){
     const board = document.getElementById('infieldBoard');
     const inner = document.getElementById('gbInner');
     const track = document.getElementById('track');
     placeTrackRoulette();
+    fitCamBar();
     if (!board || !inner || !track) return;
     if (!board.classList.contains('show')) return;
     if (GAME.state.viewMode === '3d'){
+      const parent = board.parentElement;
+      const parentW = parent ? parent.clientWidth : board.clientWidth;
+      const parentH = parent ? parent.clientHeight : board.clientHeight;
       board.style.width = '';
       board.style.height = '';
       board.style.maxWidth = '';
@@ -3685,30 +3757,32 @@ body.view-3d .scanlines{ opacity:0.16; }
       board.style.left = '';
       board.style.top = '';
       board.style.transform = '';
-      inner.style.transform = 'scale(1)';
-      inner.style.transformOrigin = 'top center';
+      inner.style.transform = 'none';
+      inner.style.transformOrigin = '';
+      inner.style.zoom = '1';
       inner.style.width = 'max-content';
       inner.style.maxWidth = 'none';
       const naturalW = Math.max(1, inner.offsetWidth);
       const naturalH = Math.max(1, inner.offsetHeight);
       inner.style.width = '';
       inner.style.maxWidth = '';
-      const parent = board.parentElement;
-      const parentH = parent ? parent.clientHeight : board.clientHeight;
-      const pad = 8;
-      const availW = Math.max(40, board.clientWidth - pad);
-      const availH = Math.max(40, parentH * 0.46 - pad);
+      const pad = 6;
+      const availW = Math.max(36, Math.min(230, parentW * 0.34) - pad);
+      const availH = Math.max(28, parentH * 0.4 - pad);
       const scale = Math.min(availW / naturalW, availH / naturalH, 1);
-      if (scale < 0.995){
-        inner.style.transform = `scale(${scale})`;
-        board.style.width = Math.ceil(naturalW * scale + pad) + 'px';
-        board.style.height = Math.ceil(naturalH * scale + pad) + 'px';
-        board.style.maxWidth = board.style.width;
-        board.style.maxHeight = board.style.height;
-      } else {
-        inner.style.transform = '';
-        inner.style.transformOrigin = '';
+      if (scale > 0.995){
+        inner.style.zoom = '';
+        board.style.width = '';
+        board.style.height = '';
+        board.style.maxWidth = '';
+        board.style.maxHeight = '';
+        return;
       }
+      inner.style.zoom = String(scale);
+      board.style.width = 'fit-content';
+      board.style.height = 'auto';
+      board.style.maxWidth = Math.ceil(availW + pad) + 'px';
+      board.style.maxHeight = Math.ceil(availH + pad) + 'px';
       return;
     }
     if (GAME.state.trackMode !== 'course') return;
