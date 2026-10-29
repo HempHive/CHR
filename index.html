@@ -861,6 +861,7 @@ dialog.horse-edit-dialog::backdrop{
   max-height:calc(100cqh - 12px);
   font-size:14px;
   flex-direction:column;
+  align-items:flex-start;
   gap:0.15em;
   pointer-events:none;
   box-sizing:border-box;
@@ -870,7 +871,7 @@ dialog.horse-edit-dialog::backdrop{
 .race-board-toggle{
   pointer-events:auto;
   display:flex;
-  width:100%;
+  width:max-content;
   margin:0;
   padding:2px;
   border-radius:8px;
@@ -906,6 +907,10 @@ dialog.horse-edit-dialog::backdrop{
 .race-board-body{
   display:none;
   flex-direction:column;
+  align-self:stretch;
+  width:0;
+  min-width:100%;
+  box-sizing:border-box;
   gap:0.12em;
   min-height:0;
   overflow:hidden;
@@ -924,10 +929,12 @@ dialog.horse-edit-dialog::backdrop{
 .gb-tick-item{
   display:flex;
   align-items:center;
-  gap:0.28em;
+  gap:0.16em;
+  width:100%;
+  min-width:0;
   flex:0 0 auto;
   height:1.65em;
-  padding:0 0.4em 0 0.12em;
+  padding:0 0.2em 0 0.1em;
   box-sizing:border-box;
   border-radius:0.35em;
   background:rgba(8,12,20,0.82);
@@ -936,8 +943,8 @@ dialog.horse-edit-dialog::backdrop{
 }
 .gb-tick-pos{
   flex:0 0 auto;
-  min-width:1.15em;
-  height:1.15em;
+  min-width:1em;
+  height:1em;
   padding:0 0.12em;
   display:inline-flex;
   align-items:center;
@@ -950,10 +957,15 @@ dialog.horse-edit-dialog::backdrop{
   line-height:1;
 }
 .gb-tick-name{
-  flex:0 0 auto;
+  flex:1 1 auto;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
   color:var(--tick);
-  font-size:0.92em;
-  font-weight:800;
+  font-family:"DIN Alternate", "DIN Alternate Bold", "Gill Sans", "Trebuchet MS", sans-serif;
+  font-stretch:normal;
+  font-size:0.78em;
+  font-weight:700;
   letter-spacing:0;
   line-height:1;
   white-space:nowrap;
@@ -966,8 +978,8 @@ dialog.horse-edit-dialog::backdrop{
 .gb-tick-item.place-3{ border-color:#cd8a4a; box-shadow:0 0 8px rgba(205,138,74,0.75); }
 .gb-tick-item img{
   flex:0 0 auto;
-  width:1.35em;
-  height:1em;
+  width:0.9em;
+  height:0.85em;
   object-fit:contain;
   image-rendering:pixelated;
   filter:drop-shadow(0 1px 1px rgba(0,0,0,0.65));
