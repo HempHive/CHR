@@ -146,6 +146,7 @@
       let orbitFollowT = null;
       let orbitLookT = null;
       let orbitHoldFinish = null;
+      let orbitStretchSm = null;
       let latchedFocusId = null;
       let focusLatchUntil = 0;
       let followRig = null;
@@ -3332,11 +3333,14 @@
             const midLane = (api.currentLaneCount() - 1) / 2;
             const midPose = worldPose(orbitFollowT, midLane);
             let wantT = orbitFollowT;
-            if (focus && game.state.phase === 'RACING') {
-              const leadPose = worldPose(focus.t, midLane);
+            const leadT = (game.state.phase === 'RACING' && rig) ? rig.t : (focus ? focus.t : null);
+            if (leadT != null && game.state.phase === 'RACING') {
+              const leadPose = worldPose(leadT, midLane);
               const gap = Math.hypot(leadPose.x - midPose.x, leadPose.z - midPose.z);
               const keep = Math.tan(THREE.MathUtils.degToRad(24)) * r * 0.72;
-              let ahead = focus.t - orbitFollowT;
+              let ahead = leadT - orbitFollowT;
+              if (ahead > 0.5) ahead -= 1;
+              if (ahead < -0.5) ahead += 1;
               if (ahead < 0) ahead = 0;
               if (gap > keep && ahead > 0) {
                 const push = (gap - keep) / gap;
@@ -3348,7 +3352,7 @@
             desiredLook.set(along.x, 0.8, along.z);
             orbitGlide = true;
             if (game.state.phase === 'RACING') {
-              const stretch = orbitStretch();
+              const stretch = smoothOrbitStretch(dt);
               if (stretch > 0.8) {
                 orbitGlide = false;
                 let from = 0.8;
@@ -3532,11 +3536,25 @@
         return overall * laps - (laps - 1);
       }
 
+      function smoothOrbitStretch(dt) {
+        const racing = game.state.phase === 'RACING';
+        const target = racing ? orbitStretch() : 0;
+        if (!racing || orbitStretchSm == null || snapCam) {
+          orbitStretchSm = target;
+          return orbitStretchSm;
+        }
+        // A new leader jumps progress. Walk the finish blend so the look does not snap.
+        const k = 1 - Math.exp(-Math.max(0.001, dt) * 1.7);
+        orbitStretchSm += (target - orbitStretchSm) * k;
+        return orbitStretchSm;
+      }
+
       function joinOrbit() {
         orbitFollowT = null;
         orbitLookT = null;
         orbitEase = false;
         const stretch = game.state.phase === 'RACING' ? orbitStretch() : 0;
+        orbitStretchSm = stretch;
         orbitHoldFinish = stretch > 0.8 ? stretch : null;
       }
 

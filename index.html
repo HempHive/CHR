@@ -1999,7 +1999,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     <div class="top-left">
       <div class="brand">
         <button type="button" class="title" id="brandTitle">Arcade Racing</button>
-        <div class="subtitle" id="subtitle">KINGDOMS OF TREASURE STAKES • Trial A • Grass Day</div>
+        <div class="subtitle" id="subtitle">Kingdom of Treasure • Grass Day</div>
         <div class="game-switches">
           <button type="button" class="game-switch" id="btnBlackjack" data-game="blackjack" title="Blackjack">♠️</button>
           <button type="button" class="game-switch" id="btnPoker" data-game="holdem" title="Poker">♦️</button>
@@ -2420,7 +2420,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js?v=fruit5"></script>
+<script src="view3d.js?v=smoothlead"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING
@@ -3137,22 +3137,19 @@ body.view-3d .scanlines{ opacity:0.16; }
     'UNICORN POWER CUP CLASSIC': 'Unicorn Power'
   };
 
+  function raceTitleLine(){
+    const cup = GAME.cups[GAME.state.cupIndex];
+    const course = GAME.courses.find(c => c.id === GAME.state.course);
+    const name = cup ? (CUP_SHORT[cup.name] || cup.name) : 'Arcade Racing';
+    const courseName = course ? course.name : '';
+    return courseName ? `${name} • ${courseName}` : name;
+  }
+
   function fitSubtitle(){
     const el = els.subtitle;
-    const brand = el && el.closest('.brand');
-    if (!el || !brand) return;
-    const cup = GAME.cups[GAME.state.cupIndex];
-    if (!cup) return;
-    const course = GAME.courses.find(c => c.id === GAME.state.course);
-    const courseName = course ? course.name : '';
-    const heat = heatLabel(GAME.state.heat);
-    const shortCup = CUP_SHORT[cup.name] || cup.name;
-    const full = `${cup.name} • ${heat} • ${courseName}`;
-    const mid = `${shortCup} • ${heat} • ${courseName}`;
-    el.textContent = full;
-    const tight = () => el.scrollWidth > el.clientWidth + 1;
-    if (tight()) el.textContent = mid;
-    if (tight()) el.textContent = shortCup;
+    if (!el) return;
+    const line = raceTitleLine();
+    if (el.textContent !== line) el.textContent = line;
   }
 
   function fitTopBar(){
@@ -3835,6 +3832,7 @@ body.view-3d .scanlines{ opacity:0.16; }
             countNum.textContent = String(secs);
           }
           if (secs === 3){
+            clearPlaceMarks();
             requestOrbitHome();
             startCommentaryIfEnabled();
             // ensure horses are visually at the start line
@@ -3895,6 +3893,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   function beginRaceStartCountdown(){
     if (GAME.state.phase === 'RACING') return;
     if (startCountdownTid) return; // already counting down
+    clearPlaceMarks();
     const liveOverlay = document.getElementById('countOverlay');
     const bettingCountdownVisible = countdownTimer && liveOverlay && liveOverlay.style.display === 'flex';
     if (GAME.state.autoTimer){ clearTimeout(GAME.state.autoTimer); GAME.state.autoTimer = null; }
@@ -4519,9 +4518,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 
   // ---------- Rendering ----------
   function renderTopbar(){
-    const cup = GAME.cups[GAME.state.cupIndex];
-    const courseName = GAME.courses.find(c=>c.id===GAME.state.course).name;
-    els.subtitle.textContent = `${cup.name} • ${heatLabel(GAME.state.heat)} • ${courseName}`;
+    els.subtitle.textContent = raceTitleLine();
     els.stateChip.textContent = GAME.state.phase === 'BETTING_OPEN'
       ? 'OPEN BET'
       : (GAME.state.phase === 'BETTING_CLOSED' ? 'CLOSED' : GAME.state.phase.replace('_',' '));
@@ -4580,6 +4577,12 @@ body.view-3d .scanlines{ opacity:0.16; }
     updateGraphicsBoard();
     paintPlaceMedals();
   }
+  function clearPlaceMarks(){
+    document.querySelectorAll('.horse-btn, .place-btn').forEach(btn => {
+      btn.classList.remove('place-1', 'place-2', 'place-3', 'payout');
+    });
+  }
+
   function paintPlaceMedals(){
     document.querySelectorAll('.horse-btn').forEach(btn => btn.classList.remove('place-1', 'place-2', 'place-3'));
     if (!race || !race.order) return;
