@@ -3511,7 +3511,8 @@ body.view-3d .scanlines{ opacity:0.16; }
       const horseButtons = new Map();
       const placeButtons = new Map();
       const market = placeMarket();
-      GAME.state.entered.forEach(id=>{
+      const lineup = GAME.state.entered.slice().sort((a, b) => a - b);
+      lineup.forEach(id=>{
         const h = GAME.horses.find(x=>x.id===id);
         const odds = GAME.state.odds[id];
         const fr = typeof odds === 'number' ? decimalOddsToFraction(odds) : '?';
