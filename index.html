@@ -5099,9 +5099,18 @@ body.view-3d .scanlines{ opacity:0.16; }
     const fontByHeight = (vh - 16) / (2.35 + 1.65 * 8);
     let font = Math.min(22, Math.max(10, fontByHeight));
     board.style.fontSize = font.toFixed(2) + 'px';
+    board.style.minWidth = '';
+    if (board.classList.contains('is-open')){
+      let extra = 0;
+      board.querySelectorAll('.gb-tick-name').forEach(el => {
+        extra = Math.max(extra, el.scrollWidth - el.clientWidth);
+      });
+      if (extra > 1) board.style.minWidth = Math.ceil(board.offsetWidth + extra + 8) + 'px';
+    }
     if (board.offsetWidth > vw * 0.46){
       font = Math.max(8, font * (vw * 0.44) / board.offsetWidth);
       board.style.fontSize = font.toFixed(2) + 'px';
+      board.style.minWidth = '';
     }
   }
 
@@ -9078,6 +9087,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         const open = !board.classList.contains('is-open');
         board.classList.toggle('is-open', open);
         raceBoardToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        fitRaceBoard();
       };
     }
     setupCommentary();
