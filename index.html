@@ -152,6 +152,7 @@ button.title:hover{ filter:brightness(1.15); }
   white-space:nowrap;
 }
 .chip strong{ color: var(--accent-3); text-transform:uppercase; letter-spacing:0.5px; }
+#cameraChipLabel{ text-transform:uppercase; }
 button.chip{
   font: inherit;
   color: inherit;
@@ -173,6 +174,10 @@ button.chip.active strong{ color:#d7b4ff; }
   box-sizing:border-box;
   white-space:nowrap;
   font-size:1em;
+  background: var(--odd-chip);
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  padding: 5px 8px;
 }
 .status .dot{
   width:10px; height:10px; border-radius:50%;
@@ -2079,7 +2084,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         <div class="chip"><strong>State</strong><span id="stateChip">OPEN BET</span></div>
         <div class="status" id="betStatus"><span class="dot"></span><span id="betText">OPEN BET</span> <span class="countdown" id="betCountdown">20</span></div>
         <button type="button" class="chip" id="countdownChip" title="Betting countdown and next-race wait. Cycles 10, 15, 20, 25, and 30 seconds."><strong>Countdown</strong><span id="countdown">20</span>s</button>
-        <button type="button" class="chip" id="cameraChip" title="Camera. Cycles Broadcast, Rail, Chase, Finish, Helicopter, Grandstand, Drone, Jockey, and Orbit."><strong>Camera</strong><span id="cameraChipLabel">Orbit</span></button>
+        <button type="button" class="chip" id="cameraChip" title="Camera. Cycles Broadcast, Rail, Chase, Finish, Helicopter, Grandstand, Drone, Jockey, and Orbit."><strong>Camera</strong><span id="cameraChipLabel">ORBIT</span></button>
         <button type="button" class="chip" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps."><strong>Laps</strong><span id="lapsChip">1</span></button>
         <button type="button" class="chip" id="btnCommentary" title="Commentary"><strong>Commentary</strong></button>
       </div>
@@ -2543,7 +2548,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js?v=orbitsmooth"></script>
+<script src="view3d.js?v=camcaps"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING

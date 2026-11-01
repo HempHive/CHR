@@ -3557,7 +3557,7 @@
         if (sel) sel.value = id;
         if (bar) bar.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.cam === id));
         const cam = CAMS.find(c => c.id === id);
-        if (cameraChipLabel) cameraChipLabel.textContent = cam ? cam.label : id;
+        if (cameraChipLabel) cameraChipLabel.textContent = (cam ? cam.label : id).toUpperCase();
         if (raceCam) raceCam.textContent = cam ? cam.label : id;
         if (hudName) hudName.textContent = cam ? cam.label : id;
         if (hudHint) {
