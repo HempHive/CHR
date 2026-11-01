@@ -3354,15 +3354,24 @@
             if (game.state.phase === 'RACING') {
               const stretch = smoothOrbitStretch(dt);
               if (stretch > 0.8) {
-                orbitGlide = false;
                 let from = 0.8;
                 if (orbitHoldFinish != null) {
                   if (orbitHoldFinish <= 0.8) orbitHoldFinish = null;
                   else from = orbitHoldFinish;
                 }
                 const k = smoothstep(from, 0.96, stretch);
-                desiredLook.x += (anchor.pos.x - desiredLook.x) * k;
-                desiredLook.z += (anchor.pos.z - desiredLook.z) * k;
+                const laps = Math.max(1, (raceNow && raceNow.laps) || game.state.laps || 1);
+                const finishT = (game.state.trackTOffset || 0) + laps;
+                let lookT = orbitLookT + (finishT - orbitLookT) * k;
+                const pace = leadT != null ? leadT : orbitLookT;
+                const cap = pace + 0.016;
+                if (lookT > cap) lookT = cap;
+                const posed = worldPose(lookT, midLane);
+                desiredLook.set(posed.x, 0.8, posed.z);
+                if (rig) {
+                  desiredLook.x += (rig.x - desiredLook.x) * 0.62;
+                  desiredLook.z += (rig.z - desiredLook.z) * 0.62;
+                }
               } else {
                 orbitHoldFinish = null;
               }

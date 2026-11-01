@@ -102,6 +102,8 @@ button.title:hover{ filter:brightness(1.15); }
 .game-switches{
   display:flex;
   align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
   gap:4px;
 }
 .game-switch{
@@ -697,7 +699,7 @@ button.chip.active strong{ color:#d7b4ff; }
 }
 .balance{
   display:flex; gap:12px; align-items:center; flex-wrap:wrap;
-  font-size: 14px;
+  font-size: 22px;
 }
 .balance .bank{ color: var(--accent-3); font-weight:800; font-size:22px; line-height:1; }
 .balance .winnings{ color:#9fd3ff;}
@@ -1282,10 +1284,10 @@ dialog.rules-dialog::backdrop{ background:rgba(4,10,18,0.72); }
     max-width:100%;
     font-size:16px;
   }
-  .balance{ font-size:13px; gap:8px; }
+  .balance{ font-size:22px; gap:8px; }
   .player header{ flex-wrap:nowrap; gap:8px; }
   .player .name{ flex:1 1 auto; min-width:0; }
-  .balance{ flex:0 0 auto; white-space:nowrap; font-size:12px; gap:6px; }
+  .balance{ flex:0 0 auto; white-space:nowrap; font-size:22px; gap:6px; }
   .quickbets{ padding:6px; margin-top:4px; }
   .horse-btn{ padding:3px 5px; }
   .horse-btn .num{ font-size:12px; }
@@ -1503,6 +1505,66 @@ body.view-3d .scanlines{ opacity:0.16; }
 .bj-row{ display:flex; align-items:center; gap:10px; margin:8px 0; }
 .bj-row span{ width:64px; font-weight:800; color:#f3d48a; }
 .bj-row b{ color:#fff; font-size:14px; }
+.bc-bets{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:4px 0 8px; }
+.bc-bets button{
+  min-width:112px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2px;
+  background:#0e4d32; border:1px solid #d4b36a; border-radius:8px;
+  padding:8px 10px; color:#fff; font-weight:800;
+}
+.bc-bets button span{ font-size:12px; color:#ffe7a3; font-weight:700; }
+.bc-bets button.on{ border-color:#ffd166; box-shadow:0 0 0 1px #ffd166; color:#ffd166; }
+.c4-board{
+  display:grid;
+  grid-template-columns:repeat(7, 46px);
+  gap:6px;
+  width:max-content;
+  margin:8px auto;
+  padding:12px;
+  background:#123a86;
+  border:4px solid #0b1c44;
+  border-radius:16px;
+}
+.c4-cell{
+  width:46px; height:46px; border-radius:50%; padding:0;
+  background:#071433; border:0; box-shadow:inset 0 2px 4px rgba(0,0,0,0.45);
+}
+.c4-cell.you{ background:radial-gradient(circle at 35% 35%, #ffe9a3, #e2a61a); }
+.c4-cell.ai{ background:radial-gradient(circle at 35% 35%, #ff8d8d, #c42323); }
+.c4-cell.win{ box-shadow:0 0 0 3px #fff; }
+.c4-cell:disabled{ cursor:default; }
+.mj-table{ display:flex; flex-direction:column; gap:6px; margin:4px 0 8px; }
+.mj-label{
+  text-align:center; font-size:12px; font-weight:800; letter-spacing:0.08em;
+  text-transform:uppercase; color:#f3d48a;
+}
+.mj-row{ display:flex; flex-wrap:wrap; gap:3px; justify-content:center; min-height:44px; }
+.mj-row[hidden]{ display:none !important; }
+.mj-tile{
+  width:34px; height:46px; padding:0; border-radius:4px;
+  border:1px solid #c9b89a;
+  background:linear-gradient(#fffaf2, #f3e6cf);
+  font-weight:800; line-height:1; color:#1a1208;
+  display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.mj-tile b{ font-size:16px; line-height:1; }
+.mj-tile i{ font-size:10px; line-height:1; font-style:normal; }
+.mj-tile.man{ color:#c81e1e; }
+.mj-tile.bamboo{ color:#137a32; }
+.mj-tile.dot{ color:#1a4f91; }
+.mj-tile.honor b{ font-size:20px; }
+.mj-tile.red{ color:#c81e1e; }
+.mj-tile.green{ color:#137a32; }
+.mj-tile.white{ color:#1a4f91; box-shadow:inset 0 0 0 2px #1a4f91; }
+.mj-tile.fresh{ outline:2px solid #ffd166; outline-offset:1px; }
+.mj-tile.last{ outline:2px solid #17f0ff; outline-offset:1px; }
+.mj-tile.back{
+  font-size:0; color:transparent;
+  background:repeating-linear-gradient(45deg, #142f72, #142f72 5px, #1d4ed8 5px, #1d4ed8 10px);
+  border-color:#0b1c44;
+}
+.mj-tile:disabled{ cursor:default; }
 .slot-wrap{ display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; max-width:100%; }
 .slot-cabinet{
   position:relative;
@@ -2006,6 +2068,9 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" class="game-switch" id="btnFruit" data-game="slots" title="Fruit Machine">🍋</button>
           <button type="button" class="game-switch" id="btnDarts" data-game="darts" title="Darts">🎯</button>
           <button type="button" class="game-switch" id="btnRoulette" data-game="roulette" title="Roulette">🃏</button>
+          <button type="button" class="game-switch" id="btnBaccarat" data-game="baccarat" title="Baccarat">♥️</button>
+          <button type="button" class="game-switch" id="btnConnect4" data-game="connect4" title="Connect 4">♣️</button>
+          <button type="button" class="game-switch" id="btnMahjong" data-game="mahjong" title="Mahjong">🀄️</button>
         </div>
       </div>
       <div class="info-chips">
@@ -2293,6 +2358,62 @@ body.view-3d .scanlines{ opacity:0.16; }
         <button type="button" id="dartNew">New game</button>
       </div>
     </div>
+    <div class="casino-view" data-game="baccarat" hidden>
+      <div class="bj-table">
+        <div class="bc-bets" id="bcBets">
+          <button type="button" data-side="player" class="on">Player<span>1 to 1</span></button>
+          <button type="button" data-side="banker">Banker<span>19 to 20</span></button>
+          <button type="button" data-side="tie">Tie<span>8 to 1</span></button>
+        </div>
+        <div class="bj-row"><span>Player</span><div id="bcPlayer" class="bj-cards"></div><b id="bcPlayerTot"></b></div>
+        <div class="bj-row"><span>Banker</span><div id="bcBanker" class="bj-cards"></div><b id="bcBankerTot"></b></div>
+        <div class="bj-msg" id="bcMsg">Choose Player, Banker, or Tie, then deal.</div>
+      </div>
+      <footer class="rl-foot">
+        <div id="bcPlayers" class="rl-players"></div>
+        <div id="bcChips" class="rl-chips"></div>
+        <div class="rl-actions">
+          <button type="button" id="bcDeal" class="primary">Deal</button>
+        </div>
+      </footer>
+    </div>
+    <div class="casino-view" data-game="connect4" hidden>
+      <div id="c4Board" class="c4-board" aria-label="Connect 4"></div>
+      <div class="bj-msg" id="c4Msg">You play gold. Four in a row wins even money.</div>
+      <footer class="rl-foot">
+        <div id="c4Players" class="rl-players"></div>
+        <div id="c4Chips" class="rl-chips"></div>
+        <div class="rl-actions">
+          <button type="button" id="c4Resign">Resign</button>
+          <button type="button" id="c4New" class="primary">New game</button>
+        </div>
+      </footer>
+    </div>
+    <div class="casino-view" data-game="mahjong" hidden>
+      <div class="mj-table">
+        <div class="mj-label">House</div>
+        <div id="mjAi" class="mj-row"></div>
+        <div id="mjAiMelds" class="mj-row"></div>
+        <div class="mj-label">Discard</div>
+        <div id="mjDiscard" class="mj-row"></div>
+        <div class="mj-label">You</div>
+        <div id="mjMelds" class="mj-row"></div>
+        <div id="mjHand" class="mj-row"></div>
+        <div class="bj-msg" id="mjMsg">Deal a hand. A win is four sets and a pair.</div>
+      </div>
+      <footer class="rl-foot">
+        <div id="mjPlayers" class="rl-players"></div>
+        <div id="mjChips" class="rl-chips"></div>
+        <div class="rl-actions">
+          <button type="button" id="mjPung">Pung</button>
+          <button type="button" id="mjChow">Chow</button>
+          <button type="button" id="mjWin">Win</button>
+          <button type="button" id="mjPass">Pass</button>
+          <button type="button" id="mjResign">Resign</button>
+          <button type="button" id="mjDeal" class="primary">Deal</button>
+        </div>
+      </footer>
+    </div>
   </div>
 </div>
 
@@ -2322,7 +2443,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     </section>
     <section>
       <h4>Casino</h4>
-      <p>Roulette, Texas Hold’em, blackjack, and the fruit machine use the same player banks. Darts is the target button: click a spot on the board, then tap that same spot again to throw. A quick second tap hits. A slow one falls short. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1.</p>
+      <p>Roulette, Texas Hold’em, blackjack, baccarat, the fruit machine, Connect 4, and Mahjong use the same player banks. Darts is the target button: click a spot on the board, then tap that same spot again to throw. A quick second tap hits. A slow one falls short. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1. Baccarat pays 1:1 on Player, 19:20 on Banker, and 8:1 on Tie. Connect 4 and Mahjong pay even money.</p>
     </section>
     <div class="rules-actions">
       <button type="button" id="rulesClose">Close</button>
@@ -2420,7 +2541,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js?v=smoothlead"></script>
+<script src="view3d.js?v=orbitbend"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING
@@ -6148,7 +6269,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
 
   function closeRoulette(){
-    if (roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy) return;
+    if (casinoBusy()) return;
     if (roulette.raf) cancelAnimationFrame(roulette.raf);
     if (roulette.zoomRaf) cancelAnimationFrame(roulette.zoomRaf);
     roulette.zoomRaf = 0;
@@ -6169,7 +6290,10 @@ body.view-3d .scanlines{ opacity:0.16; }
     { id:'holdem', title:"Texas Hold'em" },
     { id:'blackjack', title:'Blackjack' },
     { id:'slots', title:'Fruit Machine' },
-    { id:'darts', title:'Darts' }
+    { id:'darts', title:'Darts' },
+    { id:'baccarat', title:'Baccarat' },
+    { id:'connect4', title:'Connect 4' },
+    { id:'mahjong', title:'Mahjong' }
   ];
   let casinoIndex = 0;
   const holdem = {
@@ -6205,6 +6329,20 @@ body.view-3d .scanlines{ opacity:0.16; }
     aimTimer: 0, aimFading: false, built: false, over: false, pendingClear: false,
     msg: 'Aim, then tap the same spot to throw.'
   };
+  const bc = {
+    deck: [], player: [], banker: [], side: 'player', bet: 10,
+    msg: 'Choose Player, Banker, or Tie, then deal.'
+  };
+  const c4 = {
+    cells: [0, 1, 2, 3, 4, 5].map(() => [0, 0, 0, 0, 0, 0, 0]),
+    phase: 'bet', bet: 10, stake: 0, win: [], timer: 0,
+    msg: 'You play gold. Four in a row wins even money.'
+  };
+  const mj = {
+    wall: [], you: [], ai: [], youMelds: [], aiMelds: [], pool: [],
+    discard: null, drawn: null, phase: 'bet', bet: 10, stake: 0, timer: 0,
+    msg: 'Deal a hand. A win is four sets and a pair.'
+  };
 
   function casinoSpendable(p){
     if (!p) return 0;
@@ -6214,7 +6352,9 @@ body.view-3d .scanlines{ opacity:0.16; }
     return roulettePlayer(roulette.playerId) || activePlayers()[0] || null;
   }
   function casinoBusy(){
-    return !!(roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy);
+    const c4Live = c4.phase === 'you' || c4.phase === 'ai';
+    const mjLive = mj.phase === 'you' || mj.phase === 'claim' || mj.phase === 'ai';
+    return !!(roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy || c4Live || mjLive);
   }
   function casinoLock(on){
     const busy = !!(on || casinoBusy());
@@ -6655,6 +6795,9 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (game.id === 'blackjack') bjRender();
     if (game.id === 'slots') slotEnsure();
     if (game.id === 'darts') dartRender();
+    if (game.id === 'baccarat') bcRender();
+    if (game.id === 'connect4') c4Render();
+    if (game.id === 'mahjong') mjRender();
     paintCasinoPlayers();
     casinoLock(false);
     syncGameButtons();
@@ -6678,7 +6821,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     openRoulette();
   }
   function paintCasinoPlayers(){
-    ['pkPlayers', 'bjPlayers', 'slotPlayers'].forEach(id => {
+    ['pkPlayers', 'bjPlayers', 'slotPlayers', 'bcPlayers', 'c4Players', 'mjPlayers'].forEach(id => {
       const host = document.getElementById(id);
       if (!host) return;
       host.innerHTML = '';
@@ -7673,6 +7816,757 @@ body.view-3d .scanlines{ opacity:0.16; }
     slots.timer = setTimeout(finish, 3600);
   }
 
+  function casinoChipRow(hostId, read, write){
+    const host = document.getElementById(hostId);
+    if (!host || host.childElementCount) return;
+    [5, 10, 25, 50].forEach(v => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rl-chipbtn' + (v === read() ? ' on' : '');
+      btn.textContent = String(v);
+      btn.onclick = () => {
+        if (casinoBusy()) return;
+        write(v);
+        host.querySelectorAll('.rl-chipbtn').forEach(el => el.classList.toggle('on', Number(el.textContent) === v));
+      };
+      host.appendChild(btn);
+    });
+  }
+  function bcPip(card){
+    const rank = card & 15;
+    if (rank === 12) return 1;
+    if (rank >= 8) return 0;
+    return rank + 2;
+  }
+  function bcTotal(cards){
+    return cards.reduce((sum, card) => sum + bcPip(card), 0) % 10;
+  }
+  function bcBankerDraws(total, third){
+    if (third == null) return total <= 5;
+    const pip = bcPip(third);
+    if (total <= 2) return true;
+    if (total === 3) return pip !== 8;
+    if (total === 4) return pip >= 2 && pip <= 7;
+    if (total === 5) return pip >= 4 && pip <= 7;
+    if (total === 6) return pip === 6 || pip === 7;
+    return false;
+  }
+  function bcRender(){
+    const player = document.getElementById('bcPlayer');
+    const banker = document.getElementById('bcBanker');
+    const playerTot = document.getElementById('bcPlayerTot');
+    const bankerTot = document.getElementById('bcBankerTot');
+    const msg = document.getElementById('bcMsg');
+    if (player){
+      player.innerHTML = '';
+      bc.player.forEach(card => player.appendChild(casinoCard(card, false)));
+    }
+    if (banker){
+      banker.innerHTML = '';
+      bc.banker.forEach(card => banker.appendChild(casinoCard(card, false)));
+    }
+    if (playerTot) playerTot.textContent = bc.player.length ? String(bcTotal(bc.player)) : '';
+    if (bankerTot) bankerTot.textContent = bc.banker.length ? String(bcTotal(bc.banker)) : '';
+    if (msg) msg.textContent = bc.msg;
+    document.querySelectorAll('#bcBets [data-side]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.side === bc.side);
+    });
+    casinoChipRow('bcChips', () => bc.bet, v => { bc.bet = v; });
+  }
+  function dealBaccarat(){
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < bc.bet){
+      bc.msg = 'Not enough in the bank for that chip.';
+      bcRender();
+      return;
+    }
+    if (bc.deck.length < 6) bc.deck = pkShuffle(6);
+    human.bankroll -= bc.bet;
+    const stake = bc.bet;
+    const draw = () => bc.deck.pop();
+    bc.player = [draw(), draw()];
+    bc.banker = [draw(), draw()];
+    let playerTotal = bcTotal(bc.player);
+    let bankerTotal = bcTotal(bc.banker);
+    const natural = playerTotal >= 8 || bankerTotal >= 8;
+    let third = null;
+    if (!natural && playerTotal <= 5){
+      third = draw();
+      bc.player.push(third);
+      playerTotal = bcTotal(bc.player);
+    }
+    if (!natural && bcBankerDraws(bankerTotal, third)){
+      bc.banker.push(draw());
+      bankerTotal = bcTotal(bc.banker);
+    }
+    let pay = 0;
+    if (playerTotal === bankerTotal){
+      if (bc.side === 'tie'){
+        pay = stake * 9;
+        bc.msg = 'Tie pays 8 to 1. +' + pay;
+      } else {
+        pay = stake;
+        bc.msg = 'Tie. Stake returned.';
+      }
+    } else {
+      const winner = playerTotal > bankerTotal ? 'player' : 'banker';
+      const name = winner === 'player' ? 'Player' : 'Banker';
+      if (bc.side !== winner) bc.msg = name + ' wins' + (natural ? ' with a natural' : '') + '.';
+      else if (winner === 'player'){
+        pay = stake * 2;
+        bc.msg = 'Player wins' + (natural ? ' with a natural' : '') + '. +' + pay;
+      } else {
+        pay = stake + Math.floor(stake * 95 / 100);
+        bc.msg = 'Banker wins' + (natural ? ' with a natural' : '') + ', 5% commission. +' + pay;
+      }
+    }
+    if (pay) human.bankroll += pay;
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    bcRender();
+  }
+  function bcSetSide(side){
+    bc.side = side;
+    bcRender();
+  }
+
+  function c4Clone(board){
+    return board.map(row => row.slice());
+  }
+  function c4Drop(board, col, who){
+    if (col < 0 || col > 6 || board[5][col]) return -1;
+    for (let r = 0; r < 6; r++){
+      if (!board[r][col]){
+        board[r][col] = who;
+        return r;
+      }
+    }
+    return -1;
+  }
+  function c4Line(board, who){
+    const dirs = [[1, 0], [0, 1], [1, 1], [1, -1]];
+    for (let r = 0; r < 6; r++){
+      for (let c = 0; c < 7; c++){
+        if (board[r][c] !== who) continue;
+        for (let d = 0; d < dirs.length; d++){
+          const cells = [[r, c]];
+          let ok = true;
+          for (let k = 1; k < 4; k++){
+            const rr = r + dirs[d][0] * k;
+            const cc = c + dirs[d][1] * k;
+            if (rr < 0 || rr > 5 || cc < 0 || cc > 6 || board[rr][cc] !== who){
+              ok = false;
+              break;
+            }
+            cells.push([rr, cc]);
+          }
+          if (ok) return cells;
+        }
+      }
+    }
+    return null;
+  }
+  function c4Full(board){
+    return board[5].every(cell => cell);
+  }
+  function c4Score(board, who){
+    const opp = who === 1 ? 2 : 1;
+    let score = 0;
+    const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    for (let r = 0; r < 6; r++){
+      for (let c = 0; c < 7; c++){
+        dirs.forEach(dir => {
+          let mine = 0;
+          let theirs = 0;
+          for (let k = 0; k < 4; k++){
+            const rr = r + dir[0] * k;
+            const cc = c + dir[1] * k;
+            if (rr < 0 || rr > 5 || cc < 0 || cc > 6){
+              mine = -1;
+              break;
+            }
+            if (board[rr][cc] === who) mine += 1;
+            else if (board[rr][cc] === opp) theirs += 1;
+          }
+          if (mine < 0 || (mine && theirs)) return;
+          if (mine === 3) score += 12;
+          else if (mine === 2) score += 3;
+          if (theirs === 3) score -= 18;
+        });
+      }
+    }
+    for (let r = 0; r < 6; r++) if (board[r][3] === who) score += 2;
+    return score;
+  }
+  function c4Search(board, depth, alpha, beta, aiTurn){
+    if (c4Line(board, 2)) return 8000 + depth;
+    if (c4Line(board, 1)) return -8000 - depth;
+    if (!depth || c4Full(board)) return c4Score(board, 2);
+    const cols = [3, 2, 4, 1, 5, 0, 6];
+    let best = aiTurn ? -Infinity : Infinity;
+    let moved = false;
+    cols.forEach(col => {
+      if (board[5][col]) return;
+      moved = true;
+      const next = c4Clone(board);
+      c4Drop(next, col, aiTurn ? 2 : 1);
+      const value = c4Search(next, depth - 1, alpha, beta, !aiTurn);
+      if (aiTurn){
+        if (value > best) best = value;
+        if (best > alpha) alpha = best;
+      } else {
+        if (value < best) best = value;
+        if (best < beta) beta = best;
+      }
+    });
+    if (!moved) return 0;
+    if (alpha >= beta) return best;
+    return best;
+  }
+  function c4Choose(){
+    const cols = [3, 2, 4, 1, 5, 0, 6];
+    let pick = cols.find(col => !c4.cells[5][col]);
+    let best = -Infinity;
+    cols.forEach(col => {
+      if (c4.cells[5][col]) return;
+      const next = c4Clone(c4.cells);
+      c4Drop(next, col, 2);
+      if (c4Line(next, 2)){
+        pick = col;
+        best = Infinity;
+        return;
+      }
+      const value = c4Search(next, 3, -Infinity, Infinity, false);
+      if (value > best){
+        best = value;
+        pick = col;
+      }
+    });
+    return pick;
+  }
+  function c4Render(){
+    const host = document.getElementById('c4Board');
+    const msg = document.getElementById('c4Msg');
+    const marks = new Set((c4.win || []).map(cell => cell[0] + ',' + cell[1]));
+    if (host){
+      host.innerHTML = '';
+      for (let r = 5; r >= 0; r--){
+        for (let c = 0; c < 7; c++){
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const owner = c4.cells[r][c];
+          btn.className = 'c4-cell' + (owner === 1 ? ' you' : owner === 2 ? ' ai' : '');
+          if (marks.has(r + ',' + c)) btn.classList.add('win');
+          btn.disabled = c4.phase !== 'you' || !!c4.cells[5][c];
+          btn.onclick = () => c4Play(c);
+          host.appendChild(btn);
+        }
+      }
+    }
+    if (msg) msg.textContent = c4.msg;
+    const resign = document.getElementById('c4Resign');
+    const neu = document.getElementById('c4New');
+    if (resign) resign.disabled = c4.phase !== 'you';
+    if (neu) neu.disabled = c4.phase === 'you' || c4.phase === 'ai';
+    casinoChipRow('c4Chips', () => c4.bet, v => { c4.bet = v; });
+  }
+  function c4Finish(who, line){
+    const human = casinoHuman();
+    c4.win = line || [];
+    if (who === 'you' && human){
+      human.bankroll += c4.stake * 2;
+      c4.msg = 'Four in a row. +' + (c4.stake * 2);
+    } else if (who === 'draw' && human){
+      human.bankroll += c4.stake;
+      c4.msg = 'Board full. Stake returned.';
+    } else c4.msg = 'House connects four.';
+    c4.phase = 'over';
+    c4.stake = 0;
+    casinoLock(false);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    c4Render();
+  }
+  function c4Start(){
+    if (c4.phase === 'you' || c4.phase === 'ai') return;
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < c4.bet){
+      c4.msg = 'Not enough in the bank for that chip.';
+      c4Render();
+      return;
+    }
+    if (c4.timer) clearTimeout(c4.timer);
+    human.bankroll -= c4.bet;
+    c4.stake = c4.bet;
+    c4.cells = [0, 1, 2, 3, 4, 5].map(() => [0, 0, 0, 0, 0, 0, 0]);
+    c4.win = [];
+    c4.phase = 'you';
+    c4.msg = 'Your drop.';
+    casinoLock(true);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    c4Render();
+  }
+  function c4Play(col){
+    if (c4.phase !== 'you') return;
+    if (c4Drop(c4.cells, col, 1) < 0) return;
+    const yours = c4Line(c4.cells, 1);
+    if (yours){
+      c4Finish('you', yours);
+      return;
+    }
+    if (c4Full(c4.cells)){
+      c4Finish('draw');
+      return;
+    }
+    c4.phase = 'ai';
+    c4.msg = 'House is dropping…';
+    casinoLock(true);
+    c4Render();
+    c4.timer = setTimeout(() => {
+      c4.timer = 0;
+      const choice = c4Choose();
+      if (choice == null || c4Drop(c4.cells, choice, 2) < 0){
+        c4Finish('draw');
+        return;
+      }
+      const house = c4Line(c4.cells, 2);
+      if (house){
+        c4Finish('ai', house);
+        return;
+      }
+      if (c4Full(c4.cells)){
+        c4Finish('draw');
+        return;
+      }
+      c4.phase = 'you';
+      c4.msg = 'Your drop.';
+      casinoLock(true);
+      c4Render();
+    }, 220);
+  }
+  function resignConnect4(){
+    if (c4.phase !== 'you') return;
+    c4.stake = 0;
+    c4.phase = 'over';
+    c4.msg = 'You resign. The stake stays with the house.';
+    casinoLock(false);
+    c4Render();
+  }
+
+  function mjCounts(hand){
+    const counts = Array(34).fill(0);
+    hand.forEach(tile => { counts[tile] += 1; });
+    return counts;
+  }
+  function mjCount(hand, tile){
+    let n = 0;
+    hand.forEach(t => { if (t === tile) n += 1; });
+    return n;
+  }
+  function mjTake(hand, tile, n){
+    for (let i = 0; i < n; i++){
+      const ix = hand.indexOf(tile);
+      if (ix >= 0) hand.splice(ix, 1);
+    }
+  }
+  function mjSort(hand){
+    hand.sort((a, b) => a - b);
+  }
+  function mjMeldsOk(counts, need){
+    if (need === 0) return counts.every(n => n === 0);
+    let i = 0;
+    while (i < 34 && !counts[i]) i += 1;
+    if (i >= 34) return false;
+    if (counts[i] >= 3){
+      counts[i] -= 3;
+      if (mjMeldsOk(counts, need - 1)){
+        counts[i] += 3;
+        return true;
+      }
+      counts[i] += 3;
+    }
+    if (i < 27 && i % 9 <= 6 && counts[i + 1] && counts[i + 2]){
+      counts[i] -= 1;
+      counts[i + 1] -= 1;
+      counts[i + 2] -= 1;
+      if (mjMeldsOk(counts, need - 1)){
+        counts[i] += 1;
+        counts[i + 1] += 1;
+        counts[i + 2] += 1;
+        return true;
+      }
+      counts[i] += 1;
+      counts[i + 1] += 1;
+      counts[i + 2] += 1;
+    }
+    return false;
+  }
+  function mjIsWin(hand, openMelds){
+    const need = 4 - openMelds;
+    if (need < 0 || hand.length !== need * 3 + 2) return false;
+    const counts = mjCounts(hand);
+    for (let i = 0; i < 34; i++){
+      if (counts[i] < 2) continue;
+      counts[i] -= 2;
+      if (mjMeldsOk(counts, need)){
+        counts[i] += 2;
+        return true;
+      }
+      counts[i] += 2;
+    }
+    return false;
+  }
+  function mjChowSets(hand, tile){
+    if (tile == null || tile >= 27) return [];
+    const rank = tile % 9;
+    const counts = mjCounts(hand);
+    const sets = [];
+    [[-2, -1], [-1, 1], [1, 2]].forEach(pair => {
+      const a = rank + pair[0];
+      const b = rank + pair[1];
+      if (a < 0 || b > 8) return;
+      const base = tile - rank;
+      const ta = base + a;
+      const tb = base + b;
+      if (counts[ta] > 0 && counts[tb] > 0) sets.push([ta, tb, tile].sort((x, y) => x - y));
+    });
+    return sets;
+  }
+  function mjBestChow(hand, tile){
+    const sets = mjChowSets(hand, tile);
+    return sets.find(set => set.filter(t => t !== tile).every(t => mjCount(hand, t) < 2)) || sets[0] || null;
+  }
+  function mjParts(tile){
+    if (tile >= 31){
+      const dragons = [{ main:'中', cls:'honor red' }, { main:'發', cls:'honor green' }, { main:'白', cls:'honor white' }];
+      return { cls: dragons[tile - 31].cls, main: dragons[tile - 31].main, sub: '' };
+    }
+    if (tile >= 27) return { cls:'honor', main:['東','南','西','北'][tile - 27], sub:'' };
+    const suits = [{ cls:'man', sub:'萬' }, { cls:'bamboo', sub:'索' }, { cls:'dot', sub:'筒' }];
+    const suit = suits[Math.floor(tile / 9)];
+    return { cls: suit.cls, main: String(tile % 9 + 1), sub: suit.sub };
+  }
+  function mjName(tile){
+    if (tile >= 27) return ['East', 'South', 'West', 'North', 'Red', 'Green', 'White'][tile - 27];
+    return (tile % 9 + 1) + [' Characters', ' Bamboo', ' Circles'][Math.floor(tile / 9)];
+  }
+  function mjTileButton(tile, opts){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mj-tile' + (opts.fresh ? ' fresh' : '') + (opts.last ? ' last' : '') + (opts.back ? ' back' : '');
+    btn.disabled = !!opts.disabled;
+    if (!opts.back){
+      const face = mjParts(tile);
+      btn.className += ' ' + face.cls;
+      const main = document.createElement('b');
+      main.textContent = face.main;
+      btn.appendChild(main);
+      if (face.sub){
+        const sub = document.createElement('i');
+        sub.textContent = face.sub;
+        btn.appendChild(sub);
+      }
+      btn.title = mjName(tile);
+      btn.setAttribute('aria-label', mjName(tile));
+    } else btn.setAttribute('aria-hidden', 'true');
+    if (opts.onClick) btn.onclick = opts.onClick;
+    return btn;
+  }
+  function mjPaintMelds(host, melds){
+    if (!host) return;
+    host.innerHTML = '';
+    host.hidden = !melds.length;
+    melds.forEach(set => {
+      set.forEach(tile => host.appendChild(mjTileButton(tile, { disabled: true })));
+    });
+  }
+  function mjRender(){
+    const ai = document.getElementById('mjAi');
+    const discard = document.getElementById('mjDiscard');
+    const hand = document.getElementById('mjHand');
+    const msg = document.getElementById('mjMsg');
+    const showAi = mj.phase === 'over';
+    if (ai){
+      ai.innerHTML = '';
+      mj.ai.forEach(tile => ai.appendChild(mjTileButton(tile, { back: !showAi, disabled: true })));
+    }
+    mjPaintMelds(document.getElementById('mjAiMelds'), mj.aiMelds);
+    mjPaintMelds(document.getElementById('mjMelds'), mj.youMelds);
+    if (discard){
+      discard.innerHTML = '';
+      const recent = mj.pool.slice(-10);
+      recent.forEach((tile, i) => {
+        discard.appendChild(mjTileButton(tile, { disabled: true, last: i === recent.length - 1 }));
+      });
+    }
+    if (hand){
+      hand.innerHTML = '';
+      const canDiscard = mj.phase === 'you';
+      mj.you.forEach((tile, index) => {
+        hand.appendChild(mjTileButton(tile, {
+          disabled: !canDiscard,
+          fresh: canDiscard && tile === mj.drawn && index === mj.you.lastIndexOf(mj.drawn),
+          onClick: () => discardMahjong(index)
+        }));
+      });
+    }
+    if (msg) msg.textContent = mj.msg;
+    const claim = mj.phase === 'claim' && mj.discard && mj.discard.from === 'ai';
+    const pung = document.getElementById('mjPung');
+    const chow = document.getElementById('mjChow');
+    const win = document.getElementById('mjWin');
+    const pass = document.getElementById('mjPass');
+    const resign = document.getElementById('mjResign');
+    const deal = document.getElementById('mjDeal');
+    if (pung) pung.disabled = !(claim && mjCount(mj.you, mj.discard.tile) >= 2);
+    if (chow) chow.disabled = !(claim && mjChowSets(mj.you, mj.discard.tile).length);
+    if (win){
+      const self = mj.phase === 'you' && mjIsWin(mj.you, mj.youMelds.length);
+      const ron = claim && mjIsWin(mj.you.concat(mj.discard.tile), mj.youMelds.length);
+      win.disabled = !(self || ron);
+    }
+    if (pass) pass.disabled = mj.phase !== 'claim';
+    if (resign) resign.disabled = mj.phase !== 'you' && mj.phase !== 'claim';
+    if (deal) deal.disabled = mj.phase === 'you' || mj.phase === 'claim' || mj.phase === 'ai';
+    casinoChipRow('mjChips', () => mj.bet, v => { mj.bet = v; });
+  }
+  function mjPay(who, text){
+    const human = casinoHuman();
+    if (who === 'you' && human){
+      const pay = mj.stake * 2;
+      human.bankroll += pay;
+      mj.msg = text + ' +' + pay;
+    } else if (who === 'draw' && human){
+      human.bankroll += mj.stake;
+      mj.msg = text;
+    } else mj.msg = text;
+    mj.phase = 'over';
+    mj.stake = 0;
+    mj.drawn = null;
+    if (mj.timer) clearTimeout(mj.timer);
+    mj.timer = 0;
+    casinoLock(false);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    mjRender();
+  }
+  function mjKeep(hand, tile){
+    const counts = mjCounts(hand);
+    let score = counts[tile] >= 3 ? 8 : counts[tile] === 2 ? 5 : 0;
+    if (tile >= 27) return score + (counts[tile] === 1 ? -1 : 0);
+    const rank = tile % 9;
+    const base = tile - rank;
+    [-2, -1, 1, 2].forEach(step => {
+      const next = rank + step;
+      if (next < 0 || next > 8) return;
+      if (counts[base + next]) score += Math.abs(step) === 1 ? 3 : 1;
+    });
+    return score;
+  }
+  function mjAiPick(){
+    let pick = mj.ai[0];
+    let worst = Infinity;
+    mj.ai.forEach(tile => {
+      const score = mjKeep(mj.ai, tile);
+      if (score < worst){
+        worst = score;
+        pick = tile;
+      }
+    });
+    return pick;
+  }
+  function mjYouDraw(){
+    if (!mj.wall.length){
+      mjPay('draw', 'Wall empty. Stake returned.');
+      return;
+    }
+    const tile = mj.wall.pop();
+    mj.you.push(tile);
+    mj.drawn = tile;
+    mjSort(mj.you);
+    if (mjIsWin(mj.you, mj.youMelds.length)){
+      mjPay('you', 'You win on the draw.');
+      return;
+    }
+    mj.phase = 'you';
+    mj.msg = 'Your draw is marked. Click a tile to discard.';
+    casinoLock(true);
+    mjRender();
+  }
+  function mjAfterHouseDiscard(){
+    const tile = mj.discard.tile;
+    const canRon = mjIsWin(mj.you.concat(tile), mj.youMelds.length);
+    const canPung = mjCount(mj.you, tile) >= 2;
+    const canChow = mjChowSets(mj.you, tile).length > 0;
+    if (canRon || canPung || canChow){
+      mj.phase = 'claim';
+      mj.msg = 'House discarded ' + mjName(tile) + '. Pung, chow, win, or pass.';
+      casinoLock(true);
+      mjRender();
+      return;
+    }
+    mjYouDraw();
+  }
+  function mjHouseDiscard(){
+    const tile = mjAiPick();
+    mjTake(mj.ai, tile, 1);
+    mj.pool.push(tile);
+    mj.discard = { tile, from: 'ai' };
+    mjAfterHouseDiscard();
+  }
+  function mjAiTurn(){
+    mj.timer = 0;
+    if (mj.phase !== 'ai' || !mj.discard || mj.discard.from !== 'you') return;
+    const tile = mj.discard.tile;
+    if (mjIsWin(mj.ai.concat(tile), mj.aiMelds.length)){
+      mj.ai.push(tile);
+      mj.pool.pop();
+      mjSort(mj.ai);
+      mjPay('ai', 'The house wins on your discard.');
+      return;
+    }
+    if (mjCount(mj.ai, tile) >= 2){
+      mjTake(mj.ai, tile, 2);
+      mj.aiMelds.push([tile, tile, tile]);
+      mj.pool.pop();
+      mj.discard = null;
+      mjHouseDiscard();
+      return;
+    }
+    const chowSets = mjChowSets(mj.ai, tile);
+    const chow = chowSets.find(set => set.filter(t => t !== tile).every(t => mjCount(mj.ai, t) < 2));
+    if (chow){
+      chow.forEach(t => { if (t !== tile) mjTake(mj.ai, t, 1); });
+      mj.aiMelds.push(chow);
+      mj.pool.pop();
+      mj.discard = null;
+      mjHouseDiscard();
+      return;
+    }
+    if (!mj.wall.length){
+      mjPay('draw', 'Wall empty. Stake returned.');
+      return;
+    }
+    mj.ai.push(mj.wall.pop());
+    if (mjIsWin(mj.ai, mj.aiMelds.length)){
+      mjSort(mj.ai);
+      mjPay('ai', 'The house wins on a draw.');
+      return;
+    }
+    mjHouseDiscard();
+  }
+  function discardMahjong(index){
+    if (mj.phase !== 'you') return;
+    const tile = mj.you[index];
+    if (tile == null) return;
+    mj.you.splice(index, 1);
+    mj.drawn = null;
+    mj.pool.push(tile);
+    mj.discard = { tile, from: 'you' };
+    mj.phase = 'ai';
+    mj.msg = 'House is playing…';
+    casinoLock(true);
+    mjRender();
+    mj.timer = setTimeout(mjAiTurn, 420);
+  }
+  function claimMahjongPung(){
+    if (mj.phase !== 'claim' || !mj.discard) return;
+    const tile = mj.discard.tile;
+    if (mjCount(mj.you, tile) < 2) return;
+    mjTake(mj.you, tile, 2);
+    mj.youMelds.push([tile, tile, tile]);
+    mj.pool.pop();
+    mj.discard = null;
+    mj.drawn = null;
+    mj.phase = 'you';
+    mj.msg = 'Pung. Click a tile to discard.';
+    mjRender();
+  }
+  function claimMahjongChow(){
+    if (mj.phase !== 'claim' || !mj.discard) return;
+    const set = mjBestChow(mj.you, mj.discard.tile);
+    if (!set) return;
+    set.forEach(tile => { if (tile !== mj.discard.tile) mjTake(mj.you, tile, 1); });
+    mj.youMelds.push(set);
+    mj.pool.pop();
+    mj.discard = null;
+    mj.drawn = null;
+    mj.phase = 'you';
+    mj.msg = 'Chow. Click a tile to discard.';
+    mjRender();
+  }
+  function mjClaimWin(){
+    if (mj.phase === 'you' && mjIsWin(mj.you, mj.youMelds.length)){
+      mjPay('you', 'You win.');
+      return;
+    }
+    if (mj.phase === 'claim' && mj.discard && mjIsWin(mj.you.concat(mj.discard.tile), mj.youMelds.length)){
+      mj.you.push(mj.discard.tile);
+      mj.pool.pop();
+      mj.discard = null;
+      mjSort(mj.you);
+      mjPay('you', 'You win on the house discard.');
+    }
+  }
+  function passMahjong(){
+    if (mj.phase !== 'claim') return;
+    mjYouDraw();
+  }
+  function resignMahjong(){
+    if (mj.phase !== 'you' && mj.phase !== 'claim') return;
+    if (mj.timer) clearTimeout(mj.timer);
+    mj.stake = 0;
+    mj.phase = 'over';
+    mj.drawn = null;
+    mj.msg = 'You resign. The stake stays with the house.';
+    casinoLock(false);
+    mjRender();
+  }
+  function dealMahjong(){
+    if (mj.phase === 'you' || mj.phase === 'claim' || mj.phase === 'ai') return;
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < mj.bet){
+      mj.msg = 'Not enough in the bank for that chip.';
+      mjRender();
+      return;
+    }
+    if (mj.timer) clearTimeout(mj.timer);
+    human.bankroll -= mj.bet;
+    mj.stake = mj.bet;
+    const wall = [];
+    for (let tile = 0; tile < 34; tile++) for (let n = 0; n < 4; n++) wall.push(tile);
+    for (let i = wall.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const swap = wall[i];
+      wall[i] = wall[j];
+      wall[j] = swap;
+    }
+    mj.you = wall.splice(0, 13);
+    mj.ai = wall.splice(0, 13);
+    const extra = wall.pop();
+    mj.you.push(extra);
+    mj.drawn = extra;
+    mj.wall = wall;
+    mj.youMelds = [];
+    mj.aiMelds = [];
+    mj.pool = [];
+    mj.discard = null;
+    mjSort(mj.you);
+    mjSort(mj.ai);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    if (mjIsWin(mj.you, 0)){
+      mj.phase = 'you';
+      mjPay('you', 'You win on the deal.');
+      return;
+    }
+    mj.phase = 'you';
+    mj.msg = 'Your draw is marked. Click a tile to discard.';
+    casinoLock(true);
+    mjRender();
+  }
+
   function setupRoulette(){
     buildRouletteFelt();
     document.querySelectorAll('.game-switch[data-game]').forEach(btn => {
@@ -7734,6 +8628,30 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (bjStand) bjStand.onclick = bjStandPat;
     if (bjDouble) bjDouble.onclick = bjDoubleDown;
     bjPaintChips();
+    document.querySelectorAll('#bcBets [data-side]').forEach(btn => {
+      btn.onclick = () => bcSetSide(btn.dataset.side);
+    });
+    const bcDealBtn = document.getElementById('bcDeal');
+    if (bcDealBtn) bcDealBtn.onclick = dealBaccarat;
+    const c4New = document.getElementById('c4New');
+    const c4ResignBtn = document.getElementById('c4Resign');
+    if (c4New) c4New.onclick = c4Start;
+    if (c4ResignBtn) c4ResignBtn.onclick = resignConnect4;
+    const mjDealBtn = document.getElementById('mjDeal');
+    const mjPungBtn = document.getElementById('mjPung');
+    const mjChowBtn = document.getElementById('mjChow');
+    const mjWinBtn = document.getElementById('mjWin');
+    const mjPassBtn = document.getElementById('mjPass');
+    const mjResignBtn = document.getElementById('mjResign');
+    if (mjDealBtn) mjDealBtn.onclick = dealMahjong;
+    if (mjPungBtn) mjPungBtn.onclick = claimMahjongPung;
+    if (mjChowBtn) mjChowBtn.onclick = claimMahjongChow;
+    if (mjWinBtn) mjWinBtn.onclick = mjClaimWin;
+    if (mjPassBtn) mjPassBtn.onclick = passMahjong;
+    if (mjResignBtn) mjResignBtn.onclick = resignMahjong;
+    bcRender();
+    c4Render();
+    mjRender();
     const slotHandle = document.getElementById('slotHandle');
     const slotSpinBtn = document.getElementById('slotSpin');
     const slotRelease = () => {
