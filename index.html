@@ -699,7 +699,7 @@ button.chip.active strong{ color:#d7b4ff; }
   display:flex; gap:12px; align-items:center; flex-wrap:wrap;
   font-size: 14px;
 }
-.balance .bank{ color: var(--accent-3); font-weight:800;}
+.balance .bank{ color: var(--accent-3); font-weight:800; font-size:22px; line-height:1; }
 .balance .winnings{ color:#9fd3ff;}
 
 .player .betrow{ grid-column: 1 / -1; display:grid; grid-template-columns: 0.9fr 1.1fr auto; gap:8px; align-items:center; }
@@ -3785,6 +3785,10 @@ body.view-3d .scanlines{ opacity:0.16; }
     showCountdownSetting();
     if (GAME.state.phase === 'BETTING_OPEN'){
       GAME.state.countdownEndAt = Date.now() + sec * 1000;
+      if (sec > 3){
+        raceClockArmed = false;
+        hideRaceCount();
+      }
       renderTopbar();
     }
     if (resultsCountdownTid) beginResultsCountdown(null);
@@ -3795,64 +3799,80 @@ body.view-3d .scanlines{ opacity:0.16; }
     setCountdownSec(COUNTDOWN_STEPS[(i + 1) % COUNTDOWN_STEPS.length]);
   }
 
+  let raceClockArmed = false;
+
+  function hideRaceCount(){
+    const countOverlay = document.getElementById('countOverlay');
+    if (countOverlay) countOverlay.style.display = 'none';
+    document.querySelectorAll('.player').forEach(el => el.classList.remove('counting'));
+  }
+
+  function cueRaceCount(){
+    if (raceClockArmed) return;
+    raceClockArmed = true;
+    clearPlaceMarks();
+    requestOrbitHome();
+    startCommentaryIfEnabled();
+    renderRacePositionsInitial();
+    placeFinishFlag();
+  }
+
+  function stopRaceClock(){
+    if (countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
+    startCountdownTid = null;
+  }
+
+  function tickRaceClock(){
+    if (GAME.state.phase === 'RACING'){
+      stopRaceClock();
+      return;
+    }
+    if (GAME.state.rouletteOpen){
+      GAME.state.countdownEndAt += 200;
+      return;
+    }
+    const ms = GAME.state.countdownEndAt - Date.now();
+    const secs = Math.max(0, Math.ceil(ms / 1000));
+    const countOverlay = document.getElementById('countOverlay');
+    const countNum = document.getElementById('countNum');
+    if (ms <= 0){
+      stopRaceClock();
+      hideRaceCount();
+      startRace();
+      return;
+    }
+    if (secs <= 3){
+      if (countOverlay && countNum){
+        countOverlay.style.display = 'flex';
+        countNum.textContent = String(secs);
+      }
+      document.querySelectorAll('.player').forEach(el => el.classList.add('counting'));
+      if (secs === 3) cueRaceCount();
+      paintRaceBoard();
+    } else {
+      raceClockArmed = false;
+      orbitHomeSent = false;
+      if (countOverlay && countOverlay.style.display !== 'none') hideRaceCount();
+    }
+    renderTopbar();
+  }
+
+  function runRaceClock(){
+    stopRaceClock();
+    GAME.state.phase = 'BETTING_OPEN';
+    tickRaceClock();
+    if (GAME.state.phase === 'RACING') return;
+    countdownTimer = setInterval(tickRaceClock, 200);
+  }
+
   function openBetting(seconds){
     if (GAME.state.phase === 'RACING') return;
     const span = (seconds == null) ? countdownSec() : seconds;
-    GAME.state.phase = 'BETTING_OPEN';
     orbitHomeSent = false;
+    raceClockArmed = false;
     updateInfieldBoard();
-    const now = Date.now();
-    GAME.state.countdownEndAt = now + span*1000;
-    if (countdownTimer) clearInterval(countdownTimer);
-    const countOverlay = document.getElementById('countOverlay');
-    const countNum = document.getElementById('countNum');
-    countdownTimer = setInterval(()=>{
-      if (startCountdownTid || GAME.state.phase === 'RACING'){
-        clearInterval(countdownTimer);
-        countdownTimer = null;
-        return;
-      }
-      if (GAME.state.rouletteOpen){
-        GAME.state.countdownEndAt += 200;
-        return;
-      }
-      const ms = GAME.state.countdownEndAt - Date.now();
-      if (ms <= 0){
-        clearInterval(countdownTimer);
-        countdownTimer = null;
-        if (countOverlay) countOverlay.style.display = 'none';
-        closeBetting();
-        startRace();
-      } else {
-        // big 3-2-1
-        const secs = Math.ceil(ms/1000);
-        if (secs <= 3){
-          if (countOverlay && countNum){
-            countOverlay.style.display = 'flex';
-            countNum.textContent = String(secs);
-          }
-          if (secs === 3){
-            clearPlaceMarks();
-            requestOrbitHome();
-            startCommentaryIfEnabled();
-            // ensure horses are visually at the start line
-            renderRacePositionsInitial();
-            placeFinishFlag();
-          }
-          paintRaceBoard();
-          // pulse player borders during countdown
-          document.querySelectorAll('.player').forEach(el=>{
-            el.classList.add('counting');
-          });
-        } else {
-          if (countOverlay) countOverlay.style.display = 'none';
-          document.querySelectorAll('.player').forEach(el=>{
-            el.classList.remove('counting');
-          });
-        }
-      }
-      renderTopbar();
-    }, 200);
+    GAME.state.countdownEndAt = Date.now() + span * 1000;
+    runRaceClock();
     render();
     updateBetToggleLabel();
     // setup auto 30s loop when not in championship mode
@@ -3872,8 +3892,10 @@ body.view-3d .scanlines{ opacity:0.16; }
     }
   }
   function closeBetting(){
-    if (countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; }
-    if (GAME.state.phase === 'RACING' || startCountdownTid) return;
+    if (GAME.state.phase === 'RACING') return;
+    const remain = (GAME.state.countdownEndAt || 0) - Date.now();
+    if (countdownTimer && remain > 0 && remain <= 3000) return;
+    stopRaceClock();
     GAME.state.phase = 'BETTING_CLOSED';
     renderTopbar();
     renderPlayersControls();
@@ -3889,62 +3911,49 @@ body.view-3d .scanlines{ opacity:0.16; }
     document.querySelectorAll('.player').forEach(el => el.classList.remove('counting'));
   }
 
-  /** Big 3-2-1 overlay, then start the race. Starts commentary at "3" if armed. */
+  /** Join the countdown already on the board. The 3-2-1 uses that same clock. */
   function beginRaceStartCountdown(){
     if (GAME.state.phase === 'RACING') return;
-    if (startCountdownTid) return; // already counting down
-    clearPlaceMarks();
-    const liveOverlay = document.getElementById('countOverlay');
-    const bettingCountdownVisible = countdownTimer && liveOverlay && liveOverlay.style.display === 'flex';
     if (GAME.state.autoTimer){ clearTimeout(GAME.state.autoTimer); GAME.state.autoTimer = null; }
+    const resultsLeft = resultsCountdownEndAt ? resultsCountdownEndAt - Date.now() : 0;
+    const betLeft = countdownTimer ? (GAME.state.countdownEndAt || 0) - Date.now() : 0;
+    if (resultsLeft > 0){
+      const endAt = resultsLeft > 3000 ? Date.now() + 3000 : resultsCountdownEndAt;
+      prepareNextHeat();
+      clearResultsCountdown();
+      resultsProceeded = true;
+      orbitHomeSent = false;
+      raceClockArmed = false;
+      GAME.state.countdownEndAt = endAt;
+      runRaceClock();
+      renderTopbar();
+      updateBetToggleLabel();
+      updatePlayerBorders();
+      updateInfieldBoard();
+      return;
+    }
+    if (betLeft > 0){
+      if (betLeft > 3000){
+        GAME.state.countdownEndAt = Date.now() + 3000;
+        orbitHomeSent = false;
+        raceClockArmed = false;
+      }
+      GAME.state.phase = 'BETTING_OPEN';
+      renderTopbar();
+      updateBetToggleLabel();
+      updatePlayerBorders();
+      return;
+    }
     clearResultsCountdown();
     resultsProceeded = true;
-    // The betting clock already has the big 3-2-1 on screen. Leave that one to finish.
-    if (bettingCountdownVisible) return;
     orbitHomeSent = false;
-    if (countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
-    // Same window as the opening race: the big 3-2-1 still takes bets.
-    GAME.state.phase = 'BETTING_OPEN';
+    raceClockArmed = false;
     GAME.state.countdownEndAt = Date.now() + 3000;
+    runRaceClock();
     renderTopbar();
     updateBetToggleLabel();
     updatePlayerBorders();
     updateInfieldBoard();
-
-    let n = 3;
-    const countOverlay = document.getElementById('countOverlay');
-    const countNum = document.getElementById('countNum');
-    const pulse = () => {
-      document.querySelectorAll('.player').forEach(el => el.classList.add('counting'));
-    };
-
-    const tick = () => {
-      if (GAME.state.rouletteOpen) return;
-      if (n > 0){
-        GAME.state.phase = 'BETTING_OPEN';
-        GAME.state.countdownEndAt = Date.now() + n * 1000;
-        if (countOverlay && countNum){
-          countOverlay.style.display = 'flex';
-          countNum.textContent = String(n);
-        }
-        if (n === 3){
-          requestOrbitHome();
-          startCommentaryIfEnabled();
-          renderRacePositionsInitial();
-          placeFinishFlag();
-        }
-        paintRaceBoard();
-        pulse();
-        renderTopbar();
-        updatePlayerBorders();
-        n -= 1;
-      } else {
-        clearRaceStartCountdown();
-        startRace();
-      }
-    };
-    tick();
-    startCountdownTid = setInterval(tick, 1000);
   }
 
   // ---------- Race simulation ----------
@@ -4294,19 +4303,9 @@ body.view-3d .scanlines{ opacity:0.16; }
     resultsCountdownEndAt = 0;
   }
 
-  function proceedAfterResults(){
-    if (resultsProceeded) return;
-    if (GAME.state.phase === 'RACING' || startCountdownTid){
-      resultsProceeded = true;
-      clearResultsCountdown();
-      return;
-    }
-    resultsProceeded = true;
-    clearResultsCountdown();
+  function prepareNextHeat(){
     const overlay = document.getElementById('resultsOverlay');
     if (overlay) overlay.style.display = 'none';
-    // The finished race must not keep drawing horses. The new stalls
-    // are assigned and shown now, before the 3-2-1.
     race = null;
     if (GAME.state.championship){
       if (GAME.state.heat === 'trialA'){
@@ -4322,9 +4321,17 @@ body.view-3d .scanlines{ opacity:0.16; }
       GAME.state.heat = 'trialA';
       GAME.state.qualifiers = { trialA: [], trialB: [] };
     }
-    GAME.state.phase = 'BETTING_CLOSED';
     GAME.players.forEach(p => { p.bets = p.bets.filter(b => !b.result); });
     setupHeat();
+  }
+
+  function proceedAfterResults(){
+    if (resultsProceeded) return;
+    if (GAME.state.phase === 'RACING'){
+      resultsProceeded = true;
+      clearResultsCountdown();
+      return;
+    }
     beginRaceStartCountdown();
   }
 
@@ -4342,6 +4349,25 @@ body.view-3d .scanlines{ opacity:0.16; }
       }
       const ms = resultsCountdownEndAt - Date.now();
       const s = Math.max(0, Math.ceil(ms/1000));
+      if (ms <= 3000){
+        const endAt = resultsCountdownEndAt;
+        resultsProceeded = true;
+        prepareNextHeat();
+        clearResultsCountdown();
+        orbitHomeSent = false;
+        raceClockArmed = false;
+        GAME.state.countdownEndAt = endAt > Date.now() ? endAt : Date.now();
+        if (GAME.state.countdownEndAt - Date.now() <= 0){
+          startRace();
+          return;
+        }
+        runRaceClock();
+        renderTopbar();
+        updateBetToggleLabel();
+        updatePlayerBorders();
+        updateInfieldBoard();
+        return;
+      }
       const clock = `00:${(s<10?'0':'')+s}`;
       if (useInfieldBtn){
         const btn = document.getElementById('infieldNextBtn');
@@ -5447,7 +5473,9 @@ body.view-3d .scanlines{ opacity:0.16; }
 
   // ---------- Admin buttons ----------
   function resetActiveCountdown(){
-    if (GAME.state.phase === 'RACING' || startCountdownTid) return;
+    if (GAME.state.phase === 'RACING') return;
+    const remain = countdownTimer ? (GAME.state.countdownEndAt || 0) - Date.now() : 0;
+    if (remain > 0 && remain <= 3000) return;
     if (resultsCountdownTid){
       beginResultsCountdown(GAME.state.trackMode === 'course' ? null : document.getElementById('ovTimer'));
     }
