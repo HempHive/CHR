@@ -145,6 +145,8 @@
       let orbitAtFinish = false;
       let orbitFollowT = null;
       let orbitLookT = null;
+      let orbitLookVel = 0;
+      let orbitPaceT = null;
       let orbitHoldFinish = null;
       let orbitStretchSm = null;
       let latchedFocusId = null;
@@ -3316,12 +3318,25 @@
             // Walking the parameter down would send the camera the wrong way
             // around the lap during the countdown.
             const easeTrackT = (current, target) => {
-              if (current == null || target + 0.25 < current) return target;
-              const maxStep = dt * 0.12;
-              let step = target - current;
-              if (step > maxStep) step = maxStep;
-              else if (step < -maxStep) step = -maxStep;
-              return current + step;
+              if (current == null || target + 0.25 < current) {
+                orbitLookVel = 0;
+                orbitPaceT = target;
+                return target;
+              }
+              let gap = target - current;
+              if (gap > 0.5) gap -= 1;
+              if (gap < -0.5) gap += 1;
+              let pace = 0;
+              if (orbitPaceT != null && dt > 0) {
+                let moved = target - orbitPaceT;
+                if (moved > 0.5) moved -= 1;
+                if (moved < -0.5) moved += 1;
+                if (moved > 0) pace = moved / dt;
+              }
+              orbitPaceT = target;
+              const vk = 1 - Math.exp(-Math.max(0.001, dt) * 1.5);
+              orbitLookVel += ((pace + gap * 0.65) - orbitLookVel) * vk;
+              return current + orbitLookVel * dt;
             };
             const entries = fieldEntries();
             let targetT = game.state.trackTOffset || 0;
@@ -3332,8 +3347,8 @@
             const midLane = (api.currentLaneCount() - 1) / 2;
             let wantT = targetT;
             if (game.state.phase === 'RACING' && focus && focus.t != null) wantT = focus.t;
-            orbitFollowT = easeTrackT(orbitFollowT, wantT);
             orbitLookT = easeTrackT(orbitLookT, wantT);
+            orbitFollowT = orbitLookT;
             const along = worldPose(orbitLookT, midLane);
             desiredLook.set(along.x, 0.8, along.z);
             orbitGlide = true;
@@ -3522,6 +3537,8 @@
       function joinOrbit() {
         orbitFollowT = null;
         orbitLookT = null;
+        orbitLookVel = 0;
+        orbitPaceT = null;
         orbitEase = false;
         const stretch = game.state.phase === 'RACING' ? orbitStretch() : 0;
         orbitStretchSm = stretch;
