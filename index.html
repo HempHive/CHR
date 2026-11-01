@@ -938,6 +938,18 @@ dialog.rules-dialog::backdrop{ background:rgba(4,10,18,0.72); }
   color:#ffd166;
 }
 .rules-wrap p{ margin:0; color:#d7e6f8; font-size:14px; line-height:1.45; }
+.rules-wrap label{ display:block; font-size:13px; color:#d7e6ff; }
+.rules-wrap select{
+  display:block;
+  width:100%;
+  margin-top:6px;
+  background:#0c1624;
+  color:#e8f1ff;
+  border:1px solid rgba(226,179,74,0.45);
+  border-radius:8px;
+  padding:8px 10px;
+  font:inherit;
+}
 .rules-wrap p + p{ margin-top:6px; }
 .rules-actions{ display:flex; justify-content:flex-end; }
 .rules-actions button{
@@ -2000,7 +2012,7 @@ body.view-3d .scanlines{ opacity:0.16; }
         <div class="chip"><strong>State</strong><span id="stateChip">OPEN BET</span></div>
         <div class="status" id="betStatus"><span class="dot"></span><span id="betText">OPEN BET</span> <span class="countdown" id="betCountdown">20</span></div>
         <button type="button" class="chip" id="countdownChip" title="Betting countdown and next-race wait. Cycles 10, 15, 20, 25, and 30 seconds."><strong>Countdown</strong><span id="countdown">20</span>s</button>
-        <button type="button" class="chip" id="cameraChip" title="Camera. Cycles Broadcast, Rail, Chase, Finish, Grandstand, Drone, Jockey, and Orbit."><strong>Camera</strong><span id="cameraChipLabel">Orbit</span></button>
+        <button type="button" class="chip" id="cameraChip" title="Camera. Cycles Broadcast, Rail, Chase, Finish, Helicopter, Grandstand, Drone, Jockey, and Orbit."><strong>Camera</strong><span id="cameraChipLabel">Orbit</span></button>
         <button type="button" class="chip" id="btnLaps" title="Race length. Cycles 1, 2, and 3 laps."><strong>Laps</strong><span id="lapsChip">1</span></button>
         <button type="button" class="chip" id="btnCommentary" title="Commentary"><strong>Commentary</strong></button>
       </div>
@@ -2115,6 +2127,7 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" data-cam="rail">Rail</button>
           <button type="button" data-cam="chase">Chase</button>
           <button type="button" data-cam="finish">Finish</button>
+          <button type="button" data-cam="helicopter">Helicopter</button>
           <button type="button" data-cam="stands">Grandstand</button>
           <button type="button" data-cam="drone">Drone</button>
           <button type="button" data-cam="jockey">Jockey</button>
@@ -2288,6 +2301,13 @@ body.view-3d .scanlines{ opacity:0.16; }
   <div class="rules-wrap">
     <h3>Arcade Racing</h3>
     <section>
+      <h4>Settings</h4>
+      <label>Favourite club
+        <select id="favTeam" aria-label="Favourite club"></select>
+      </label>
+      <p>The grandstand board uses this club’s league. Click that board for the table, then again for the next match. A third click returns to the race.</p>
+    </section>
+    <section>
       <h4>Betting</h4>
       <p>Tap a horse to add 10 on a win. Tap Place under that horse to add 10 on a place. Tap again to add another 10. Clear Bets removes that player’s wagers. +50 and +100 add to the bank.</p>
       <p>A win pays stake × the horse’s odds. A place pays if the horse finishes in the places. With eight runners that is the first three, at one fifth of the win odds. In a smaller field it is the first two, at one quarter of the win odds.</p>
@@ -2400,7 +2420,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js?v=orbitlaps"></script>
+<script src="view3d.js?v=smooth"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING
@@ -3656,8 +3676,8 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
 
   function betsAccepted(){
+    // The 3-2-1 stays open on every race. Betting stops when the race itself starts.
     if (GAME.state.phase === 'RACING') return false;
-    if (startCountdownTid) return false;
     return true;
   }
 
@@ -3884,7 +3904,9 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (bettingCountdownVisible) return;
     orbitHomeSent = false;
     if (countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
-    GAME.state.phase = 'BETTING_CLOSED';
+    // Same window as the opening race: the big 3-2-1 still takes bets.
+    GAME.state.phase = 'BETTING_OPEN';
+    GAME.state.countdownEndAt = Date.now() + 3000;
     renderTopbar();
     updateBetToggleLabel();
     updatePlayerBorders();
@@ -3900,6 +3922,8 @@ body.view-3d .scanlines{ opacity:0.16; }
     const tick = () => {
       if (GAME.state.rouletteOpen) return;
       if (n > 0){
+        GAME.state.phase = 'BETTING_OPEN';
+        GAME.state.countdownEndAt = Date.now() + n * 1000;
         if (countOverlay && countNum){
           countOverlay.style.display = 'flex';
           countNum.textContent = String(n);
@@ -3912,6 +3936,8 @@ body.view-3d .scanlines{ opacity:0.16; }
         }
         paintRaceBoard();
         pulse();
+        renderTopbar();
+        updatePlayerBorders();
         n -= 1;
       } else {
         clearRaceStartCountdown();
@@ -5524,7 +5550,49 @@ body.view-3d .scanlines{ opacity:0.16; }
   const brandTitle = document.getElementById('brandTitle');
   const rulesDialog = document.getElementById('rulesDialog');
   const rulesClose = document.getElementById('rulesClose');
-  if (brandTitle && rulesDialog) brandTitle.onclick = () => rulesDialog.showModal();
+  async function fillFavTeams(){
+    const sel = document.getElementById('favTeam');
+    if (!sel || !view3d || !view3d.loadClubs) return;
+    const fav = view3d.getFavouriteClub ? view3d.getFavouriteClub() : null;
+    if (sel.dataset.ready === '1'){
+      if (fav) sel.value = fav.league + '|' + fav.id;
+      return;
+    }
+    sel.innerHTML = '<option>Loading clubs…</option>';
+    try {
+      const groups = await view3d.loadClubs();
+      sel.innerHTML = '';
+      groups.forEach(group => {
+        const og = document.createElement('optgroup');
+        og.label = group.label;
+        group.teams.forEach(team => {
+          const opt = document.createElement('option');
+          opt.value = group.code + '|' + team.id;
+          opt.textContent = team.name;
+          og.appendChild(opt);
+        });
+        sel.appendChild(og);
+      });
+      sel.dataset.ready = '1';
+      if (fav) sel.value = fav.league + '|' + fav.id;
+    } catch (err) {
+      sel.innerHTML = '<option value="eng.3|307">Plymouth Argyle</option>';
+    }
+  }
+  const favTeam = document.getElementById('favTeam');
+  if (favTeam){
+    favTeam.onchange = () => {
+      if (!view3d || !view3d.setFavouriteClub) return;
+      const picked = favTeam.selectedOptions && favTeam.selectedOptions[0];
+      const parts = String(favTeam.value || '').split('|');
+      if (parts.length < 2 || !picked) return;
+      view3d.setFavouriteClub({ league: parts[0], id: parts[1], name: picked.textContent });
+    };
+  }
+  if (brandTitle && rulesDialog) brandTitle.onclick = () => {
+    rulesDialog.showModal();
+    fillFavTeams();
+  };
   if (rulesClose && rulesDialog) rulesClose.onclick = () => rulesDialog.close();
 
   // ---------- Roulette ----------

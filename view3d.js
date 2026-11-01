@@ -8,6 +8,7 @@
     { id: 'rail', label: 'Rail' },
     { id: 'chase', label: 'Chase' },
     { id: 'finish', label: 'Finish' },
+    { id: 'helicopter', label: 'Helicopter' },
     { id: 'stands', label: 'Grandstand' },
     { id: 'drone', label: 'Drone' },
     { id: 'jockey', label: 'Jockey' },
@@ -122,7 +123,7 @@
       const ZOOM_MIN = 0.55;
       const ZOOM_MAX = 2.15;
       const zoomByCam = {
-        broadcast: 1, rail: 1, chase: 1, finish: 1, stands: 1, drone: 1, jockey: 1, orbit: ZOOM_MIN
+        broadcast: 1, rail: 1, chase: 1, finish: 1, helicopter: 1, stands: 1, drone: 1, jockey: 1, orbit: ZOOM_MIN
       };
       let zoom = ZOOM_MIN;
       let gateOpen = 0;
@@ -145,6 +146,12 @@
       let orbitFollowT = null;
       let orbitLookT = null;
       let orbitHoldFinish = null;
+      let latchedFocusId = null;
+      let focusLatchUntil = 0;
+      let followRig = null;
+      let headingPrev = null;
+      let cornerBlend = 0;
+      const _focusPos = new THREE.Vector3();
       const refs = { spots: [], bulbs: [] };
       const GEO = {};
       const MAT = {};
@@ -507,12 +514,308 @@
         geo.setAttribute('color', new THREE.BufferAttribute(arr, 3));
       }
 
+      const FOOT_LEAGUES = [
+        { code: 'eng.1', label: 'Premier League' },
+        { code: 'eng.2', label: 'Championship' },
+        { code: 'eng.3', label: 'League One' },
+        { code: 'eng.4', label: 'League Two' }
+      ];
+      const DEFAULT_CLUB = { id: '307', league: 'eng.3', name: 'Plymouth Argyle' };
+      const FAV_KEY = 'chr-favourite-club';
+      let boardMode = 0;
+      let favClub = readFavClub();
+      const footTables = {};
+      const footFixtures = {};
+
+      function readFavClub() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(FAV_KEY) || '');
+          if (saved && saved.id && saved.league && saved.name) {
+            return { id: String(saved.id), league: String(saved.league), name: String(saved.name) };
+          }
+        } catch (err) { /* keep the default club */ }
+        return { id: DEFAULT_CLUB.id, league: DEFAULT_CLUB.league, name: DEFAULT_CLUB.name };
+      }
+
+      function tidyLeagueName(name) {
+        return String(name || '')
+          .replace(/^\d{4}[-–]\d{2,4}\s*/, '')
+          .replace(/^English\s+/, '')
+          || 'League';
+      }
+
+      function paintBoardFrame(g, W, H, skin) {
+        g.fillStyle = '#071422';
+        g.fillRect(0, 0, W, H);
+        g.strokeStyle = skin.cyber ? '#17f0ff' : '#f2d48a';
+        g.lineWidth = 14;
+        g.strokeRect(10, 10, W - 20, H - 20);
+      }
+
+      function trimText(g, text, width) {
+        const raw = String(text || '');
+        if (g.measureText(raw).width <= width) return raw;
+        let cut = raw;
+        while (cut.length > 1 && g.measureText(cut + '…').width > width) cut = cut.slice(0, -1);
+        return cut + '…';
+      }
+
+      async function fetchLeagueTable(code) {
+        const hit = footTables[code];
+        if (hit && Date.now() - hit.at < 5 * 60 * 1000) return hit;
+        const res = await fetch('https://site.api.espn.com/apis/v2/sports/soccer/' + code + '/standings');
+        if (!res.ok) throw new Error('standings');
+        const data = await res.json();
+        const child = (data.children || [])[0] || {};
+        const entries = (child.standings && child.standings.entries) || [];
+        const rows = entries.map(entry => {
+          const stats = {};
+          (entry.stats || []).forEach(s => { stats[s.name] = s.displayValue; });
+          const team = entry.team || {};
+          return {
+            id: String(team.id || ''),
+            name: team.displayName || team.name || '',
+            rank: Number(stats.rank) || 0,
+            p: stats.gamesPlayed || '',
+            w: stats.wins || '',
+            d: stats.ties || '',
+            l: stats.losses || '',
+            gd: stats.pointDifferential || '',
+            pts: stats.points || ''
+          };
+        }).sort((a, b) => a.rank - b.rank);
+        const pack = { at: Date.now(), name: tidyLeagueName(child.name), rows, error: '' };
+        footTables[code] = pack;
+        return pack;
+      }
+
+      function fixtureFromEvent(ev, club) {
+        const comp = (ev.competitions || [])[0] || {};
+        const status = ((comp.status || {}).type) || {};
+        if (status.completed) return null;
+        const sides = {};
+        let mine = false;
+        (comp.competitors || []).forEach(c => {
+          const team = c.team || {};
+          sides[c.homeAway] = team.displayName || '';
+          if (String(team.id) === String(club.id) || (team.displayName || '').toLowerCase() === club.name.toLowerCase()) mine = true;
+        });
+        if (!mine) return null;
+        return {
+          at: Date.now(),
+          empty: false,
+          error: '',
+          when: ev.date,
+          venue: (comp.venue || {}).fullName || '',
+          home: sides.home || '',
+          away: sides.away || '',
+          team: club.name
+        };
+      }
+
+      async function fetchNextFixture(club) {
+        const key = club.league + ':' + club.id;
+        const hit = footFixtures[key];
+        if (hit && !hit.error && Date.now() - hit.at < 5 * 60 * 1000) return hit;
+        const start = new Date();
+        const dates = [];
+        for (let i = 0; i < 21; i++) {
+          const d = new Date(start.getTime() + i * 86400000);
+          const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+          const day = String(d.getUTCDate()).padStart(2, '0');
+          dates.push('' + d.getUTCFullYear() + m + day);
+        }
+        let found = null;
+        for (let i = 0; i < dates.length && !found; i += 7) {
+          const boards = await Promise.all(dates.slice(i, i + 7).map(async date => {
+            const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/' + club.league + '/scoreboard?dates=' + date);
+            if (!res.ok) return [];
+            const data = await res.json();
+            return data.events || [];
+          }));
+          const events = boards.flat().sort((a, b) => String(a.date).localeCompare(String(b.date)));
+          for (let n = 0; n < events.length; n++) {
+            found = fixtureFromEvent(events[n], club);
+            if (found) break;
+          }
+        }
+        const pack = found || { at: Date.now(), empty: true, error: '', team: club.name };
+        footFixtures[key] = pack;
+        return pack;
+      }
+
+      function ensureFootball(mode) {
+        const club = favClub;
+        const job = mode === 2 ? fetchNextFixture(club) : fetchLeagueTable(club.league);
+        job.then(() => { if (boardMode === mode) paintTote(); }).catch(() => {
+          if (mode === 2) footFixtures[club.league + ':' + club.id] = { at: Date.now(), empty: true, error: 'unavailable', team: club.name };
+          else footTables[club.league] = { at: Date.now(), name: '', rows: [], error: 'unavailable' };
+          if (boardMode === mode) paintTote();
+        });
+      }
+
+      function paintLeagueBoard(g, W, H, skin) {
+        paintBoardFrame(g, W, H, skin);
+        const table = footTables[favClub.league];
+        const leagueLabel = (table && table.name) || (FOOT_LEAGUES.find(l => l.code === favClub.league) || {}).label || 'League';
+        g.textAlign = 'left';
+        g.fillStyle = skin.cyber ? '#17f0ff' : '#f6e7b2';
+        g.font = '800 36px system-ui, sans-serif';
+        g.fillText(leagueLabel.toUpperCase(), 36, 58);
+        g.fillStyle = '#ffd166';
+        g.font = '700 22px system-ui, sans-serif';
+        g.textAlign = 'right';
+        g.fillText(favClub.name.toUpperCase(), W - 36, 56);
+        g.textAlign = 'left';
+        g.fillStyle = '#b7dcff';
+        g.font = '600 18px system-ui, sans-serif';
+        g.fillText(table && table.rows && table.rows.length ? 'CLICK AGAIN FOR THE NEXT MATCH' : 'LOADING THE TABLE', 36, 88);
+        if (!table || !table.rows) return;
+        if (table.error) {
+          g.fillStyle = '#ffd166';
+          g.font = '700 28px system-ui, sans-serif';
+          g.fillText('TABLE UNAVAILABLE', 36, 180);
+          return;
+        }
+        const header = 112;
+        const avail = H - header - 14;
+        let size = 26;
+        let cols = 1;
+        let rowH = size + 8;
+        let per = Math.floor(avail / rowH);
+        if (per < table.rows.length) {
+          cols = 2;
+          while (per * cols < table.rows.length && size > 22) {
+            size -= 1;
+            rowH = size + 7;
+            per = Math.floor(avail / rowH);
+          }
+        }
+        const count = Math.min(table.rows.length, per * cols);
+        const shown = table.rows.slice(0, count);
+        const gap = 28;
+        const colW = (W - 56 - gap * (cols - 1)) / cols;
+        const labels = ['P', 'W', 'D', 'L', 'GD', 'PTS'];
+        const keys = ['p', 'w', 'd', 'l', 'gd', 'pts'];
+        const slotW = [1.9, 1.6, 1.6, 1.6, 2.2, 2.3].map(n => n * size);
+        const statsW = slotW.reduce((sum, n) => sum + n, 0);
+        function paintStatHead(x, y) {
+          let sx = x + colW - 8;
+          g.textAlign = 'right';
+          for (let s = labels.length - 1; s >= 0; s--) {
+            g.fillText(labels[s], sx, y);
+            sx -= slotW[s];
+          }
+        }
+        g.font = '700 ' + Math.max(12, size - 3) + 'px system-ui, sans-serif';
+        g.fillStyle = '#8fb4d8';
+        for (let c = 0; c < cols; c++) {
+          const x = 32 + c * (colW + gap);
+          g.textAlign = 'left';
+          g.fillText('#', x, header - 4);
+          g.fillText('CLUB', x + size * 1.8, header - 4);
+          paintStatHead(x, header - 4);
+        }
+        g.font = '700 ' + size + 'px system-ui, sans-serif';
+        shown.forEach((row, i) => {
+          const col = cols === 1 ? 0 : (i < per ? 0 : 1);
+          const line = cols === 1 ? i : (i < per ? i : i - per);
+          const x = 32 + col * (colW + gap);
+          const y = header + 22 + line * rowH;
+          const mine = row.id === String(favClub.id);
+          if (mine) {
+            g.fillStyle = 'rgba(255, 209, 102, 0.16)';
+            g.fillRect(x - 8, y - size + 4, colW - 4, rowH - 3);
+          }
+          g.textAlign = 'left';
+          g.fillStyle = mine ? '#ffd166' : '#e8f4ff';
+          g.fillText(String(row.rank), x, y);
+          const nameMax = Math.max(40, colW - statsW - size * 2.4);
+          g.fillText(trimText(g, row.name, nameMax), x + size * 1.8, y);
+          let sx = x + colW - 8;
+          g.textAlign = 'right';
+          g.fillStyle = mine ? '#ffe7a3' : '#d5e8ff';
+          for (let s = keys.length - 1; s >= 0; s--) {
+            g.fillText(String(row[keys[s]] || ''), sx, y);
+            sx -= slotW[s];
+          }
+        });
+      }
+
+      function paintNextBoard(g, W, H, skin) {
+        paintBoardFrame(g, W, H, skin);
+        const pack = footFixtures[favClub.league + ':' + favClub.id];
+        const leagueLabel = ((footTables[favClub.league] || {}).name) || (FOOT_LEAGUES.find(l => l.code === favClub.league) || {}).label || '';
+        g.textAlign = 'left';
+        g.fillStyle = '#ffd166';
+        g.font = '800 28px system-ui, sans-serif';
+        g.fillText('NEXT MATCH', 40, 64);
+        g.fillStyle = '#b7dcff';
+        g.font = '600 20px system-ui, sans-serif';
+        g.textAlign = 'right';
+        g.fillText(leagueLabel.toUpperCase(), W - 40, 62);
+        g.textAlign = 'center';
+        if (!pack) {
+          g.fillStyle = '#f6e7b2';
+          g.font = '700 32px system-ui, sans-serif';
+          g.fillText('LOADING ' + favClub.name.toUpperCase(), W / 2, H / 2);
+          return;
+        }
+        if (pack.error || pack.empty) {
+          g.fillStyle = '#f6e7b2';
+          g.font = '800 40px system-ui, sans-serif';
+          g.fillText(favClub.name.toUpperCase(), W / 2, 160);
+          g.fillStyle = '#ffd166';
+          g.font = '700 28px system-ui, sans-serif';
+          g.fillText(pack.error ? 'FIXTURE UNAVAILABLE' : 'NO FIXTURE LISTED', W / 2, 230);
+          return;
+        }
+        const home = pack.home || '';
+        const away = pack.away || '';
+        const favHome = home.toLowerCase() === favClub.name.toLowerCase();
+        const opponent = favHome ? away : home;
+        const where = favHome ? 'HOME TO' : 'AWAY AT';
+        let when = '';
+        if (pack.when) {
+          const dt = new Date(pack.when);
+          when = dt.toLocaleString('en-GB', {
+            weekday: 'short', day: 'numeric', month: 'short',
+            hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London'
+          });
+        }
+        g.fillStyle = '#f6e7b2';
+        g.font = '800 48px system-ui, sans-serif';
+        g.fillText(trimText(g, favClub.name.toUpperCase(), W - 120), W / 2, 150);
+        g.fillStyle = '#8fb4d8';
+        g.font = '700 24px system-ui, sans-serif';
+        g.fillText(where, W / 2, 196);
+        g.fillStyle = '#e8f4ff';
+        g.font = '800 42px system-ui, sans-serif';
+        g.fillText(trimText(g, opponent.toUpperCase(), W - 120), W / 2, 252);
+        g.fillStyle = '#ffd166';
+        g.font = '700 28px system-ui, sans-serif';
+        g.fillText(when, W / 2, 312);
+        g.fillStyle = '#b7dcff';
+        g.font = '600 22px system-ui, sans-serif';
+        g.fillText(pack.venue || '', W / 2, 348);
+      }
+
       function paintTote() {
         const c = toteCanvas();
         const g = c.getContext('2d');
         const skin = PAL[game.state.course] || PAL.grass;
         const W = c.width;
         const H = c.height;
+        if (boardMode === 1) {
+          paintLeagueBoard(g, W, H, skin);
+          if (refs.toteTex) refs.toteTex.needsUpdate = true;
+          return;
+        }
+        if (boardMode === 2) {
+          paintNextBoard(g, W, H, skin);
+          if (refs.toteTex) refs.toteTex.needsUpdate = true;
+          return;
+        }
         g.fillStyle = '#071422';
         g.fillRect(0, 0, W, H);
         g.strokeStyle = skin.cyber ? '#17f0ff' : '#f2d48a';
@@ -683,6 +986,32 @@
         g.fillText(label, w / 2, h / 2);
       }
 
+      function vastaTex() {
+        const c = document.createElement('canvas');
+        c.width = 1024;
+        c.height = 320;
+        const g = c.getContext('2d');
+        g.fillStyle = '#ffffff';
+        g.fillRect(0, 0, c.width, c.height);
+        g.strokeStyle = '#d5dbe6';
+        g.lineWidth = 16;
+        g.strokeRect(12, 12, c.width - 24, c.height - 24);
+        const grd = g.createLinearGradient(90, 0, c.width - 90, 0);
+        grd.addColorStop(0, '#ff4fa3');
+        grd.addColorStop(1, '#2f7bff');
+        g.fillStyle = grd;
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        let size = 188;
+        g.font = '800 ' + size + 'px system-ui, sans-serif';
+        while (size > 48 && g.measureText('VASTA').width > c.width * 0.78) {
+          size -= 4;
+          g.font = '800 ' + size + 'px system-ui, sans-serif';
+        }
+        g.fillText('VASTA', c.width / 2, c.height / 2 + 2);
+        return srgbTex(new THREE.CanvasTexture(c));
+      }
+
       function adBoardTex(label, bg, accent, w, h, border) {
         const c = document.createElement('canvas');
         c.width = w || 512;
@@ -754,6 +1083,7 @@
           new THREE.MeshBasicMaterial({ map: refs.toteTex })
         );
         front.position.z = depth / 2 + 0.04;
+        front.userData.kind = 'board';
         root.add(front);
         const back = new THREE.Mesh(
           new THREE.PlaneGeometry(screenW, screenH),
@@ -1919,10 +2249,10 @@
         const boardX = 0.4;
         const boardY = 1.42;
         const boardZ = -3.05;
-        box(new THREE.MeshStandardMaterial({ color: 0x101820, metalness: 0.45, roughness: 0.38 }), boardW + 0.28, boardH + 0.26, 0.1, boardX, boardY, boardZ);
+        box(new THREE.MeshStandardMaterial({ color: 0xfbfcfe, metalness: 0.08, roughness: 0.42 }), boardW + 0.28, boardH + 0.26, 0.1, boardX, boardY, boardZ);
         const face = new THREE.Mesh(
           new THREE.PlaneGeometry(boardW, boardH),
-          new THREE.MeshBasicMaterial({ map: adBoardTex('ARCADE', '#140812', '#ffd166', 1024, 320, '#000000') })
+          new THREE.MeshBasicMaterial({ map: vastaTex() })
         );
         face.rotation.y = Math.PI;
         face.position.set(boardX, boardY, boardZ - 0.06);
@@ -2557,13 +2887,34 @@
         let pick = entries[Math.floor(entries.length / 2)];
         if (game.state.phase === 'RACING' || game.state.phase === 'RESULTS') {
           const lead = api.currentRaceLeader && api.currentRaceLeader();
-          if (lead) {
-            const found = entries.find(e => e.id === lead.id);
-            if (found) pick = found;
+          const leader = lead && entries.find(e => e.id === lead.id);
+          if (leader) {
+            const latched = entries.find(e => e.id === latchedFocusId);
+            if (!latched) {
+              latchedFocusId = leader.id;
+              pick = leader;
+            } else if (leader.id === latched.id || performance.now() < focusLatchUntil) {
+              pick = latched;
+            } else {
+              let gap = leader.t - latched.t;
+              if (gap > 0.5) gap -= 1;
+              if (gap < -0.5) gap += 1;
+              const ahead = gap > 0.01 || (leader.finished && !latched.finished);
+              if (ahead) {
+                latchedFocusId = leader.id;
+                focusLatchUntil = performance.now() + 1100;
+                pick = leader;
+              } else {
+                pick = latched;
+              }
+            }
           }
+        } else {
+          latchedFocusId = null;
+          focusLatchUntil = 0;
         }
         const mesh = horses.find(h => h.userData.id === pick.id) || horses[0];
-        return { mesh, yaw: mesh.rotation.y, pos: mesh.position, t: pick.t };
+        return { id: pick.id, mesh, yaw: mesh.rotation.y, pos: mesh.position, t: pick.t };
       }
 
       function worldAtLevel(t, level) {
@@ -2589,6 +2940,57 @@
         d = ((d + Math.PI) % pi2 + pi2) % pi2 - Math.PI;
         return d;
       }
+      function easedFocus(focus, dt) {
+        if (!focus) {
+          followRig = null;
+          return null;
+        }
+        if (!followRig || snapCam) {
+          followRig = { id: focus.id, x: focus.pos.x, y: focus.pos.y, z: focus.pos.z, yaw: focus.yaw, t: focus.t };
+          return followRig;
+        }
+        const switched = followRig.id !== focus.id;
+        const dist = Math.hypot(focus.pos.x - followRig.x, focus.pos.z - followRig.z);
+        if (!switched && dist > 22) {
+          followRig.x = focus.pos.x;
+          followRig.y = focus.pos.y;
+          followRig.z = focus.pos.z;
+          followRig.yaw = focus.yaw;
+          followRig.t = focus.t;
+          followRig.id = focus.id;
+          return followRig;
+        }
+        const posK = 1 - Math.exp(-Math.max(0.001, dt) * (switched ? 1.8 : 14));
+        const yawK = 1 - Math.exp(-Math.max(0.001, dt) * (switched ? 1.6 : 2.8));
+        const tK = 1 - Math.exp(-Math.max(0.001, dt) * (switched ? 1.8 : 8));
+        followRig.x += (focus.pos.x - followRig.x) * posK;
+        followRig.y += (focus.pos.y - followRig.y) * posK;
+        followRig.z += (focus.pos.z - followRig.z) * posK;
+        followRig.yaw += angleDelta(followRig.yaw, focus.yaw) * yawK;
+        let dT = focus.t - followRig.t;
+        if (dT > 0.5) dT -= 1;
+        if (dT < -0.5) dT += 1;
+        if (!switched && dT < -0.18) followRig.t = focus.t;
+        else followRig.t += dT * tK;
+        if (!switched || (dist < 1.4 && Math.abs(angleDelta(followRig.yaw, focus.yaw)) < 0.45)) {
+          followRig.id = focus.id;
+        }
+        return followRig;
+      }
+
+      function cornerEase(yaw, dt) {
+        if (headingPrev == null || snapCam) {
+          headingPrev = yaw;
+          cornerBlend = 0;
+          return 0;
+        }
+        const rate = Math.abs(angleDelta(headingPrev, yaw)) / Math.max(0.016, dt);
+        headingPrev = yaw;
+        const corner = Math.min(1, rate / 0.45);
+        cornerBlend += (corner - cornerBlend) * (1 - Math.exp(-Math.max(0.001, dt) * 1.8));
+        return cornerBlend;
+      }
+
       function stepOrbitHome(dt){
         if (!orbitHoming || camId !== 'orbit') return;
         const dTheta = angleDelta(orbit.theta, ORBIT_HOME_THETA);
@@ -2613,9 +3015,11 @@
         stepOrbitHome(dt);
         const pack = packCenter().clone();
         const focus = focusHorse();
-        const pos = focus ? focus.pos : pack;
-        const yaw = focus ? focus.yaw : 0;
-        const focusT = focus ? focus.t : (game.state.trackTOffset || 0);
+        const rig = easedFocus(focus, dt);
+        const turning = cornerEase(focus ? focus.yaw : 0, dt);
+        const pos = rig ? _focusPos.set(rig.x, rig.y, rig.z) : pack;
+        const yaw = rig ? rig.yaw : 0;
+        const focusT = rig ? rig.t : (game.state.trackTOffset || 0);
         _fwd.set(Math.sin(yaw), 0, Math.cos(yaw));
         const out = outward(pos).clone();
         let fov = 46;
@@ -2654,6 +3058,25 @@
           desiredLook.copy(pack);
           desiredLook.y = 0.5;
           fov = 50;
+        } else if (camId === 'helicopter') {
+          // Trail the field from above, nose along the racing line. The drone
+          // circles the pack; this ship flies with the horses and only hovers.
+          const now = performance.now();
+          const hover = Math.sin(now * 0.00085);
+          const crab = Math.sin(now * 0.00048);
+          if (game.state.trackMode === 'straight') {
+            desiredPos.copy(pos).addScaledVector(_fwd, -16).addScaledVector(out, 5 + crab * 1.6);
+            desiredLook.copy(pos).addScaledVector(_fwd, 14);
+          } else {
+            desiredPos.copy(worldAtLevel(focusT - 0.036, -1.45));
+            desiredPos.addScaledVector(out, 2.4 + crab * 1.5);
+            const ahead = worldAtLevel(focusT + 0.04, 1.15);
+            desiredLook.copy(pos).lerp(ahead, 0.55);
+          }
+          desiredPos.y = 14.5 + hover * 0.7;
+          desiredLook.y = 1.35;
+          pullZoom(desiredPos, desiredLook);
+          fov = 42;
         } else if (camId === 'stands') {
           if (game.state.trackMode === 'straight') {
             desiredPos.set(pack.x * 0.15, 8.2, straightEnds().z0 - 6);
@@ -2796,7 +3219,12 @@
           camera.fov += (fov - camera.fov) * (1 - Math.exp(-dt * 5));
         } else {
           let follow = camId === 'jockey' ? 10 : camId === 'broadcast' ? 9 : 6;
+          if (camId === 'helicopter') follow = 2.1;
           if (camId === 'orbit' && orbitEase) follow = 1.35;
+          if (camId !== 'orbit' && camId !== 'stands') {
+            const soft = Math.min(follow, camId === 'jockey' ? 3.4 : 2.3);
+            follow += (soft - follow) * turning;
+          }
           const blend = 1 - Math.exp(-dt * follow);
           camPos.lerp(desiredPos, blend);
           camLook.lerp(desiredLook, blend);
@@ -2806,6 +3234,11 @@
           }
         }
         camera.position.copy(camPos);
+        if (camId === 'helicopter') {
+          camera.up.set(Math.sin(performance.now() * 0.00048) * 0.1, 1, 0).normalize();
+        } else {
+          camera.up.set(0, 1, 0);
+        }
         camera.lookAt(camLook);
         camera.updateProjectionMatrix();
 
@@ -3020,6 +3453,11 @@
           const hit = infieldHit(e);
           if (!hit) return;
           if (hit.kind === 'roulette' && api.openRoulette) api.openRoulette();
+          else if (hit.kind === 'board') {
+            boardMode = (boardMode + 1) % 3;
+            if (boardMode !== 0) ensureFootball(boardMode);
+            paintTote();
+          }
           else if ((hit.kind === 'football' || hit.kind === 'ad') && hit.href) window.open(hit.href, '_blank', 'noopener,noreferrer');
           else if (hit.kind === 'chess' || hit.kind === 'gridiron' || hit.kind === 'mall' || hit.kind === 'cricket') showComingSoon();
         });
@@ -3051,12 +3489,35 @@
         onTrack() {
           worldDirty = true;
           fieldDirty = true;
+          snapCam = true;
+          followRig = null;
           if (active && renderer) {
             rebuildWorld();
             rebuildField();
           }
         },
         resize,
+        getFavouriteClub() { return { id: favClub.id, league: favClub.league, name: favClub.name }; },
+        setFavouriteClub(club) {
+          if (!club || !club.id || !club.league) return;
+          favClub = { id: String(club.id), league: String(club.league), name: club.name || 'Club' };
+          try { localStorage.setItem(FAV_KEY, JSON.stringify(favClub)); } catch (err) { /* ignore */ }
+          delete footFixtures[favClub.league + ':' + favClub.id];
+          if (boardMode !== 0) {
+            ensureFootball(boardMode);
+            paintTote();
+          }
+        },
+        loadClubs() {
+          return Promise.all(FOOT_LEAGUES.map(async league => {
+            const table = await fetchLeagueTable(league.code);
+            return {
+              code: league.code,
+              label: league.label,
+              teams: table.rows.map(row => ({ id: row.id, name: row.name }))
+            };
+          }));
+        },
         easeOrbitHome(){
           if (camId !== 'orbit' || orbitHoming) return;
           const moved = Math.abs(angleDelta(orbit.theta, ORBIT_HOME_THETA)) > 0.02
