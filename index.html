@@ -2420,7 +2420,7 @@ body.view-3d .scanlines{ opacity:0.16; }
 </script>
 
 <script src="assets/three.min.js"></script>
-<script src="view3d.js?v=smooth"></script>
+<script src="view3d.js?v=fruit5"></script>
 <script>
 /* ==========================================================
    ARCADE HORSE RACING
@@ -8105,6 +8105,7 @@ body.view-3d .scanlines{ opacity:0.16; }
           return { spinning: !!roulette.spinning, angle: roulette.wheelAngle || 0 };
         },
         openRoulette() { openRoulette(); },
+        openFruit() { openCasinoGame('slots'); },
         onViewChange(){
           fitInfieldBoard();
           scheduleFitTopBar();

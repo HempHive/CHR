@@ -1984,6 +1984,7 @@
         addInfieldMall(parent);
         addInfieldGridiron(parent);
         addInfieldCricket(parent);
+        addInfieldFruit(parent);
       }
 
       function insideInfield(x, z, level) {
@@ -2005,6 +2006,7 @@
         if (x > 8.8 && x < 26.0 && z > 0.35 && z < 11.2) return true;
         if (x > 8.0 && x < 26.9 && z > -11.85 && z < -2.95) return true;
         if (x > 28.4 && x < 32.0 && z > -7.3 && z < 5.6) return true;
+        if (x > -34.8 && x < -29.2 && z > -5.2 && z < 1.6) return true;
         return false;
       }
 
@@ -2246,9 +2248,10 @@
 
         const boardW = 4.1;
         const boardH = 1.2;
-        const boardX = 0.4;
-        const boardY = 1.42;
-        const boardZ = -3.05;
+        // Second storey of the glass block, centred on that face.
+        const boardX = -1.3;
+        const boardY = 1.8;
+        const boardZ = -2.38;
         box(new THREE.MeshStandardMaterial({ color: 0xfbfcfe, metalness: 0.08, roughness: 0.42 }), boardW + 0.28, boardH + 0.26, 0.1, boardX, boardY, boardZ);
         const face = new THREE.Mesh(
           new THREE.PlaneGeometry(boardW, boardH),
@@ -2406,6 +2409,196 @@
         });
         parent.add(root);
         refs.cricketRoot = root;
+      }
+
+      function fruitMarqueeTex() {
+        const c = document.createElement('canvas');
+        c.width = 1024;
+        c.height = 280;
+        const g = c.getContext('2d');
+        g.fillStyle = '#140818';
+        g.fillRect(0, 0, c.width, c.height);
+        const glow = g.createLinearGradient(0, 0, c.width, 0);
+        glow.addColorStop(0, '#ff4fa3');
+        glow.addColorStop(0.5, '#ffe566');
+        glow.addColorStop(1, '#3dff9a');
+        g.strokeStyle = glow;
+        g.lineWidth = 22;
+        g.strokeRect(16, 16, c.width - 32, c.height - 32);
+        g.fillStyle = glow;
+        g.font = '800 150px system-ui, sans-serif';
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.fillText('FRUIT', c.width / 2, c.height / 2 + 8);
+        return srgbTex(new THREE.CanvasTexture(c));
+      }
+
+      function fruitReelTex() {
+        const c = document.createElement('canvas');
+        c.width = 960;
+        c.height = 420;
+        const g = c.getContext('2d');
+        g.fillStyle = '#1a1024';
+        g.fillRect(0, 0, c.width, c.height);
+        const symbols = [
+          { fill: '#ff3355', kind: 'cherry' },
+          { fill: '#ffe14a', kind: 'lemon' },
+          { fill: '#ff8a1e', kind: 'orange' }
+        ];
+        symbols.forEach((sym, i) => {
+          const x = 28 + i * 312;
+          g.fillStyle = '#f6f1ea';
+          g.fillRect(x, 24, 280, 372);
+          g.strokeStyle = '#e8c56b';
+          g.lineWidth = 12;
+          g.strokeRect(x + 8, 32, 264, 356);
+          g.fillStyle = sym.fill;
+          if (sym.kind === 'lemon') {
+            g.beginPath();
+            g.ellipse(x + 140, 210, 78, 96, -0.4, 0, Math.PI * 2);
+            g.fill();
+            g.fillStyle = '#3d8f32';
+            g.fillRect(x + 128, 96, 14, 28);
+          } else if (sym.kind === 'orange') {
+            g.beginPath();
+            g.arc(x + 140, 214, 92, 0, Math.PI * 2);
+            g.fill();
+            g.fillStyle = '#3d8f32';
+            g.beginPath();
+            g.ellipse(x + 140, 112, 22, 12, 0, 0, Math.PI * 2);
+            g.fill();
+          } else {
+            g.beginPath();
+            g.arc(x + 104, 200, 62, 0, Math.PI * 2);
+            g.arc(x + 176, 214, 62, 0, Math.PI * 2);
+            g.fill();
+            g.strokeStyle = '#2f8a32';
+            g.lineWidth = 10;
+            g.beginPath();
+            g.moveTo(x + 140, 150);
+            g.quadraticCurveTo(x + 168, 96, x + 150, 78);
+            g.stroke();
+          }
+        });
+        return srgbTex(new THREE.CanvasTexture(c));
+      }
+
+      function addInfieldFruit(parent) {
+        const root = new THREE.Group();
+        root.position.set(-32.0, 0.02, -1.6);
+        root.rotation.y = Math.PI / 2;
+        root.scale.setScalar(0.78);
+        root.userData.kind = 'fruit';
+
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0xf7f4ee, roughness: 0.32, metalness: 0.58 });
+        const glassMat = new THREE.MeshStandardMaterial({
+          color: 0xc6f6d4, roughness: 0.08, metalness: 0.2,
+          transparent: true, opacity: 0.32, emissive: 0x14643a, emissiveIntensity: 0.16,
+          side: THREE.DoubleSide
+        });
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xe8c56b, metalness: 0.7, roughness: 0.28 });
+        const bedMat = new THREE.MeshStandardMaterial({ color: 0x4a321c, roughness: 0.92 });
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x2f9a45, roughness: 0.72 });
+        const cabinetMat = new THREE.MeshStandardMaterial({ color: 0x160814, roughness: 0.42, metalness: 0.32 });
+        const stemMat = new THREE.MeshStandardMaterial({ color: 0x5c3a22, roughness: 0.8 });
+
+        const W = 7.2;
+        const D = 5.4;
+        const H = 2.55;
+        function box(mat, w, h, d, x, y, z) {
+          const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+          m.position.set(x, y, z);
+          m.castShadow = true;
+          m.receiveShadow = true;
+          root.add(m);
+          return m;
+        }
+
+        box(bedMat, W + 0.5, 0.16, D + 0.5, 0, 0.08, 0);
+        box(frameMat, W + 0.2, 0.08, D + 0.2, 0, 0.18, 0);
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(p => {
+          box(frameMat, 0.12, H, 0.12, p[0] * W / 2, 0.22 + H / 2, p[1] * D / 2);
+        });
+        box(glassMat, 0.05, H - 0.15, D - 0.28, -W / 2, 0.22 + H / 2, 0);
+        box(glassMat, W - 0.28, H - 0.15, 0.05, 0, 0.22 + H / 2, -D / 2);
+        box(glassMat, W - 0.28, H - 0.15, 0.05, 0, 0.22 + H / 2, D / 2);
+        for (let i = 1; i <= 3; i++) {
+          const x = -W / 2 + (W * i) / 4;
+          box(frameMat, 0.055, H, 0.055, x, 0.22 + H / 2, -D / 2);
+          box(frameMat, 0.055, H, 0.055, x, 0.22 + H / 2, D / 2);
+        }
+
+        const rise = 1.45;
+        const slopeLen = Math.hypot(D / 2, rise);
+        const slopeAng = Math.atan2(rise, D / 2);
+        [-1, 1].forEach(side => {
+          const pane = new THREE.Mesh(new THREE.BoxGeometry(W + 0.18, 0.05, slopeLen), glassMat);
+          pane.position.set(0, 0.22 + H + rise / 2, side * D / 4);
+          pane.rotation.x = side * slopeAng;
+          pane.castShadow = true;
+          root.add(pane);
+          const rafter = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, slopeLen), frameMat);
+          rafter.position.copy(pane.position);
+          rafter.rotation.x = pane.rotation.x;
+          root.add(rafter);
+        });
+        box(frameMat, W + 0.24, 0.1, 0.14, 0, 0.22 + H + rise, 0);
+        box(goldMat, W + 0.1, 0.06, 0.08, 0, 0.22 + H + rise + 0.08, 0);
+
+        const faceX = W / 2 + 0.04;
+        box(cabinetMat, 0.26, 2.35, 4.7, faceX, 1.45, 0);
+        box(goldMat, 0.32, 0.08, 4.9, faceX, 2.66, 0);
+        box(goldMat, 0.32, 0.08, 4.9, faceX, 0.28, 0);
+        const marquee = new THREE.Mesh(
+          new THREE.PlaneGeometry(4.15, 0.62),
+          new THREE.MeshBasicMaterial({ map: fruitMarqueeTex() })
+        );
+        marquee.rotation.y = Math.PI / 2;
+        marquee.position.set(faceX + 0.15, 2.22, 0);
+        root.add(marquee);
+        const reels = new THREE.Mesh(
+          new THREE.PlaneGeometry(3.9, 1.15),
+          new THREE.MeshBasicMaterial({ map: fruitReelTex() })
+        );
+        reels.rotation.y = Math.PI / 2;
+        reels.position.set(faceX + 0.15, 1.28, 0);
+        root.add(reels);
+        [0xff4d6a, 0xffd166, 0x3ddc7a].forEach((col, i) => {
+          const button = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.16, 0.16, 0.08, 14),
+            new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.4, roughness: 0.32 })
+          );
+          button.rotation.z = -Math.PI / 2;
+          button.position.set(faceX + 0.18, 0.52, (i - 1) * 0.58);
+          root.add(button);
+        });
+
+        const fruitCols = [0xff3355, 0xffe14a, 0xff8a1e, 0x7a3cff, 0xff4fa3, 0xd6f25a];
+        [[-2.2, -1.3], [-0.7, -1.55], [0.9, -1.2], [2.15, -0.85], [-1.7, 0.15], [0.4, 0.05], [1.9, 0.35]].forEach((p, i) => {
+          const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.07, 1.05, 6), stemMat);
+          stem.position.set(p[0], 0.74, p[1]);
+          stem.castShadow = true;
+          root.add(stem);
+          const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 8), leafMat);
+          canopy.position.set(p[0], 1.32, p[1]);
+          canopy.castShadow = true;
+          root.add(canopy);
+          const fruitMat = new THREE.MeshStandardMaterial({
+            color: fruitCols[i % fruitCols.length],
+            roughness: 0.38,
+            emissive: fruitCols[i % fruitCols.length],
+            emissiveIntensity: 0.1
+          });
+          for (let k = 0; k < 3; k++) {
+            const fruit = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 6), fruitMat);
+            const a = k * 2.2 + i;
+            fruit.position.set(p[0] + Math.cos(a) * 0.26, 1.22 + (k % 2) * 0.16, p[1] + Math.sin(a) * 0.26);
+            root.add(fruit);
+          }
+        });
+
+        parent.add(root);
+        refs.fruitRoot = root;
       }
 
       function updateRoulette(dt) {
@@ -3406,7 +3599,7 @@
         function infieldHit(e) {
           if (!active || !camera || game.state.rouletteOpen) return null;
           pointerRay(e);
-          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.mallRoot, refs.gridironRoot, refs.cricketRoot, refs.jumboRoot].filter(Boolean);
+          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.mallRoot, refs.gridironRoot, refs.cricketRoot, refs.fruitRoot, refs.jumboRoot].filter(Boolean);
           const hits = raycaster.intersectObjects(roots, true);
           if (!hits.length) return null;
           let node = hits[0].object;
@@ -3453,6 +3646,7 @@
           const hit = infieldHit(e);
           if (!hit) return;
           if (hit.kind === 'roulette' && api.openRoulette) api.openRoulette();
+          else if (hit.kind === 'fruit' && api.openFruit) api.openFruit();
           else if (hit.kind === 'board') {
             boardMode = (boardMode + 1) % 3;
             if (boardMode !== 0) ensureFootball(boardMode);
