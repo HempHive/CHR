@@ -3329,34 +3329,14 @@
               const ts = entries.map(e => e.t).sort((a, b) => a - b);
               targetT = ts[Math.floor((ts.length - 1) / 2)];
             }
-            orbitFollowT = easeTrackT(orbitFollowT, targetT);
             const midLane = (api.currentLaneCount() - 1) / 2;
-            const midPose = worldPose(orbitFollowT, midLane);
-            let wantT = orbitFollowT;
-            const leadT = (game.state.phase === 'RACING' && rig) ? rig.t : (focus ? focus.t : null);
-            if (leadT != null && game.state.phase === 'RACING') {
-              const leadPose = worldPose(leadT, midLane);
-              const gap = Math.hypot(leadPose.x - midPose.x, leadPose.z - midPose.z);
-              const keep = Math.tan(THREE.MathUtils.degToRad(24)) * r * 0.72;
-              let ahead = leadT - orbitFollowT;
-              if (ahead > 0.5) ahead -= 1;
-              if (ahead < -0.5) ahead += 1;
-              if (ahead < 0) ahead = 0;
-              if (gap > keep && ahead > 0) {
-                const push = (gap - keep) / gap;
-                wantT = orbitFollowT + ahead * push;
-              }
-            }
+            let wantT = targetT;
+            if (game.state.phase === 'RACING' && focus && focus.t != null) wantT = focus.t;
+            orbitFollowT = easeTrackT(orbitFollowT, wantT);
             orbitLookT = easeTrackT(orbitLookT, wantT);
             const along = worldPose(orbitLookT, midLane);
             desiredLook.set(along.x, 0.8, along.z);
             orbitGlide = true;
-            if (game.state.phase === 'RACING' && focus && focus.pos) {
-              // Stay on the lead horse for the whole race. Looking at the
-              // middle of the pack, or ahead at the finish, left the horse
-              // out of frame until the view jumped back.
-              desiredLook.set(focus.pos.x, 0.8, focus.pos.z);
-            }
             orbitAround(desiredLook);
           }
           fov = 48;
