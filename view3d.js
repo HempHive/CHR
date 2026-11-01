@@ -3351,30 +3351,11 @@
             const along = worldPose(orbitLookT, midLane);
             desiredLook.set(along.x, 0.8, along.z);
             orbitGlide = true;
-            if (game.state.phase === 'RACING') {
-              const stretch = smoothOrbitStretch(dt);
-              if (stretch > 0.8) {
-                let from = 0.8;
-                if (orbitHoldFinish != null) {
-                  if (orbitHoldFinish <= 0.8) orbitHoldFinish = null;
-                  else from = orbitHoldFinish;
-                }
-                const k = smoothstep(from, 0.96, stretch);
-                const laps = Math.max(1, (raceNow && raceNow.laps) || game.state.laps || 1);
-                const finishT = (game.state.trackTOffset || 0) + laps;
-                let lookT = orbitLookT + (finishT - orbitLookT) * k;
-                const pace = leadT != null ? leadT : orbitLookT;
-                const cap = pace + 0.016;
-                if (lookT > cap) lookT = cap;
-                const posed = worldPose(lookT, midLane);
-                desiredLook.set(posed.x, 0.8, posed.z);
-                if (rig) {
-                  desiredLook.x += (rig.x - desiredLook.x) * 0.62;
-                  desiredLook.z += (rig.z - desiredLook.z) * 0.62;
-                }
-              } else {
-                orbitHoldFinish = null;
-              }
+            if (game.state.phase === 'RACING' && focus && focus.pos) {
+              // Stay on the lead horse for the whole race. Looking at the
+              // middle of the pack, or ahead at the finish, left the horse
+              // out of frame until the view jumped back.
+              desiredLook.set(focus.pos.x, 0.8, focus.pos.z);
             }
             orbitAround(desiredLook);
           }
