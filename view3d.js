@@ -2008,7 +2008,7 @@
         if (x > -28.6 && x < -6.3 && z > -12.05 && z < -3.25) return true;
         if (x > -5.5 && x < 5.5 && z > -5.5 && z < 5.5) return true;
         if (x > 8.8 && x < 26.0 && z > 0.35 && z < 11.2) return true;
-        if (x > 10.8 && x < 22.8 && z > -13.6 && z < -1.2) return true;
+        if (x > 10.3 && x < 23.4 && z > -12.4 && z < 0.2) return true;
         if (x > 28.4 && x < 32.0 && z > -7.3 && z < 5.6) return true;
         if (x > -34.8 && x < -29.2 && z > -5.2 && z < 1.6) return true;
         return false;
@@ -2353,7 +2353,7 @@
         const length = 11.6;
         const width = 5.0;
         const root = new THREE.Group();
-        root.position.set(13.7, 0.03, -7.4);
+        root.position.set(13.15, 0.03, -6.15);
         root.rotation.y = Math.PI / 2;
         root.userData.kind = 'gridiron';
         const base = new THREE.Mesh(
@@ -2475,7 +2475,7 @@
         const length = 10.7;
         const width = 5.7;
         const root = new THREE.Group();
-        root.position.set(19.5, 0.03, -7.4);
+        root.position.set(20.15, 0.03, -6.15);
         root.rotation.y = Math.PI / 2;
         root.userData.kind = 'basketball';
         root.userData.href = 'https://www.miteam.lol';
