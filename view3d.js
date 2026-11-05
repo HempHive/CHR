@@ -1986,6 +1986,7 @@
         addInfieldChess(parent);
         addInfieldMall(parent);
         addInfieldGridiron(parent);
+        addInfieldBasketball(parent);
         addInfieldCricket(parent);
         addInfieldFruit(parent);
       }
@@ -2007,7 +2008,7 @@
         if (x > -28.6 && x < -6.3 && z > -12.05 && z < -3.25) return true;
         if (x > -5.5 && x < 5.5 && z > -5.5 && z < 5.5) return true;
         if (x > 8.8 && x < 26.0 && z > 0.35 && z < 11.2) return true;
-        if (x > 8.0 && x < 26.9 && z > -11.85 && z < -2.95) return true;
+        if (x > 10.8 && x < 22.8 && z > -13.6 && z < -1.2) return true;
         if (x > 28.4 && x < 32.0 && z > -7.3 && z < 5.6) return true;
         if (x > -34.8 && x < -29.2 && z > -5.2 && z < 1.6) return true;
         return false;
@@ -2323,22 +2324,23 @@
         return refs.gridironTex;
       }
 
-      function addUprightGoal(parent, xSign, halfLen) {
+      function addUprightGoal(parent, xSign, halfLen, scale) {
+        const s = scale || 1;
         const yellow = new THREE.MeshStandardMaterial({ color: 0xf5c542, metalness: 0.4, roughness: 0.38 });
-        const x = xSign * (halfLen + 0.08);
-        const gap = 1.28;
-        const crossY = 1.2;
-        const topY = 2.75;
-        const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, crossY, 8), yellow);
+        const x = xSign * (halfLen + 0.08 * s);
+        const gap = 1.28 * s;
+        const crossY = 1.2 * s;
+        const topY = 2.75 * s;
+        const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.05 * s, 0.06 * s, crossY, 8), yellow);
         stalk.position.set(x, crossY / 2, 0);
         stalk.castShadow = true;
         parent.add(stalk);
-        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, gap * 2, 8), yellow);
+        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.04 * s, 0.04 * s, gap * 2, 8), yellow);
         bar.rotation.x = Math.PI / 2;
         bar.position.set(x, crossY, 0);
         parent.add(bar);
         [-1, 1].forEach(side => {
-          const up = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, topY - crossY, 8), yellow);
+          const up = new THREE.Mesh(new THREE.CylinderGeometry(0.035 * s, 0.035 * s, topY - crossY, 8), yellow);
           up.position.set(x, (topY + crossY) / 2, side * gap);
           up.castShadow = true;
           parent.add(up);
@@ -2346,10 +2348,13 @@
       }
 
       function addInfieldGridiron(parent) {
-        const length = 16.8;
-        const width = 7.15;
+        // Spun so the length runs across the infield, about half the old area,
+        // on the inner side of the shared patch.
+        const length = 11.6;
+        const width = 5.0;
         const root = new THREE.Group();
-        root.position.set(17.4, 0.03, -7.4);
+        root.position.set(13.7, 0.03, -7.4);
+        root.rotation.y = Math.PI / 2;
         root.userData.kind = 'gridiron';
         const base = new THREE.Mesh(
           new THREE.BoxGeometry(length, 0.1, width),
@@ -2366,10 +2371,133 @@
         lines.position.y = 0.11;
         lines.receiveShadow = true;
         root.add(lines);
-        addUprightGoal(root, -1, length / 2);
-        addUprightGoal(root, 1, length / 2);
+        addUprightGoal(root, -1, length / 2, 0.72);
+        addUprightGoal(root, 1, length / 2, 0.72);
         parent.add(root);
         refs.gridironRoot = root;
+      }
+
+      function basketballTex() {
+        if (refs.basketballTex) return refs.basketballTex;
+        const W = 1024;
+        const H = 544;
+        const c = document.createElement('canvas');
+        c.width = W;
+        c.height = H;
+        const g = c.getContext('2d');
+        for (let i = 0; i < 16; i++) {
+          g.fillStyle = i % 2 ? '#d39255' : '#c07d42';
+          g.fillRect(0, (H * i) / 16, W, H / 16 + 1);
+        }
+        g.strokeStyle = '#f7f7f7';
+        g.lineWidth = 10;
+        g.strokeRect(22, 22, W - 44, H - 44);
+        g.beginPath();
+        g.moveTo(W / 2, 22);
+        g.lineTo(W / 2, H - 22);
+        g.stroke();
+        g.beginPath();
+        g.arc(W / 2, H / 2, 62, 0, Math.PI * 2);
+        g.stroke();
+        g.fillStyle = '#f7f7f7';
+        g.beginPath();
+        g.arc(W / 2, H / 2, 6, 0, Math.PI * 2);
+        g.fill();
+        function key(sign) {
+          const keyW = 168;
+          const keyH = 210;
+          const x = sign < 0 ? 22 : W - 22 - keyW;
+          const y = (H - keyH) / 2;
+          g.fillStyle = 'rgba(28, 78, 158, 0.72)';
+          g.fillRect(x, y, keyW, keyH);
+          g.strokeStyle = '#f7f7f7';
+          g.lineWidth = 8;
+          g.strokeRect(x, y, keyW, keyH);
+          const cx = sign < 0 ? x + keyW : x;
+          g.beginPath();
+          g.arc(cx, H / 2, keyH / 2, sign < 0 ? -Math.PI / 2 : Math.PI / 2, sign < 0 ? Math.PI / 2 : Math.PI * 1.5);
+          g.stroke();
+          g.fillStyle = '#f7f7f7';
+          g.beginPath();
+          g.arc(cx, H / 2, 5, 0, Math.PI * 2);
+          g.fill();
+        }
+        key(-1);
+        key(1);
+        g.strokeStyle = '#f7f7f7';
+        g.lineWidth = 8;
+        function arc3(sign) {
+          const cx = sign < 0 ? 48 : W - 48;
+          g.beginPath();
+          g.arc(cx, H / 2, 230, sign < 0 ? -1.15 : Math.PI - 1.15, sign < 0 ? 1.15 : Math.PI + 1.15);
+          g.stroke();
+        }
+        arc3(-1);
+        arc3(1);
+        refs.basketballTex = srgbTex(new THREE.CanvasTexture(c));
+        return refs.basketballTex;
+      }
+
+      function addHoop(parent, xSign, halfLen) {
+        const steel = new THREE.MeshStandardMaterial({ color: 0xd5dbe3, metalness: 0.62, roughness: 0.32 });
+        const boardMat = new THREE.MeshStandardMaterial({ color: 0xf4f7fb, roughness: 0.35, transparent: true, opacity: 0.9 });
+        const rimMat = new THREE.MeshStandardMaterial({ color: 0xff5a1f, metalness: 0.4, roughness: 0.32 });
+        const x = xSign * (halfLen + 0.02);
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.065, 1.45, 8), steel);
+        pole.position.set(x, 0.72, 0);
+        pole.castShadow = true;
+        parent.add(pole);
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.045, 0.045), steel);
+        arm.position.set(x - xSign * 0.2, 1.38, 0);
+        parent.add(arm);
+        const board = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.68, 1.05), boardMat);
+        board.position.set(x - xSign * 0.4, 1.48, 0);
+        parent.add(board);
+        const square = new THREE.Mesh(
+          new THREE.BoxGeometry(0.02, 0.26, 0.38),
+          new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 })
+        );
+        square.position.set(x - xSign * 0.44, 1.36, 0);
+        parent.add(square);
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.022, 8, 18), rimMat);
+        rim.rotation.x = Math.PI / 2;
+        rim.position.set(x - xSign * 0.66, 1.16, 0);
+        parent.add(rim);
+        const net = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.22, 0.12, 0.34, 10, 1, true),
+          new THREE.MeshStandardMaterial({ color: 0xf7f7f7, roughness: 0.55, transparent: true, opacity: 0.8, side: THREE.DoubleSide })
+        );
+        net.position.set(x - xSign * 0.66, 0.96, 0);
+        parent.add(net);
+      }
+
+      function addInfieldBasketball(parent) {
+        const length = 10.7;
+        const width = 5.7;
+        const root = new THREE.Group();
+        root.position.set(19.5, 0.03, -7.4);
+        root.rotation.y = Math.PI / 2;
+        root.userData.kind = 'basketball';
+        root.userData.href = 'https://www.miteam.lol';
+        const base = new THREE.Mesh(
+          new THREE.BoxGeometry(length, 0.1, width),
+          new THREE.MeshStandardMaterial({ color: 0xb8733a, roughness: 0.84 })
+        );
+        base.position.y = 0.05;
+        base.receiveShadow = true;
+        root.add(base);
+        const lines = new THREE.Mesh(
+          new THREE.PlaneGeometry(length, width),
+          new THREE.MeshStandardMaterial({ map: basketballTex(), roughness: 0.72 })
+        );
+        lines.rotation.x = -Math.PI / 2;
+        lines.position.y = 0.11;
+        lines.receiveShadow = true;
+        root.add(lines);
+        addHoop(root, -1, length / 2);
+        addHoop(root, 1, length / 2);
+        parent.add(root);
+        refs.basketballRoot = root;
       }
 
       function addInfieldCricket(parent) {
@@ -3604,7 +3732,7 @@
         function infieldHit(e) {
           if (!active || !camera || game.state.rouletteOpen) return null;
           pointerRay(e);
-          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.mallRoot, refs.gridironRoot, refs.cricketRoot, refs.fruitRoot, refs.jumboRoot].filter(Boolean);
+          const roots = [refs.rouletteRoot, refs.pitchRoot, refs.chessRoot, refs.mallRoot, refs.gridironRoot, refs.basketballRoot, refs.cricketRoot, refs.fruitRoot, refs.jumboRoot].filter(Boolean);
           const hits = raycaster.intersectObjects(roots, true);
           if (!hits.length) return null;
           let node = hits[0].object;
@@ -3657,7 +3785,7 @@
             if (boardMode !== 0) ensureFootball(boardMode);
             paintTote();
           }
-          else if ((hit.kind === 'football' || hit.kind === 'ad') && hit.href) window.open(hit.href, '_blank', 'noopener,noreferrer');
+          else if ((hit.kind === 'football' || hit.kind === 'basketball' || hit.kind === 'ad') && hit.href) window.open(hit.href, '_blank', 'noopener,noreferrer');
           else if (hit.kind === 'chess' || hit.kind === 'gridiron' || hit.kind === 'mall' || hit.kind === 'cricket') showComingSoon();
         });
         canvas.addEventListener('pointercancel', () => { press = null; drag = null; });
