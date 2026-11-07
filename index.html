@@ -2018,34 +2018,61 @@ body.view-3d .scanlines{ opacity:0.16; }
   touch-action:none;
   user-select:none;
   cursor:crosshair;
-  background:#1a120c center/cover no-repeat;
+  background:#1a120c center 42%/cover no-repeat;
   background-image:url('assets/skittles-alley.jpg');
   box-shadow:inset 0 0 0 1px rgba(0,0,0,0.35);
+  perspective:680px;
 }
 .skit-board.is-flick{ cursor:grab; }
 .skit-board.is-flicking{ cursor:grabbing; }
 .skit-pins{
   position:absolute;
-  left:18%;
-  right:18%;
-  top:10%;
-  bottom:42%;
+  left:36%;
+  width:28%;
+  top:40%;
+  height:18%;
   pointer-events:none;
+  transform-style:preserve-3d;
+  transform:rotateX(16deg);
+  transform-origin:50% 100%;
 }
 .skit-pin{
   position:absolute;
-  width:11%;
-  height:auto;
+  width:22%;
+  height:118%;
   transform:translate(-50%, -100%);
-  transform-origin:50% 92%;
-  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.55));
-  transition:transform .28s ease, opacity .28s ease;
+  transform-style:preserve-3d;
   z-index:2;
 }
+.skit-pin-body{
+  width:100%;
+  height:100%;
+  transform-origin:50% 94%;
+  transform-style:preserve-3d;
+  transform:rotateX(-10deg) translateZ(8px);
+  transition:transform .55s cubic-bezier(.15,.75,.2,1.05), opacity .45s ease;
+  filter:drop-shadow(0 4px 3px rgba(0,0,0,0.55));
+}
+.skit-pin-body img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+  transform:translateZ(5px);
+  pointer-events:none;
+  user-select:none;
+}
 .skit-pin.is-down{
-  transform:translate(-50%, -40%) rotate(78deg);
-  opacity:0.55;
   z-index:1;
+}
+.skit-pin.is-down .skit-pin-body{
+  transform:
+    rotateX(var(--fall-x, -92deg))
+    rotateZ(var(--fall-z, 16deg))
+    translate3d(var(--fall-dx, 0%), var(--fall-dy, -58%), var(--fall-dz, -36px));
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,0.35));
+  opacity:0.72;
 }
 .skit-aim{
   position:absolute;
@@ -2179,6 +2206,143 @@ body.view-3d .scanlines{ opacity:0.16; }
   .skit-board, .skit-side{ height:180px; min-height:180px; max-height:180px; }
   .skit-controls{ overflow-x:auto; }
 }
+.quiz-layout{
+  display:grid;
+  grid-template-columns:minmax(0, 1.4fr) 148px;
+  gap:12px;
+  min-height:280px;
+  max-height:320px;
+}
+.quiz-main{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+  min-height:0;
+}
+.quiz-top{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.quiz-meta{
+  display:flex;
+  gap:10px;
+  align-items:baseline;
+  color:#ffe7a3;
+  font-weight:800;
+  font-size:14px;
+}
+.quiz-meta b{ color:#fff; font-size:18px; }
+.quiz-timer{
+  flex:1 1 120px;
+  height:10px;
+  border-radius:999px;
+  background:rgba(8,18,32,0.85);
+  border:1px solid rgba(255,209,102,0.35);
+  overflow:hidden;
+}
+.quiz-timer > i{
+  display:block;
+  height:100%;
+  width:100%;
+  background:linear-gradient(90deg, #17f0ff, #ffd166);
+  transform-origin:left center;
+  transition:transform .2s linear;
+}
+.quiz-cat{
+  color:#9fd3ff;
+  font-size:12px;
+  font-weight:700;
+  min-height:16px;
+}
+.quiz-q{
+  color:#e8f1ff;
+  font-size:16px;
+  font-weight:800;
+  line-height:1.35;
+  min-height:44px;
+}
+.quiz-answers{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.quiz-answers button{
+  text-align:left;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #244766;
+  background:#0f2037;
+  color:#e6f1ff;
+  font-weight:700;
+  font-size:13px;
+  line-height:1.25;
+  min-height:48px;
+}
+.quiz-answers button:hover:not(:disabled){ border-color:#17f0ff; }
+.quiz-answers button.ok{ border-color:#0bbd7a; background:#0b3a2e; color:#eafff6; }
+.quiz-answers button.bad{ border-color:#ff6b6b; background:#3a1218; color:#ffd0d0; }
+.quiz-answers button.gone{ visibility:hidden; pointer-events:none; }
+.quiz-helps{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.quiz-helps button, #quizWalk, #quizStart{
+  height:34px;
+  padding:0 10px;
+  border-radius:8px;
+  border:1px solid #244766;
+  background:#0f2037;
+  color:#e6f1ff;
+  font-weight:700;
+  white-space:nowrap;
+}
+.quiz-helps button.on{ opacity:0.45; }
+#quizWalk{ border-color:#ffd166; color:#ffd166; background:#241c08; }
+#quizStart{ background:#0b3a2e; border-color:#0bbd7a; color:#eafff6; }
+.quiz-msg{
+  margin:0;
+  min-height:18px;
+  color:#e7f6ff;
+  font-size:13px;
+  font-weight:700;
+}
+.quiz-ladder{
+  list-style:none;
+  margin:0;
+  padding:6px;
+  overflow:auto;
+  border-radius:12px;
+  border:1px solid rgba(255,209,102,0.35);
+  background:rgba(4,12,10,0.55);
+  display:flex;
+  flex-direction:column-reverse;
+  gap:2px;
+}
+.quiz-ladder li{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:3px 6px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:700;
+  color:#9fd3ff;
+}
+.quiz-ladder li.safe{ color:#ffd166; }
+.quiz-ladder li.now{
+  background:#241c08;
+  color:#ffe7a3;
+  box-shadow:inset 0 0 0 1px rgba(255,209,102,0.55);
+}
+.quiz-ladder li.done{ color:#57e389; }
+@media (max-width: 720px){
+  .quiz-layout{ grid-template-columns:1fr 120px; max-height:none; }
+  .quiz-answers{ grid-template-columns:1fr; }
+}
 .rl-foot{ flex-wrap:wrap; }
 .rl-players, .rl-chips, .rl-actions{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .rl-player{ display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:92px; }
@@ -2256,6 +2420,7 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" class="game-switch" id="btnFruit" data-game="slots" title="Fruit Machine">🍋</button>
           <button type="button" class="game-switch" id="btnDarts" data-game="darts" title="Darts">🎯</button>
           <button type="button" class="game-switch" id="btnSkittles" data-game="skittles" title="Table Skittles">🧀</button>
+          <button type="button" class="game-switch" id="btnQuiz" data-game="quiz" title="Pub Quiz">🍻</button>
           <button type="button" class="game-switch" id="btnRoulette" data-game="roulette" title="Roulette">🃏</button>
           <button type="button" class="game-switch" id="btnMahjong" data-game="mahjong" title="Mahjong">🀄️</button>
           <button type="button" class="game-switch settings-switch" id="btnSettings" title="Settings">🎛️</button>
@@ -2578,6 +2743,36 @@ body.view-3d .scanlines{ opacity:0.16; }
         <button type="button" id="skitNew">New game</button>
       </div>
     </div>
+    <div class="casino-view" data-game="quiz" hidden>
+      <div class="quiz-layout">
+        <div class="quiz-main">
+          <div class="quiz-top">
+            <div class="quiz-meta"><span id="quizStep">Q 1 / 15</span><b id="quizPrize">5</b></div>
+            <div class="quiz-timer" aria-hidden="true"><i id="quizTimerBar"></i></div>
+          </div>
+          <div class="quiz-cat" id="quizCat">Pub Quiz</div>
+          <div class="quiz-q" id="quizQuestion">Pay 50 to start a 15-question pub quiz.</div>
+          <div class="quiz-answers" id="quizAnswers">
+            <button type="button" data-quiz-ans="0" disabled>A</button>
+            <button type="button" data-quiz-ans="1" disabled>B</button>
+            <button type="button" data-quiz-ans="2" disabled>C</button>
+            <button type="button" data-quiz-ans="3" disabled>D</button>
+          </div>
+          <div class="quiz-helps">
+            <button type="button" id="quizPhone" title="Phone a friend">📞 +20s</button>
+            <button type="button" id="quizFifty" title="Fifty fifty">50/50</button>
+            <button type="button" id="quizSwap" title="Replace question">↻ Replace</button>
+            <button type="button" id="quizWalk">Walk away</button>
+            <button type="button" id="quizStart">Start 50</button>
+          </div>
+          <p class="quiz-msg" id="quizMsg">Pay 50. Fifteen questions. Ladder to 5000.</p>
+        </div>
+        <ol class="quiz-ladder" id="quizLadder" reversed></ol>
+      </div>
+      <footer class="rl-foot">
+        <div id="quizPlayers" class="rl-players"></div>
+      </footer>
+    </div>
     <div class="casino-view" data-game="baccarat" hidden>
       <div class="bj-table">
         <div class="bc-bets" id="bcBets">
@@ -2663,7 +2858,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     </section>
     <section>
       <h4>Casino</h4>
-      <p>Roulette, Texas Hold’em, blackjack, baccarat, the fruit machine, Connect 4, and Mahjong use the same player banks. Darts is the target button: click a spot on the board, then tap that same spot again to throw. A quick second tap hits. A slow one falls short. Table Skittles is the cheese button after Darts: Aim mode works like Darts, or switch to Flick and drag the cheese. Score is solo. Match is first to 31 against the computer on Easy, Match, or Pro. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1. Baccarat pays 1:1 on Player, 19:20 on Banker, and 8:1 on Tie. Connect 4 and Mahjong pay even money.</p>
+      <p>Roulette, Texas Hold’em, blackjack, baccarat, the fruit machine, Connect 4, and Mahjong use the same player banks. Darts is the target button: click a spot on the board, then tap that same spot again to throw. A quick second tap hits. A slow one falls short. Table Skittles is the cheese button after Darts: Aim mode works like Darts, or switch to Flick and drag the cheese. Score is solo. Match is first to 31 against the computer on Easy, Match, or Pro. Pub Quiz is the beer button after Skittles: pay 50 to climb a 15-question ladder to 5000, with safe havens at 50 and 500. The big money sits in the last five. Phone a friend adds time, 50/50 removes two wrong answers, and replace swaps the question once. Walk away keeps what you have won. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1. Baccarat pays 1:1 on Player, 19:20 on Banker, and 8:1 on Tie. Connect 4 and Mahjong pay even money.</p>
     </section>
     <div class="rules-actions">
       <button type="button" id="rulesClose">Close</button>
@@ -6527,6 +6722,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     { id:'slots', title:'Fruit Machine' },
     { id:'darts', title:'Darts' },
     { id:'skittles', title:'Table Skittles' },
+    { id:'quiz', title:'Pub Quiz' },
     { id:'baccarat', title:'Baccarat' },
     { id:'connect4', title:'Connect 4' },
     { id:'mahjong', title:'Mahjong' }
@@ -6565,19 +6761,78 @@ body.view-3d .scanlines{ opacity:0.16; }
     aimTimer: 0, aimFading: false, built: false, over: false, pendingClear: false,
     msg: 'Aim, then tap the same spot to throw.'
   };
+  // Diamond on the raised wooden bed tip (local 0–1 inside .skit-pins).
+  // Zone maps onto the photo’s house-shaped platform, just in front of the pit.
   const SKIT_LAYOUT = [
     { x:0.50, y:0.14 },
-    { x:0.36, y:0.30 }, { x:0.64, y:0.30 },
-    { x:0.22, y:0.48 }, { x:0.50, y:0.48 }, { x:0.78, y:0.48 },
-    { x:0.36, y:0.66 }, { x:0.64, y:0.66 },
-    { x:0.50, y:0.82 }
+    { x:0.34, y:0.34 }, { x:0.66, y:0.34 },
+    { x:0.18, y:0.54 }, { x:0.50, y:0.54 }, { x:0.82, y:0.54 },
+    { x:0.34, y:0.74 }, { x:0.66, y:0.74 },
+    { x:0.50, y:0.92 }
   ];
+  const SKIT_ZONE = { left:0.36, top:0.40, width:0.28, height:0.18 };
   const skittles = {
     game: 'score', level: 'match', throwMode: 'aim',
     you: 0, ai: 0, turn: 'you', marks: [], pins: SKIT_LAYOUT.map(() => true),
     aim: null, busy: false, flying: false, timer: 0, aimTimer: 0, aimFading: false,
-    built: false, over: false, pendingClear: false, flick: null,
+    pinResetTimer: 0, built: false, over: false, pendingClear: false, flick: null,
     msg: 'Aim, then tap the same spot to throw the cheese.'
+  };
+  const QUIZ_LADDER = [5, 10, 20, 35, 50, 100, 150, 225, 350, 500, 1000, 2000, 3000, 4000, 5000];
+  const QUIZ_SAFE = { 4: 50, 9: 500 };
+  const QUIZ_FALLBACK = [
+    { difficulty:'easy', category:'General', question:'How many sides does a hexagon have?', correct_answer:'6', incorrect_answers:['5','7','8'] },
+    { difficulty:'easy', category:'Geography', question:'What is the capital of France?', correct_answer:'Paris', incorrect_answers:['Lyon','Marseille','Nice'] },
+    { difficulty:'easy', category:'Science', question:'What planet is known as the Red Planet?', correct_answer:'Mars', incorrect_answers:['Venus','Jupiter','Mercury'] },
+    { difficulty:'easy', category:'Sport', question:'How many players are on a football (soccer) team on the pitch?', correct_answer:'11', incorrect_answers:['9','10','12'] },
+    { difficulty:'easy', category:'Food', question:'Which fruit is traditionally used to make cider?', correct_answer:'Apple', incorrect_answers:['Pear','Grape','Plum'] },
+    { difficulty:'easy', category:'Music', question:'How many strings does a standard guitar usually have?', correct_answer:'6', incorrect_answers:['4','5','8'] },
+    { difficulty:'easy', category:'History', question:'In which city is the Colosseum?', correct_answer:'Rome', incorrect_answers:['Athens','Paris','Madrid'] },
+    { difficulty:'easy', category:'Film', question:'What colour is the Emerald City road in The Wizard of Oz?', correct_answer:'Yellow', incorrect_answers:['Green','Blue','Red'] },
+    { difficulty:'easy', category:'Nature', question:'What do bees collect to make honey?', correct_answer:'Nectar', incorrect_answers:['Pollen','Sap','Dew'] },
+    { difficulty:'easy', category:'UK', question:'What is the currency of the United Kingdom?', correct_answer:'Pound sterling', incorrect_answers:['Euro','Dollar','Franc'] },
+    { difficulty:'easy', category:'Maths', question:'What is 9 x 9?', correct_answer:'81', incorrect_answers:['72','99','89'] },
+    { difficulty:'easy', category:'Animals', question:'What is a baby dog called?', correct_answer:'Puppy', incorrect_answers:['Cub','Kit','Calf'] },
+    { difficulty:'easy', category:'Pub', question:'What spirit is the main ingredient in a mojito?', correct_answer:'Rum', incorrect_answers:['Gin','Vodka','Tequila'] },
+    { difficulty:'easy', category:'Sport', question:'In snooker, how many points is the black ball worth?', correct_answer:'7', incorrect_answers:['5','6','8'] },
+    { difficulty:'easy', category:'General', question:'How many minutes are in two hours?', correct_answer:'120', incorrect_answers:['60','90','100'] },
+    { difficulty:'medium', category:'Geography', question:'Which river flows through London?', correct_answer:'Thames', incorrect_answers:['Severn','Mersey','Tyne'] },
+    { difficulty:'medium', category:'History', question:'Who was the first President of the United States?', correct_answer:'George Washington', incorrect_answers:['Thomas Jefferson','Abraham Lincoln','John Adams'] },
+    { difficulty:'medium', category:'Science', question:'What gas do plants absorb from the air for photosynthesis?', correct_answer:'Carbon dioxide', incorrect_answers:['Oxygen','Nitrogen','Hydrogen'] },
+    { difficulty:'medium', category:'Literature', question:'Who wrote Pride and Prejudice?', correct_answer:'Jane Austen', incorrect_answers:['Charlotte Brontë','Mary Shelley','George Eliot'] },
+    { difficulty:'medium', category:'Music', question:'Which Beatle was known as the quiet one?', correct_answer:'George Harrison', incorrect_answers:['John Lennon','Paul McCartney','Ringo Starr'] },
+    { difficulty:'medium', category:'Film', question:'Which film features the line “Here’s looking at you, kid”?', correct_answer:'Casablanca', incorrect_answers:['Gone with the Wind','The Maltese Falcon','Citizen Kane'] },
+    { difficulty:'medium', category:'Sport', question:'How many Grand Slam tennis tournaments are there each year?', correct_answer:'4', incorrect_answers:['3','5','6'] },
+    { difficulty:'medium', category:'Science', question:'What is the chemical symbol for gold?', correct_answer:'Au', incorrect_answers:['Ag','Go','Gd'] },
+    { difficulty:'medium', category:'Geography', question:'Mount Everest lies on the border of Nepal and which country?', correct_answer:'China', incorrect_answers:['India','Bhutan','Pakistan'] },
+    { difficulty:'medium', category:'Food', question:'Parmesan cheese originates from which country?', correct_answer:'Italy', incorrect_answers:['France','Switzerland','Spain'] },
+    { difficulty:'medium', category:'History', question:'In which year did World War II end in Europe?', correct_answer:'1945', incorrect_answers:['1944','1946','1939'] },
+    { difficulty:'medium', category:'TV', question:'In Only Fools and Horses, what is Del Boy’s surname?', correct_answer:'Trotter', incorrect_answers:['Turner','Tanner','Truman'] },
+    { difficulty:'medium', category:'Science', question:'How many bones are in the adult human body?', correct_answer:'206', incorrect_answers:['186','216','256'] },
+    { difficulty:'medium', category:'Geography', question:'What is the largest desert in the world?', correct_answer:'Antarctic Desert', incorrect_answers:['Sahara','Gobi','Arabian'] },
+    { difficulty:'medium', category:'Music', question:'Which composer wrote The Four Seasons?', correct_answer:'Vivaldi', incorrect_answers:['Bach','Mozart','Handel'] },
+    { difficulty:'hard', category:'History', question:'Which English king signed the Magna Carta in 1215?', correct_answer:'King John', incorrect_answers:['Richard I','Henry III','Edward I'] },
+    { difficulty:'hard', category:'Science', question:'What is the hardest natural substance on Earth?', correct_answer:'Diamond', incorrect_answers:['Quartz','Topaz','Corundum'] },
+    { difficulty:'hard', category:'Geography', question:'What is the capital of Kazakhstan?', correct_answer:'Astana', incorrect_answers:['Almaty','Tashkent','Bishkek'] },
+    { difficulty:'hard', category:'Literature', question:'Which Shakespeare play features the characters Rosencrantz and Guildenstern?', correct_answer:'Hamlet', incorrect_answers:['Macbeth','Othello','King Lear'] },
+    { difficulty:'hard', category:'Science', question:'Which particle carries a negative electric charge?', correct_answer:'Electron', incorrect_answers:['Proton','Neutron','Photon'] },
+    { difficulty:'hard', category:'Music', question:'How many symphonies did Beethoven complete?', correct_answer:'9', incorrect_answers:['7','8','10'] },
+    { difficulty:'hard', category:'Film', question:'Who directed 2001: A Space Odyssey?', correct_answer:'Stanley Kubrick', incorrect_answers:['Ridley Scott','Steven Spielberg','George Lucas'] },
+    { difficulty:'hard', category:'Sport', question:'In which sport is the term “alley-oop” commonly used?', correct_answer:'Basketball', incorrect_answers:['Volleyball','American football','Tennis'] },
+    { difficulty:'hard', category:'Geography', question:'Which African lake is the world’s second-largest freshwater lake by surface area?', correct_answer:'Lake Victoria', incorrect_answers:['Lake Tanganyika','Lake Malawi','Lake Chad'] },
+    { difficulty:'hard', category:'History', question:'The Battle of Hastings was fought in which year?', correct_answer:'1066', incorrect_answers:['1056','1086','1100'] },
+    { difficulty:'hard', category:'Science', question:'What is the SI unit of electric resistance?', correct_answer:'Ohm', incorrect_answers:['Volt','Ampere','Watt'] },
+    { difficulty:'hard', category:'Art', question:'Which Dutch artist painted The Night Watch?', correct_answer:'Rembrandt', incorrect_answers:['Vermeer','Van Gogh','Hals'] },
+    { difficulty:'hard', category:'Food', question:'What is the main flavouring in traditional Greek ouzo?', correct_answer:'Anise', incorrect_answers:['Mint','Licorice root','Fennel seed'] },
+    { difficulty:'hard', category:'Mythology', question:'In Greek myth, who flew too close to the sun?', correct_answer:'Icarus', incorrect_answers:['Daedalus','Perseus','Orpheus'] },
+    { difficulty:'hard', category:'General', question:'How many countries are in the G7?', correct_answer:'7', incorrect_answers:['5','8','10'] }
+  ];
+  const quiz = {
+    phase: 'bet', index: 0, won: 0, stake: 0, deck: [], spare: { easy: [], medium: [], hard: [] },
+    current: null, answers: [], hidden: [],
+    phone: true, fifty: true, swap: true,
+    endsAt: 0, timer: 0, loading: false,
+    msg: 'Pay 50. Fifteen questions. Ladder to 5000.'
   };
   const bc = {
     deck: [], player: [], banker: [], side: 'player', bet: 10,
@@ -6604,7 +6859,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   function casinoBusy(){
     const c4Live = c4.phase === 'you' || c4.phase === 'ai';
     const mjLive = mj.phase === 'you' || mj.phase === 'claim' || mj.phase === 'ai';
-    return !!(roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy || skittles.busy || c4Live || mjLive);
+    return !!(roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy || skittles.busy || quiz.phase === 'play' || c4Live || mjLive);
   }
   function casinoLock(on){
     const busy = !!(on || casinoBusy());
@@ -6673,6 +6928,9 @@ body.view-3d .scanlines{ opacity:0.16; }
       c4.phase = 'bet';
       c4.win = [];
       c4.msg = 'Game returned. The stake is back in the bank.';
+    }
+    if (quiz.phase === 'play'){
+      quizEndRun('close');
     }
   }
   const DART_SVG = 'http://www.w3.org/2000/svg';
@@ -7106,26 +7364,47 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
   function skitPinBoardPos(i){
     const layout = SKIT_LAYOUT[i];
-    // Pins sit in a box: left 18%–82%, top 10%–58% of the board.
     return {
-      x: 0.18 + layout.x * 0.64,
-      y: 0.10 + layout.y * 0.48
+      x: SKIT_ZONE.left + layout.x * SKIT_ZONE.width,
+      y: SKIT_ZONE.top + layout.y * SKIT_ZONE.height
     };
+  }
+  function skitFallStyle(i, hx, hy, power){
+    const p = skitPinBoardPos(i);
+    const dx = p.x - hx;
+    const side = Math.max(-1, Math.min(1, dx / 0.06));
+    // Tip backward into the pit (negative rotateX / up the board).
+    const fallZ = (side * (36 + power * 44) + (Math.random() - 0.5) * 24).toFixed(1) + 'deg';
+    const fallX = (-78 - power * 28 - Math.random() * 14).toFixed(1) + 'deg';
+    const outX = (side * (26 + power * 40) + (Math.random() - 0.5) * 14).toFixed(1) + '%';
+    // Strong push back into the felt pit behind the wooden tip.
+    const outY = (-46 - power * 55 - Math.random() * 12).toFixed(1) + '%';
+    const outZ = (-18 - power * 30).toFixed(1) + 'px';
+    return { fallX, fallZ, outX, outY, outZ };
   }
   function skitBuild(){
     const host = document.getElementById('skitPins');
-    if (!host || skittles.built) return;
+    if (!host) return;
     host.replaceChildren();
     SKIT_LAYOUT.forEach((p, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'skit-pin';
+      wrap.dataset.pin = String(i);
+      wrap.style.left = (p.x * 100).toFixed(2) + '%';
+      wrap.style.top = (p.y * 100).toFixed(2) + '%';
+      const depth = 0.82 + p.y * 0.28;
+      wrap.style.width = (22 * depth).toFixed(2) + '%';
+      wrap.style.height = (118 * depth).toFixed(2) + '%';
+      wrap.style.zIndex = String(2 + Math.round(p.y * 10));
+      const body = document.createElement('div');
+      body.className = 'skit-pin-body';
       const img = document.createElement('img');
-      img.className = 'skit-pin';
       img.src = 'assets/skittle.png';
       img.alt = '';
       img.draggable = false;
-      img.dataset.pin = String(i);
-      img.style.left = (p.x * 100).toFixed(2) + '%';
-      img.style.top = (p.y * 100).toFixed(2) + '%';
-      host.appendChild(img);
+      body.appendChild(img);
+      wrap.appendChild(body);
+      host.appendChild(wrap);
     });
     skittles.built = true;
   }
@@ -7134,9 +7413,17 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
   function skitResetPins(){
     skittles.pins = SKIT_LAYOUT.map(() => true);
+    document.querySelectorAll('#skitPins .skit-pin').forEach(el => {
+      el.classList.remove('is-down');
+      el.style.removeProperty('--fall-x');
+      el.style.removeProperty('--fall-z');
+      el.style.removeProperty('--fall-dx');
+      el.style.removeProperty('--fall-dy');
+      el.style.removeProperty('--fall-dz');
+    });
   }
   function skitResolveHit(hx, hy, power){
-    const radius = 0.055 + power * 0.11;
+    const radius = 0.028 + power * 0.06;
     const knocked = [];
     const stand = [];
     SKIT_LAYOUT.forEach((_, i) => {
@@ -7153,12 +7440,22 @@ body.view-3d .scanlines{ opacity:0.16; }
         let near = false;
         for (const k of knocked){
           const q = skitPinBoardPos(k);
-          if (Math.hypot(p.x - q.x, p.y - q.y) < 0.12){ near = true; break; }
+          if (Math.hypot(p.x - q.x, p.y - q.y) < 0.048){ near = true; break; }
         }
         if (near && Math.random() < 0.22 + power * 0.28) knocked.push(i);
       });
     }
-    knocked.forEach(i => { skittles.pins[i] = false; });
+    knocked.forEach(i => {
+      skittles.pins[i] = false;
+      const el = document.querySelector('#skitPins .skit-pin[data-pin="' + i + '"]');
+      if (!el) return;
+      const fall = skitFallStyle(i, hx, hy, power);
+      el.style.setProperty('--fall-x', fall.fallX);
+      el.style.setProperty('--fall-z', fall.fallZ);
+      el.style.setProperty('--fall-dx', fall.outX);
+      el.style.setProperty('--fall-dy', fall.outY);
+      el.style.setProperty('--fall-dz', fall.outZ);
+    });
     return knocked.length;
   }
   function skitDenseAim(){
@@ -7214,7 +7511,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     aim.style.top = (skittles.aim.y * 100).toFixed(2) + '%';
   }
   function skitRender(){
-    skitBuild();
+    if (!skittles.built) skitBuild();
     const board = document.getElementById('skitBoard');
     if (board){
       board.classList.toggle('is-flick', skittles.throwMode === 'flick');
@@ -7299,6 +7596,16 @@ body.view-3d .scanlines{ opacity:0.16; }
       skitRender();
     }, 420);
   }
+  function skitSchedulePinReset(){
+    if (skittles.pinResetTimer) clearTimeout(skittles.pinResetTimer);
+    skittles.pinResetTimer = setTimeout(() => {
+      skittles.pinResetTimer = 0;
+      if (skittles.over) return;
+      if (skitStanding()) return;
+      skitResetPins();
+      skitRender();
+    }, 620);
+  }
   function skitApply(who, hit){
     if (skittles.over) return;
     if (skittles.pendingClear){
@@ -7310,7 +7617,8 @@ body.view-3d .scanlines{ opacity:0.16; }
     skittles.marks.push(down);
     const key = who === 'you' ? 'you' : 'ai';
     skittles[key] += down;
-    if (!skitStanding()) skitResetPins();
+    // Let the 3D tip-into-pit play before standing the diamond again.
+    if (!skitStanding()) skitSchedulePinReset();
     if (skittles.game === 'score'){
       skittles.msg = down ? (down + ' down · score ' + skittles.you) : ('Miss · score ' + skittles.you);
       if (skittles.marks.length >= 3) skitFinishVisit('you');
@@ -7513,6 +7821,8 @@ body.view-3d .scanlines{ opacity:0.16; }
   function skitNewGame(game){
     if (skittles.timer) clearTimeout(skittles.timer);
     skittles.timer = 0;
+    if (skittles.pinResetTimer) clearTimeout(skittles.pinResetTimer);
+    skittles.pinResetTimer = 0;
     skitStopAimClock();
     skittles.aimFading = false;
     skittles.busy = false;
@@ -7527,6 +7837,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     skittles.aim = null;
     skittles.over = false;
     skittles.pendingClear = false;
+    skittles.built = false;
     skitResetPins();
     skitClearTrail();
     skitResetCheese();
@@ -7581,6 +7892,317 @@ body.view-3d .scanlines{ opacity:0.16; }
     const neu = document.getElementById('skitNew');
     if (neu) neu.onclick = () => skitNewGame();
   }
+
+  function quizDecode(text){
+    const el = document.createElement('textarea');
+    el.innerHTML = String(text || '');
+    return el.value;
+  }
+  function quizShuffle(list){
+    const arr = list.slice();
+    for (let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+  function quizNorm(raw){
+    return {
+      difficulty: String(raw.difficulty || 'easy').toLowerCase(),
+      category: quizDecode(raw.category || 'General'),
+      question: quizDecode(raw.question || ''),
+      correct_answer: quizDecode(raw.correct_answer || ''),
+      incorrect_answers: (raw.incorrect_answers || []).map(quizDecode)
+    };
+  }
+  function quizPickDeck(pool){
+    const bins = { easy: [], medium: [], hard: [] };
+    pool.forEach(q => {
+      const n = quizNorm(q);
+      if (!bins[n.difficulty]) bins[n.difficulty] = bins.medium;
+      bins[n.difficulty].push(n);
+    });
+    ['easy', 'medium', 'hard'].forEach(k => { bins[k] = quizShuffle(bins[k]); });
+    const need = { easy: 5, medium: 5, hard: 5 };
+    const deck = [];
+    const spare = { easy: [], medium: [], hard: [] };
+    ['easy', 'medium', 'hard'].forEach(k => {
+      while (bins[k].length < need[k]){
+        const fb = quizShuffle(QUIZ_FALLBACK.filter(q => q.difficulty === k).map(quizNorm));
+        bins[k] = bins[k].concat(fb);
+      }
+      deck.push(...bins[k].slice(0, need[k]));
+      spare[k] = bins[k].slice(need[k]);
+    });
+    return { deck, spare };
+  }
+  async function quizLoadDeck(){
+    try{
+      const res = await fetch('https://opentdb.com/api.php?amount=50&type=multiple');
+      if (!res.ok) throw new Error('quiz http');
+      const data = await res.json();
+      if (!data || data.response_code !== 0 || !data.results || !data.results.length) throw new Error('quiz empty');
+      return quizPickDeck(data.results);
+    } catch (_){
+      return quizPickDeck(QUIZ_FALLBACK);
+    }
+  }
+  function quizStopTimer(){
+    if (quiz.timer) clearInterval(quiz.timer);
+    quiz.timer = 0;
+  }
+  function quizSafePayout(){
+    if (quiz.index >= 10) return QUIZ_SAFE[9];
+    if (quiz.index >= 5) return QUIZ_SAFE[4];
+    return 0;
+  }
+  function quizBuildLadder(){
+    const host = document.getElementById('quizLadder');
+    if (!host || host.childElementCount === QUIZ_LADDER.length) return;
+    host.replaceChildren();
+    QUIZ_LADDER.forEach((amt, i) => {
+      const li = document.createElement('li');
+      li.dataset.step = String(i);
+      if (QUIZ_SAFE[i]) li.classList.add('safe');
+      li.innerHTML = '<span>' + (i + 1) + '</span><span>' + amt + '</span>';
+      host.appendChild(li);
+    });
+  }
+  function quizRender(){
+    quizBuildLadder();
+    const step = document.getElementById('quizStep');
+    const prize = document.getElementById('quizPrize');
+    const cat = document.getElementById('quizCat');
+    const qEl = document.getElementById('quizQuestion');
+    const msg = document.getElementById('quizMsg');
+    const bar = document.getElementById('quizTimerBar');
+    const live = quiz.phase === 'play' && quiz.current;
+    if (step) step.textContent = live ? ('Q ' + (quiz.index + 1) + ' / 15') : 'Pub Quiz';
+    if (prize) prize.textContent = live ? String(QUIZ_LADDER[quiz.index]) : String(quiz.won || 0);
+    if (cat) cat.textContent = live ? (quiz.current.category + ' · ' + quiz.current.difficulty) : 'Open Trivia / house pack';
+    if (qEl) qEl.textContent = live ? quiz.current.question : 'Pay 50 to start a 15-question pub quiz.';
+    document.querySelectorAll('#quizAnswers [data-quiz-ans]').forEach(btn => {
+      const i = Number(btn.dataset.quizAns);
+      const ans = quiz.answers[i];
+      const hidden = quiz.hidden.indexOf(i) >= 0;
+      btn.disabled = !live || quiz.loading || hidden;
+      btn.classList.toggle('gone', hidden);
+      btn.classList.remove('ok', 'bad');
+      btn.textContent = ans ? (String.fromCharCode(65 + i) + '. ' + ans.text) : String.fromCharCode(65 + i);
+    });
+    document.querySelectorAll('#quizLadder li').forEach(li => {
+      const i = Number(li.dataset.step);
+      li.classList.toggle('now', live && i === quiz.index);
+      li.classList.toggle('done', quiz.won >= QUIZ_LADDER[i] && i < quiz.index);
+    });
+    const phone = document.getElementById('quizPhone');
+    const fifty = document.getElementById('quizFifty');
+    const swap = document.getElementById('quizSwap');
+    const walk = document.getElementById('quizWalk');
+    const start = document.getElementById('quizStart');
+    if (phone){ phone.disabled = !live || !quiz.phone || quiz.loading; phone.classList.toggle('on', !quiz.phone); }
+    if (fifty){ fifty.disabled = !live || !quiz.fifty || quiz.loading; fifty.classList.toggle('on', !quiz.fifty); }
+    if (swap){ swap.disabled = !live || !quiz.swap || quiz.loading; swap.classList.toggle('on', !quiz.swap); }
+    if (walk) walk.disabled = !live || quiz.loading;
+    if (start){
+      start.disabled = quiz.phase === 'play' || quiz.loading;
+      start.textContent = quiz.loading ? 'Loading…' : 'Start 50';
+    }
+    if (bar){
+      if (live && quiz.endsAt){
+        const left = Math.max(0, quiz.endsAt - performance.now());
+        const total = Math.max(1, quiz.endsAt - (quiz.startedAt || quiz.endsAt - 30000));
+        bar.style.transform = 'scaleX(' + Math.max(0, Math.min(1, left / total)).toFixed(4) + ')';
+      } else bar.style.transform = 'scaleX(0)';
+    }
+    if (msg) msg.textContent = quiz.msg;
+  }
+  function quizSetQuestion(raw){
+    const q = quizNorm(raw);
+    const opts = quizShuffle([
+      { text: q.correct_answer, ok: true },
+      ...q.incorrect_answers.slice(0, 3).map(text => ({ text, ok: false }))
+    ]);
+    while (opts.length < 4) opts.push({ text: '—', ok: false });
+    quiz.current = q;
+    quiz.answers = opts;
+    quiz.hidden = [];
+    quiz.startedAt = performance.now();
+    quiz.endsAt = quiz.startedAt + 30000;
+  }
+  function quizShowQuestion(){
+    const raw = quiz.deck[quiz.index];
+    if (!raw){
+      quiz.msg = 'No question ready.';
+      quizRender();
+      return;
+    }
+    quizSetQuestion(raw);
+    quiz.msg = 'Choose an answer. Walk away keeps ' + quiz.won + '.';
+    quizRender();
+    quizStopTimer();
+    quiz.timer = setInterval(() => {
+      if (quiz.phase !== 'play') return;
+      const left = quiz.endsAt - performance.now();
+      quizRender();
+      if (left <= 0){
+        quizStopTimer();
+        quiz.msg = 'Time is up.';
+        quizEndRun('wrong');
+      }
+    }, 200);
+  }
+  function quizPay(amount){
+    const p = casinoHuman();
+    if (p && amount > 0) p.bankroll += amount;
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+  }
+  function quizEndRun(reason){
+    if (quiz.phase !== 'play' && reason !== 'close') return;
+    quizStopTimer();
+    let pay = 0;
+    if (reason === 'win'){
+      pay = QUIZ_LADDER[14];
+      quiz.msg = 'Top of the ladder. You take ' + pay + '.';
+    } else if (reason === 'walk' || reason === 'close'){
+      pay = quiz.won;
+      quiz.msg = pay
+        ? ((reason === 'close' ? 'Quiz closed. ' : 'Walk away. ') + 'You take ' + pay + '.')
+        : (reason === 'close' ? 'Quiz closed. The stake is gone.' : 'Walk away with nothing this early.');
+    } else {
+      pay = quizSafePayout();
+      quiz.msg = pay
+        ? ('Wrong. Safe haven pays ' + pay + '.')
+        : 'Wrong. The stake is gone.';
+    }
+    quiz.phase = 'bet';
+    quiz.stake = 0;
+    quiz.current = null;
+    quiz.answers = [];
+    quiz.hidden = [];
+    quiz.endsAt = 0;
+    quizPay(pay);
+    quiz.won = 0;
+    quiz.index = 0;
+    casinoLock(false);
+    quizRender();
+  }
+  async function quizStart(){
+    if (quiz.phase === 'play' || quiz.loading) return;
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < 50){
+      quiz.msg = 'Need 50 in the bank to start.';
+      quizRender();
+      return;
+    }
+    quiz.loading = true;
+    quiz.msg = 'Fetching pub quiz questions…';
+    quizRender();
+    casinoLock(true);
+    const pack = await quizLoadDeck();
+    human.bankroll -= 50;
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    quiz.deck = pack.deck;
+    quiz.spare = pack.spare;
+    quiz.phase = 'play';
+    quiz.index = 0;
+    quiz.won = 0;
+    quiz.stake = 50;
+    quiz.phone = true;
+    quiz.fifty = true;
+    quiz.swap = true;
+    quiz.loading = false;
+    quiz.msg = 'Question 1. For 5.';
+    quizShowQuestion();
+  }
+  function quizAnswer(ix){
+    if (quiz.phase !== 'play' || quiz.loading || !quiz.current) return;
+    if (quiz.hidden.indexOf(ix) >= 0) return;
+    const pick = quiz.answers[ix];
+    if (!pick) return;
+    quizStopTimer();
+    document.querySelectorAll('#quizAnswers [data-quiz-ans]').forEach(btn => {
+      const i = Number(btn.dataset.quizAns);
+      const ans = quiz.answers[i];
+      if (!ans || quiz.hidden.indexOf(i) >= 0) return;
+      if (ans.ok) btn.classList.add('ok');
+      if (i === ix && !ans.ok) btn.classList.add('bad');
+      btn.disabled = true;
+    });
+    if (!pick.ok){
+      quiz.msg = 'Wrong. The answer was ' + quiz.current.correct_answer + '.';
+      setTimeout(() => quizEndRun('wrong'), 700);
+      return;
+    }
+    quiz.won = QUIZ_LADDER[quiz.index];
+    if (quiz.index >= 14){
+      quiz.msg = 'Correct. Top prize!';
+      setTimeout(() => quizEndRun('win'), 700);
+      return;
+    }
+    quiz.index += 1;
+    quiz.msg = 'Correct. Next question for ' + QUIZ_LADDER[quiz.index] + '.';
+    setTimeout(() => quizShowQuestion(), 650);
+  }
+  function quizWalk(){
+    if (quiz.phase !== 'play' || quiz.loading) return;
+    quizEndRun('walk');
+  }
+  function quizPhone(){
+    if (quiz.phase !== 'play' || !quiz.phone || quiz.loading) return;
+    quiz.phone = false;
+    quiz.endsAt += 20000;
+    quiz.msg = 'Friend on the line. +20 seconds.';
+    quizRender();
+  }
+  function quizFifty(){
+    if (quiz.phase !== 'play' || !quiz.fifty || quiz.loading || !quiz.answers.length) return;
+    const wrong = [];
+    quiz.answers.forEach((ans, i) => { if (!ans.ok) wrong.push(i); });
+    const hide = quizShuffle(wrong).slice(0, 2);
+    quiz.hidden = hide;
+    quiz.fifty = false;
+    quiz.msg = 'Fifty fifty. Two wrong answers are out.';
+    quizRender();
+  }
+  function quizSwap(){
+    if (quiz.phase !== 'play' || !quiz.swap || quiz.loading || !quiz.current) return;
+    const diff = quiz.current.difficulty;
+    let next = null;
+    if (quiz.spare[diff] && quiz.spare[diff].length) next = quiz.spare[diff].shift();
+    else {
+      const fb = quizShuffle(QUIZ_FALLBACK.filter(q => q.difficulty === diff).map(quizNorm));
+      next = fb[0] || null;
+    }
+    if (!next){
+      quiz.msg = 'No replacement question ready.';
+      quizRender();
+      return;
+    }
+    quiz.swap = false;
+    quiz.deck[quiz.index] = next;
+    quiz.msg = 'Question replaced.';
+    quizShowQuestion();
+  }
+  function setupQuiz(){
+    quizBuildLadder();
+    document.querySelectorAll('#quizAnswers [data-quiz-ans]').forEach(btn => {
+      btn.onclick = () => quizAnswer(Number(btn.dataset.quizAns));
+    });
+    const start = document.getElementById('quizStart');
+    const walk = document.getElementById('quizWalk');
+    const phone = document.getElementById('quizPhone');
+    const fifty = document.getElementById('quizFifty');
+    const swap = document.getElementById('quizSwap');
+    if (start) start.onclick = () => { quizStart(); };
+    if (walk) walk.onclick = quizWalk;
+    if (phone) phone.onclick = quizPhone;
+    if (fifty) fifty.onclick = quizFifty;
+    if (swap) swap.onclick = quizSwap;
+    quizRender();
+  }
   function showCasino(index){
     if (casinoBusy()) return;
     const n = CASINO.length;
@@ -7601,6 +8223,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (game.id === 'slots') slotEnsure();
     if (game.id === 'darts') dartRender();
     if (game.id === 'skittles') skitRender();
+    if (game.id === 'quiz') quizRender();
     if (game.id === 'baccarat') bcRender();
     if (game.id === 'connect4') c4Render();
     if (game.id === 'mahjong') mjRender();
@@ -7627,7 +8250,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     openRoulette();
   }
   function paintCasinoPlayers(){
-    ['pkPlayers', 'bjPlayers', 'slotPlayers', 'bcPlayers', 'c4Players', 'mjPlayers'].forEach(id => {
+    ['pkPlayers', 'bjPlayers', 'slotPlayers', 'bcPlayers', 'c4Players', 'mjPlayers', 'quizPlayers'].forEach(id => {
       const host = document.getElementById(id);
       if (!host) return;
       host.innerHTML = '';
@@ -9504,6 +10127,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     slotEnsure();
     dartSetup();
     skitSetup();
+    setupQuiz();
     const wheelBtn = document.getElementById('trackRouletteBtn');
     if (wheelBtn) wheelBtn.onclick = openRoulette;
     setupTrackRoulette();
