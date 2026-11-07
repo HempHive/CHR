@@ -1999,6 +1999,186 @@ body.view-3d .scanlines{ opacity:0.16; }
   .dart-side{ height:180px; min-height:180px; max-height:180px; }
   .dart-controls{ overflow-x:auto; }
 }
+.skit-layout{
+  display:grid;
+  grid-template-columns:minmax(220px, 1.35fr) minmax(0, 1fr);
+  gap:14px;
+  align-items:center;
+  height:280px;
+  min-height:280px;
+  max-height:280px;
+}
+.skit-board{
+  position:relative;
+  width:100%;
+  height:280px;
+  border:1px solid rgba(198,161,90,0.85);
+  border-radius:12px;
+  overflow:hidden;
+  touch-action:none;
+  user-select:none;
+  cursor:crosshair;
+  background:#1a120c center/cover no-repeat;
+  background-image:url('assets/skittles-alley.jpg');
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,0.35);
+}
+.skit-board.is-flick{ cursor:grab; }
+.skit-board.is-flicking{ cursor:grabbing; }
+.skit-pins{
+  position:absolute;
+  left:18%;
+  right:18%;
+  top:10%;
+  bottom:42%;
+  pointer-events:none;
+}
+.skit-pin{
+  position:absolute;
+  width:11%;
+  height:auto;
+  transform:translate(-50%, -100%);
+  transform-origin:50% 92%;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.55));
+  transition:transform .28s ease, opacity .28s ease;
+  z-index:2;
+}
+.skit-pin.is-down{
+  transform:translate(-50%, -40%) rotate(78deg);
+  opacity:0.55;
+  z-index:1;
+}
+.skit-aim{
+  position:absolute;
+  width:18px;
+  height:18px;
+  margin:-9px 0 0 -9px;
+  border:2px solid #ffd166;
+  border-radius:50%;
+  box-shadow:0 0 0 1px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,209,102,0.5);
+  pointer-events:none;
+  display:none;
+  z-index:5;
+}
+.skit-aim.show{ display:block; }
+.skit-aim.fade{ opacity:0.35; }
+.skit-trail{
+  position:absolute;
+  left:0; top:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index:4;
+}
+.skit-cheese{
+  position:absolute;
+  left:50%;
+  bottom:8%;
+  width:34px;
+  height:34px;
+  margin:0 0 0 -17px;
+  z-index:6;
+  pointer-events:none;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.55));
+  transition:none;
+  background:center/contain no-repeat url('assets/skittle-cheese.png');
+}
+.skit-board.is-flick .skit-cheese{ pointer-events:auto; cursor:grab; }
+.skit-board.is-flicking .skit-cheese{ cursor:grabbing; }
+.skit-cheese.flying{
+  transition:left .38s cubic-bezier(.2,.7,.2,1), top .38s cubic-bezier(.2,.7,.2,1), bottom .38s cubic-bezier(.2,.7,.2,1), transform .38s ease;
+}
+@media (max-width: 720px){
+  .skit-cheese{ width:26px; height:26px; margin-left:-13px; }
+}
+.skit-side{
+  height:280px;
+  min-height:280px;
+  max-height:280px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:10px;
+  overflow:hidden;
+}
+.skit-score{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:8px;
+  height:36px;
+  padding:0 10px;
+  border:1px solid rgba(255,209,102,0.35);
+  border-radius:10px;
+  background:rgba(4,12,10,0.55);
+}
+.skit-score.on{ border-color:#ffd166; box-shadow:inset 0 0 0 1px rgba(255,209,102,0.45); }
+.skit-score b{ color:#f3d48a; font-size:14px; }
+.skit-score span{ color:#fff; font-size:28px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
+.skit-visit{
+  height:28px;
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.skit-visit i{
+  flex:1 1 0;
+  height:28px;
+  border-radius:8px;
+  border:1px dashed rgba(255,209,102,0.35);
+  color:#ffe7a3;
+  font-style:normal;
+  font-size:12px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.skit-msg{
+  margin:6px 0 14px;
+  height:18.2px;
+  min-height:18.2px;
+  max-height:18.2px;
+  line-height:18.2px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-align:center;
+  color:#e7f6ff;
+  font-size:14px;
+  font-weight:700;
+}
+.skit-controls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  height:34px;
+  min-height:34px;
+  max-height:34px;
+}
+.skit-modes{ display:flex; gap:4px; height:34px; }
+.skit-modes button, #skitNew{
+  height:34px;
+  padding:0 10px;
+  border-radius:8px;
+  border:1px solid #244766;
+  background:#0f2037;
+  color:#e6f1ff;
+  font-weight:700;
+  white-space:nowrap;
+}
+.skit-modes button.on{ background:#241c08; border-color:#ffd166; color:#ffd166; }
+#skitNew{ margin-left:auto; background:#0b3a2e; border-color:#0bbd7a; color:#eafff6; }
+@media (max-width: 720px){
+  .skit-layout{
+    grid-template-columns:minmax(150px, 1.2fr) minmax(0, 1fr);
+    height:180px;
+    min-height:180px;
+    max-height:180px;
+    gap:8px;
+  }
+  .skit-board, .skit-side{ height:180px; min-height:180px; max-height:180px; }
+  .skit-controls{ overflow-x:auto; }
+}
 .rl-foot{ flex-wrap:wrap; }
 .rl-players, .rl-chips, .rl-actions{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .rl-player{ display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:92px; }
@@ -2075,6 +2255,7 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" class="game-switch" id="btnConnect4" data-game="connect4" title="Connect 4">♣️</button>
           <button type="button" class="game-switch" id="btnFruit" data-game="slots" title="Fruit Machine">🍋</button>
           <button type="button" class="game-switch" id="btnDarts" data-game="darts" title="Darts">🎯</button>
+          <button type="button" class="game-switch" id="btnSkittles" data-game="skittles" title="Table Skittles">🧀</button>
           <button type="button" class="game-switch" id="btnRoulette" data-game="roulette" title="Roulette">🃏</button>
           <button type="button" class="game-switch" id="btnMahjong" data-game="mahjong" title="Mahjong">🀄️</button>
           <button type="button" class="game-switch settings-switch" id="btnSettings" title="Settings">🎛️</button>
@@ -2365,6 +2546,38 @@ body.view-3d .scanlines{ opacity:0.16; }
         <button type="button" id="dartNew">New game</button>
       </div>
     </div>
+    <div class="casino-view" data-game="skittles" hidden>
+      <div class="skit-layout">
+        <div class="skit-board" id="skitBoard" role="img" aria-label="Table skittles alley">
+          <div class="skit-pins" id="skitPins"></div>
+          <svg class="skit-trail" id="skitTrail" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="skit-aim" id="skitAim"></div>
+          <div class="skit-cheese" id="skitCheese" aria-hidden="true"></div>
+        </div>
+        <div class="skit-side">
+          <div class="skit-score" id="skitYou"><b>You</b><span>0</span></div>
+          <div class="skit-score" id="skitAi"><b>House</b><span>0</span></div>
+          <div class="skit-visit" id="skitVisit"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <p class="skit-msg" id="skitMsg">Aim, then tap the same spot to throw the cheese.</p>
+      <div class="skit-controls">
+        <div class="skit-modes" id="skitModes">
+          <button type="button" data-skit-game="score" class="on">Score</button>
+          <button type="button" data-skit-game="match">Match</button>
+        </div>
+        <div class="skit-modes" id="skitLevels">
+          <button type="button" data-skit-level="easy">Easy</button>
+          <button type="button" data-skit-level="match" class="on">Match</button>
+          <button type="button" data-skit-level="pro">Pro</button>
+        </div>
+        <div class="skit-modes" id="skitThrows">
+          <button type="button" data-skit-throw="aim" class="on">Aim</button>
+          <button type="button" data-skit-throw="flick">Flick</button>
+        </div>
+        <button type="button" id="skitNew">New game</button>
+      </div>
+    </div>
     <div class="casino-view" data-game="baccarat" hidden>
       <div class="bj-table">
         <div class="bc-bets" id="bcBets">
@@ -2450,7 +2663,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     </section>
     <section>
       <h4>Casino</h4>
-      <p>Roulette, Texas Hold’em, blackjack, baccarat, the fruit machine, Connect 4, and Mahjong use the same player banks. Darts is the target button: click a spot on the board, then tap that same spot again to throw. A quick second tap hits. A slow one falls short. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1. Baccarat pays 1:1 on Player, 19:20 on Banker, and 8:1 on Tie. Connect 4 and Mahjong pay even money.</p>
+      <p>Roulette, Texas Hold’em, blackjack, baccarat, the fruit machine, Connect 4, and Mahjong use the same player banks. Darts is the target button: click a spot on the board, then tap that same spot again to throw. A quick second tap hits. A slow one falls short. Table Skittles is the cheese button after Darts: Aim mode works like Darts, or switch to Flick and drag the cheese. Score is solo. Match is first to 31 against the computer on Easy, Match, or Pro. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1. Baccarat pays 1:1 on Player, 19:20 on Banker, and 8:1 on Tie. Connect 4 and Mahjong pay even money.</p>
     </section>
     <div class="rules-actions">
       <button type="button" id="rulesClose">Close</button>
@@ -6290,7 +6503,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
 
   function closeRoulette(){
-    if (roulette.spinning || slots.spinning || darts.busy) return;
+    if (roulette.spinning || slots.spinning || darts.busy || skittles.flying) return;
     quitOpenHands();
     if (roulette.raf) cancelAnimationFrame(roulette.raf);
     if (roulette.zoomRaf) cancelAnimationFrame(roulette.zoomRaf);
@@ -6313,6 +6526,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     { id:'blackjack', title:'Blackjack' },
     { id:'slots', title:'Fruit Machine' },
     { id:'darts', title:'Darts' },
+    { id:'skittles', title:'Table Skittles' },
     { id:'baccarat', title:'Baccarat' },
     { id:'connect4', title:'Connect 4' },
     { id:'mahjong', title:'Mahjong' }
@@ -6351,6 +6565,20 @@ body.view-3d .scanlines{ opacity:0.16; }
     aimTimer: 0, aimFading: false, built: false, over: false, pendingClear: false,
     msg: 'Aim, then tap the same spot to throw.'
   };
+  const SKIT_LAYOUT = [
+    { x:0.50, y:0.14 },
+    { x:0.36, y:0.30 }, { x:0.64, y:0.30 },
+    { x:0.22, y:0.48 }, { x:0.50, y:0.48 }, { x:0.78, y:0.48 },
+    { x:0.36, y:0.66 }, { x:0.64, y:0.66 },
+    { x:0.50, y:0.82 }
+  ];
+  const skittles = {
+    game: 'score', level: 'match', throwMode: 'aim',
+    you: 0, ai: 0, turn: 'you', marks: [], pins: SKIT_LAYOUT.map(() => true),
+    aim: null, busy: false, flying: false, timer: 0, aimTimer: 0, aimFading: false,
+    built: false, over: false, pendingClear: false, flick: null,
+    msg: 'Aim, then tap the same spot to throw the cheese.'
+  };
   const bc = {
     deck: [], player: [], banker: [], side: 'player', bet: 10,
     msg: 'Choose Player, Banker, or Tie, then deal.'
@@ -6376,7 +6604,7 @@ body.view-3d .scanlines{ opacity:0.16; }
   function casinoBusy(){
     const c4Live = c4.phase === 'you' || c4.phase === 'ai';
     const mjLive = mj.phase === 'you' || mj.phase === 'claim' || mj.phase === 'ai';
-    return !!(roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy || c4Live || mjLive);
+    return !!(roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy || skittles.busy || c4Live || mjLive);
   }
   function casinoLock(on){
     const busy = !!(on || casinoBusy());
@@ -6385,7 +6613,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     const closeBtn = document.getElementById('rouletteClose');
     if (prev) prev.disabled = busy;
     if (next) next.disabled = busy;
-    if (closeBtn) closeBtn.disabled = !!(roulette.spinning || slots.spinning || darts.busy);
+    if (closeBtn) closeBtn.disabled = !!(roulette.spinning || slots.spinning || darts.busy || skittles.flying);
   }
   function quitOpenHands(){
     if (mj.phase === 'you' || mj.phase === 'claim' || mj.phase === 'ai'){
@@ -6858,6 +7086,501 @@ body.view-3d .scanlines{ opacity:0.16; }
     const neu = document.getElementById('dartNew');
     if (neu) neu.onclick = () => dartNewGame();
   }
+
+  function skitStopAimClock(){
+    if (skittles.aimTimer) clearTimeout(skittles.aimTimer);
+    skittles.aimTimer = 0;
+  }
+  function skitClearTrail(){
+    const trail = document.getElementById('skitTrail');
+    if (trail) trail.replaceChildren();
+  }
+  function skitResetCheese(){
+    const cheese = document.getElementById('skitCheese');
+    if (!cheese) return;
+    cheese.classList.remove('flying');
+    cheese.style.left = '50%';
+    cheese.style.top = '';
+    cheese.style.bottom = '8%';
+    cheese.style.transform = '';
+  }
+  function skitPinBoardPos(i){
+    const layout = SKIT_LAYOUT[i];
+    // Pins sit in a box: left 18%–82%, top 10%–58% of the board.
+    return {
+      x: 0.18 + layout.x * 0.64,
+      y: 0.10 + layout.y * 0.48
+    };
+  }
+  function skitBuild(){
+    const host = document.getElementById('skitPins');
+    if (!host || skittles.built) return;
+    host.replaceChildren();
+    SKIT_LAYOUT.forEach((p, i) => {
+      const img = document.createElement('img');
+      img.className = 'skit-pin';
+      img.src = 'assets/skittle.png';
+      img.alt = '';
+      img.draggable = false;
+      img.dataset.pin = String(i);
+      img.style.left = (p.x * 100).toFixed(2) + '%';
+      img.style.top = (p.y * 100).toFixed(2) + '%';
+      host.appendChild(img);
+    });
+    skittles.built = true;
+  }
+  function skitStanding(){
+    return skittles.pins.reduce((n, up) => n + (up ? 1 : 0), 0);
+  }
+  function skitResetPins(){
+    skittles.pins = SKIT_LAYOUT.map(() => true);
+  }
+  function skitResolveHit(hx, hy, power){
+    const radius = 0.055 + power * 0.11;
+    const knocked = [];
+    const stand = [];
+    SKIT_LAYOUT.forEach((_, i) => {
+      if (!skittles.pins[i]) return;
+      const p = skitPinBoardPos(i);
+      const d = Math.hypot(p.x - hx, p.y - hy);
+      if (d <= radius) knocked.push(i);
+      else stand.push(i);
+    });
+    // Light chain: nearby standing pins can topple after a direct hit.
+    if (knocked.length){
+      stand.forEach(i => {
+        const p = skitPinBoardPos(i);
+        let near = false;
+        for (const k of knocked){
+          const q = skitPinBoardPos(k);
+          if (Math.hypot(p.x - q.x, p.y - q.y) < 0.12){ near = true; break; }
+        }
+        if (near && Math.random() < 0.22 + power * 0.28) knocked.push(i);
+      });
+    }
+    knocked.forEach(i => { skittles.pins[i] = false; });
+    return knocked.length;
+  }
+  function skitDenseAim(){
+    const up = [];
+    SKIT_LAYOUT.forEach((_, i) => { if (skittles.pins[i]) up.push(i); });
+    if (!up.length){
+      skitResetPins();
+      return skitPinBoardPos(4);
+    }
+    let best = up[0];
+    let bestN = -1;
+    up.forEach(i => {
+      const p = skitPinBoardPos(i);
+      let n = 0;
+      up.forEach(j => {
+        const q = skitPinBoardPos(j);
+        if (Math.hypot(p.x - q.x, p.y - q.y) < 0.16) n += 1;
+      });
+      if (n > bestN){ bestN = n; best = i; }
+    });
+    return skitPinBoardPos(best);
+  }
+  function skitGauss(){
+    const u = Math.max(1e-9, Math.random());
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(Math.PI * 2 * Math.random());
+  }
+  function skitBotHit(){
+    const aim = skitDenseAim();
+    const sigma = skittles.level === 'easy' ? 0.11 : skittles.level === 'pro' ? 0.028 : 0.055;
+    const missP = skittles.level === 'easy' ? 0.22 : skittles.level === 'pro' ? 0.03 : 0.09;
+    let x = aim.x + skitGauss() * sigma;
+    let y = aim.y + skitGauss() * sigma;
+    let power = skittles.level === 'easy' ? 0.55 : skittles.level === 'pro' ? 0.92 : 0.75;
+    if (Math.random() < missP){
+      x = 0.2 + Math.random() * 0.6;
+      y = 0.72 + Math.random() * 0.18;
+      power = 0.2;
+    }
+    x = Math.max(0.08, Math.min(0.92, x));
+    y = Math.max(0.08, Math.min(0.9, y));
+    return { x, y, power };
+  }
+  function skitPlaceAim(){
+    const aim = document.getElementById('skitAim');
+    if (!aim) return;
+    if (!skittles.aim || skittles.busy || skittles.over || skittles.throwMode !== 'aim'){
+      aim.classList.remove('show', 'fade');
+      return;
+    }
+    aim.classList.add('show');
+    aim.classList.toggle('fade', !!skittles.aimFading);
+    aim.style.left = (skittles.aim.x * 100).toFixed(2) + '%';
+    aim.style.top = (skittles.aim.y * 100).toFixed(2) + '%';
+  }
+  function skitRender(){
+    skitBuild();
+    const board = document.getElementById('skitBoard');
+    if (board){
+      board.classList.toggle('is-flick', skittles.throwMode === 'flick');
+      board.classList.toggle('is-flicking', !!(skittles.flick && skittles.throwMode === 'flick'));
+    }
+    document.querySelectorAll('#skitPins .skit-pin').forEach((el, i) => {
+      el.classList.toggle('is-down', !skittles.pins[i]);
+    });
+    const you = document.getElementById('skitYou');
+    const ai = document.getElementById('skitAi');
+    const score = skittles.game === 'score';
+    if (you){
+      you.querySelector('b').textContent = score ? 'Score' : 'You';
+      you.querySelector('span').textContent = String(skittles.you);
+      you.classList.toggle('on', !skittles.over && (score || skittles.turn === 'you'));
+    }
+    if (ai){
+      ai.style.display = score ? 'none' : '';
+      ai.querySelector('b').textContent = 'House';
+      ai.querySelector('span').textContent = score ? '—' : String(skittles.ai);
+      ai.classList.toggle('on', !score && !skittles.over && skittles.turn === 'ai');
+    }
+    document.querySelectorAll('#skitVisit i').forEach((slot, i) => {
+      slot.textContent = skittles.marks[i] != null ? String(skittles.marks[i]) : '';
+    });
+    const msg = document.getElementById('skitMsg');
+    if (msg){
+      msg.textContent = skittles.msg;
+      msg.title = skittles.msg;
+    }
+    document.querySelectorAll('#skitModes [data-skit-game]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.skitGame === skittles.game);
+    });
+    document.querySelectorAll('#skitLevels [data-skit-level]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.skitLevel === skittles.level);
+    });
+    document.querySelectorAll('#skitThrows [data-skit-throw]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.skitThrow === skittles.throwMode);
+    });
+    skitPlaceAim();
+  }
+  function skitBeginAim(p){
+    skitStopAimClock();
+    skittles.aimFading = false;
+    skittles.aim = { x:p.x, y:p.y, t:performance.now() };
+    skittles.msg = 'Aimed. Tap that spot again to throw.';
+    skitRender();
+    skittles.aimTimer = setTimeout(() => {
+      if (!skittles.aim || skittles.busy) return;
+      skittles.aimFading = true;
+      skitPlaceAim();
+      skittles.aimTimer = setTimeout(() => {
+        if (!skittles.aimFading) return;
+        skittles.aim = null;
+        skittles.aimFading = false;
+        skittles.msg = skittles.throwMode === 'flick'
+          ? 'Drag the cheese toward the pins, then release.'
+          : 'Aim, then tap the same spot to throw the cheese.';
+        skitRender();
+      }, 900);
+    }, 2400);
+  }
+  function skitFinishVisit(who){
+    skittles.pendingClear = true;
+    skittles.busy = true;
+    casinoLock(true);
+    if (who === 'you' && skittles.game !== 'score'){
+      skittles.turn = 'ai';
+      skitRender();
+      skittles.timer = setTimeout(skitBotThrow, 700);
+      return;
+    }
+    skittles.turn = 'you';
+    skitRender();
+    skittles.timer = setTimeout(() => {
+      if (skittles.over || skittles.turn !== 'you') return;
+      skittles.busy = false;
+      casinoLock(false);
+      skittles.msg = skittles.throwMode === 'flick'
+        ? 'Drag the cheese toward the pins, then release.'
+        : 'Aim, then tap the same spot to throw the cheese.';
+      skitRender();
+    }, 420);
+  }
+  function skitApply(who, hit){
+    if (skittles.over) return;
+    if (skittles.pendingClear){
+      skittles.marks = [];
+      skittles.pendingClear = false;
+    }
+    if (!skitStanding()) skitResetPins();
+    const down = skitResolveHit(hit.x, hit.y, hit.power);
+    skittles.marks.push(down);
+    const key = who === 'you' ? 'you' : 'ai';
+    skittles[key] += down;
+    if (!skitStanding()) skitResetPins();
+    if (skittles.game === 'score'){
+      skittles.msg = down ? (down + ' down · score ' + skittles.you) : ('Miss · score ' + skittles.you);
+      if (skittles.marks.length >= 3) skitFinishVisit('you');
+      else skitRender();
+      return;
+    }
+    if (skittles[key] >= 31){
+      skittles.over = true;
+      skittles.busy = false;
+      skittles.flying = false;
+      skittles.turn = who;
+      casinoLock(false);
+      skittles.msg = who === 'you'
+        ? (down + ' down. You reach ' + skittles.you + ' and win.')
+        : (down + ' down. House reaches ' + skittles.ai + ' and wins.');
+      skitRender();
+      return;
+    }
+    skittles.msg = down
+      ? (who === 'you' ? (down + ' down · you ' + skittles.you) : ('House ' + down + ' · ' + skittles.ai))
+      : (who === 'you' ? ('Miss. You ' + skittles.you) : ('House misses. ' + skittles.ai));
+    if (skittles.marks.length >= 3) skitFinishVisit(who);
+    else skitRender();
+  }
+  function skitFlyTo(hx, hy, who, power, done){
+    const cheese = document.getElementById('skitCheese');
+    const board = document.getElementById('skitBoard');
+    if (!cheese || !board){
+      skitApply(who, { x:hx, y:hy, power });
+      if (done) done();
+      return;
+    }
+    skittles.flying = true;
+    skittles.busy = true;
+    casinoLock(true);
+    skitClearTrail();
+    const startLeft = 50;
+    const startTop = 88;
+    cheese.classList.remove('flying');
+    cheese.style.bottom = '';
+    cheese.style.left = startLeft + '%';
+    cheese.style.top = startTop + '%';
+    cheese.style.transform = 'rotate(0deg)';
+    requestAnimationFrame(() => {
+      cheese.classList.add('flying');
+      cheese.style.left = (hx * 100).toFixed(2) + '%';
+      cheese.style.top = (hy * 100).toFixed(2) + '%';
+      cheese.style.transform = 'rotate(' + (180 + power * 220).toFixed(0) + 'deg)';
+    });
+    skittles.timer = setTimeout(() => {
+      skitApply(who, { x:hx, y:hy, power });
+      skittles.flying = false;
+      skitResetCheese();
+      if (!skittles.over && skittles.turn === 'you' && !skittles.pendingClear){
+        skittles.busy = false;
+        casinoLock(false);
+      }
+      if (done) done();
+      else skitRender();
+    }, 400);
+  }
+  function skitPlayerThrow(hx, hy, power){
+    skitStopAimClock();
+    skittles.aimFading = false;
+    skittles.aim = null;
+    skitClearTrail();
+    const x = Math.max(0.05, Math.min(0.95, hx));
+    const y = Math.max(0.05, Math.min(0.92, hy));
+    const pwr = Math.max(0.08, Math.min(1, power));
+    skitFlyTo(x, y, 'you', pwr);
+  }
+  function skitBotThrow(){
+    if (skittles.over || skittles.turn !== 'ai'){
+      skittles.busy = false;
+      skittles.flying = false;
+      casinoLock(false);
+      return;
+    }
+    const hit = skitBotHit();
+    skitFlyTo(hit.x, hit.y, 'ai', hit.power, () => {
+      if (skittles.over || skittles.turn !== 'ai') return;
+      skittles.timer = setTimeout(skitBotThrow, 720);
+    });
+  }
+  function skitEventPoint(e){
+    const board = document.getElementById('skitBoard');
+    if (!board) return null;
+    const rect = board.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    return {
+      x: Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)),
+      y: Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
+    };
+  }
+  function skitAimPointer(e){
+    if (skittles.busy || skittles.over) return;
+    if (skittles.game !== 'score' && skittles.turn !== 'you') return;
+    e.preventDefault();
+    const p = skitEventPoint(e);
+    if (!p) return;
+    if (p.y > 0.93 || p.y < 0.04){
+      skittles.msg = 'Aim on the alley.';
+      skitRender();
+      return;
+    }
+    const now = performance.now();
+    if (skittles.aim && !skittles.aimFading){
+      const dist = Math.hypot(p.x - skittles.aim.x, p.y - skittles.aim.y);
+      const dt = now - skittles.aim.t;
+      if (dist <= 0.08 && dt > 40){
+        const power = dt <= 160 ? 1 : Math.max(0.12, 1 - (dt - 160) / 700);
+        let hx = skittles.aim.x;
+        let hy = skittles.aim.y + (1 - power) * 0.22;
+        if (power < 0.18){
+          hx = 0.5 + (Math.random() - 0.5) * 0.2;
+          hy = 0.78;
+          skitPlayerThrow(hx, hy, 0.12);
+        } else skitPlayerThrow(hx, hy, power);
+        return;
+      }
+    }
+    skitBeginAim(p);
+  }
+  function skitDrawTrail(from, to){
+    const trail = document.getElementById('skitTrail');
+    if (!trail) return;
+    trail.replaceChildren();
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', (from.x * 100).toFixed(2));
+    line.setAttribute('y1', (from.y * 100).toFixed(2));
+    line.setAttribute('x2', (to.x * 100).toFixed(2));
+    line.setAttribute('y2', (to.y * 100).toFixed(2));
+    line.setAttribute('stroke', '#ffd166');
+    line.setAttribute('stroke-width', '1.4');
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('stroke-dasharray', '3 3');
+    line.setAttribute('opacity', '0.9');
+    trail.appendChild(line);
+  }
+  function skitFlickDown(e){
+    if (skittles.busy || skittles.over) return;
+    if (skittles.game !== 'score' && skittles.turn !== 'you') return;
+    if (skittles.throwMode !== 'flick') return;
+    e.preventDefault();
+    const p = skitEventPoint(e);
+    if (!p) return;
+    const cheese = document.getElementById('skitCheese');
+    if (cheese){
+      try { cheese.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    skittles.flick = { x:p.x, y:p.y, t:performance.now(), lx:p.x, ly:p.y };
+    skitDrawTrail({ x:0.5, y:0.88 }, p);
+    skitRender();
+  }
+  function skitFlickMove(e){
+    if (!skittles.flick) return;
+    e.preventDefault();
+    const p = skitEventPoint(e);
+    if (!p) return;
+    skittles.flick.lx = p.x;
+    skittles.flick.ly = p.y;
+    const cheese = document.getElementById('skitCheese');
+    if (cheese && !cheese.classList.contains('flying')){
+      cheese.style.bottom = '';
+      cheese.style.left = (p.x * 100).toFixed(2) + '%';
+      cheese.style.top = (p.y * 100).toFixed(2) + '%';
+    }
+    skitDrawTrail({ x:0.5, y:0.88 }, p);
+  }
+  function skitFlickUp(e){
+    if (!skittles.flick) return;
+    e.preventDefault();
+    const start = skittles.flick;
+    skittles.flick = null;
+    const p = skitEventPoint(e) || { x:start.lx, y:start.ly };
+    skitClearTrail();
+    const dx = p.x - 0.5;
+    const dy = p.y - 0.88;
+    const dist = Math.hypot(dx, dy);
+    const dt = Math.max(40, performance.now() - start.t);
+    const speed = dist / (dt / 1000);
+    if (dist < 0.06 || speed < 0.35){
+      skittles.msg = 'Flick farther toward the pins.';
+      skitResetCheese();
+      skitRender();
+      return;
+    }
+    const power = Math.max(0.15, Math.min(1, speed / 2.4));
+    const reach = 0.35 + power * 0.55;
+    let hx = 0.5 + dx * (reach / Math.max(dist, 0.01));
+    let hy = 0.88 + dy * (reach / Math.max(dist, 0.01));
+    hx += (Math.random() - 0.5) * 0.04 * (1.1 - power);
+    hy += (Math.random() - 0.5) * 0.03 * (1.1 - power);
+    skitPlayerThrow(hx, hy, power);
+  }
+  function skitBoardPointer(e){
+    if (skittles.throwMode === 'flick') return;
+    skitAimPointer(e);
+  }
+  function skitNewGame(game){
+    if (skittles.timer) clearTimeout(skittles.timer);
+    skittles.timer = 0;
+    skitStopAimClock();
+    skittles.aimFading = false;
+    skittles.busy = false;
+    skittles.flying = false;
+    skittles.flick = null;
+    casinoLock(false);
+    if (game) skittles.game = game;
+    skittles.you = 0;
+    skittles.ai = 0;
+    skittles.turn = 'you';
+    skittles.marks = [];
+    skittles.aim = null;
+    skittles.over = false;
+    skittles.pendingClear = false;
+    skitResetPins();
+    skitClearTrail();
+    skitResetCheese();
+    skittles.msg = skittles.throwMode === 'flick'
+      ? 'Drag the cheese toward the pins, then release.'
+      : 'Aim, then tap the same spot to throw the cheese.';
+    skitRender();
+  }
+  function skitSetLevel(level){
+    skittles.level = level;
+    skitRender();
+  }
+  function skitSetThrow(mode){
+    if (skittles.busy || skittles.flying) return;
+    skittles.throwMode = mode;
+    skittles.aim = null;
+    skittles.aimFading = false;
+    skittles.flick = null;
+    skitStopAimClock();
+    skitClearTrail();
+    skitResetCheese();
+    skittles.msg = mode === 'flick'
+      ? 'Drag the cheese toward the pins, then release.'
+      : 'Aim, then tap the same spot to throw the cheese.';
+    skitRender();
+  }
+  function skitSetup(){
+    skitBuild();
+    const board = document.getElementById('skitBoard');
+    const cheese = document.getElementById('skitCheese');
+    if (board) board.onpointerdown = skitBoardPointer;
+    if (cheese){
+      cheese.onpointerdown = skitFlickDown;
+      cheese.onpointermove = skitFlickMove;
+      cheese.onpointerup = skitFlickUp;
+      cheese.onpointercancel = () => {
+        skittles.flick = null;
+        skitClearTrail();
+        skitResetCheese();
+        skitRender();
+      };
+    }
+    document.querySelectorAll('#skitModes [data-skit-game]').forEach(btn => {
+      btn.onclick = () => skitNewGame(btn.dataset.skitGame);
+    });
+    document.querySelectorAll('#skitLevels [data-skit-level]').forEach(btn => {
+      btn.onclick = () => skitSetLevel(btn.dataset.skitLevel);
+    });
+    document.querySelectorAll('#skitThrows [data-skit-throw]').forEach(btn => {
+      btn.onclick = () => skitSetThrow(btn.dataset.skitThrow);
+    });
+    const neu = document.getElementById('skitNew');
+    if (neu) neu.onclick = () => skitNewGame();
+  }
   function showCasino(index){
     if (casinoBusy()) return;
     const n = CASINO.length;
@@ -6877,6 +7600,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (game.id === 'blackjack') bjRender();
     if (game.id === 'slots') slotEnsure();
     if (game.id === 'darts') dartRender();
+    if (game.id === 'skittles') skitRender();
     if (game.id === 'baccarat') bcRender();
     if (game.id === 'connect4') c4Render();
     if (game.id === 'mahjong') mjRender();
@@ -8779,6 +9503,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     });
     slotEnsure();
     dartSetup();
+    skitSetup();
     const wheelBtn = document.getElementById('trackRouletteBtn');
     if (wheelBtn) wheelBtn.onclick = openRoulette;
     setupTrackRoulette();
