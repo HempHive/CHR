@@ -127,8 +127,6 @@ button.title:hover{ filter:brightness(1.15); }
   box-shadow:inset 0 0 0 1px rgba(255,209,102,0.35);
 }
 .game-switch[hidden]{ display:none !important; }
-.settings-switch{ margin-left:6px; }
-
 .info-chips{
   display:grid;
   grid-auto-flow:column;
@@ -2554,17 +2552,16 @@ body.view-3d .scanlines{ opacity:0.16; }
           <button type="button" class="game-switch" id="btnBlackjack" data-game="blackjack" title="Blackjack">♠️</button>
           <button type="button" class="game-switch" id="btnHeart" data-game="baccarat" title="Baccarat">♥️</button>
           <button type="button" class="game-switch" id="btnClub" data-game="connect4" title="Connect 4">♣️</button>
-          <button type="button" class="game-switch" id="btnFruit" data-game="slots" title="Fruit Machine">🍋</button>
+          <button type="button" class="game-switch" id="btnSkittles" data-game="skittles" title="Table Skittles">🧀</button>
           <button type="button" class="game-switch" id="btnCheckers" data-game="checkers" title="Checkers">⚫️</button>
           <button type="button" class="game-switch" id="btnDarts" data-game="darts" title="Darts">🎯</button>
-          <button type="button" class="game-switch" id="btnSkittles" data-game="skittles" title="Table Skittles">🧀</button>
+          <button type="button" class="game-switch" id="btnFruit" data-game="slots" title="Fruit Machine">🍋</button>
           <button type="button" class="game-switch" id="btnBackgammon" data-game="backgammon" title="Backgammon">⭕️</button>
           <button type="button" class="game-switch" id="btnQuiz" data-game="quiz" title="Pub Quiz">🍻</button>
           <button type="button" class="game-switch" id="btnConnect4" data-game="connect4" title="Connect 4">🧮</button>
           <button type="button" class="game-switch" id="btnBaccarat" data-game="baccarat" title="Baccarat">🎲</button>
           <button type="button" class="game-switch" id="btnRoulette" data-game="roulette" title="Roulette">🃏</button>
           <button type="button" class="game-switch" id="btnMahjong" data-game="mahjong" title="Mahjong">🀄️</button>
-          <button type="button" class="game-switch settings-switch" id="btnSettings" title="Settings">🎛️</button>
         </div>
       </div>
       <div class="info-chips">
@@ -6353,8 +6350,6 @@ body.view-3d .scanlines{ opacity:0.16; }
     fillFavTeams();
   }
   if (brandTitle && rulesDialog) brandTitle.onclick = openSettings;
-  const btnSettings = document.getElementById('btnSettings');
-  if (btnSettings) btnSettings.onclick = openSettings;
   if (rulesClose && rulesDialog) rulesClose.onclick = () => rulesDialog.close();
 
   // ---------- Roulette ----------
