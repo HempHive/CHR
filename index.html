@@ -1540,6 +1540,49 @@ body.view-3d .scanlines{ opacity:0.16; }
 .c4-cell.ai{ background:radial-gradient(circle at 35% 35%, #ff8d8d, #c42323); }
 .c4-cell.win{ box-shadow:0 0 0 3px #fff; }
 .c4-cell:disabled{ cursor:default; }
+.ck-wrap{
+  display:flex; flex-direction:column; align-items:center; gap:8px; margin:4px 0 6px;
+}
+.ck-board{
+  display:grid;
+  grid-template-columns:repeat(8, 40px);
+  grid-template-rows:repeat(8, 40px);
+  width:max-content;
+  border:3px solid #3a2412;
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+.ck-sq{
+  width:40px; height:40px; padding:0; border:0; border-radius:0;
+  display:flex; align-items:center; justify-content:center;
+  background:#e8d2a8;
+  cursor:default;
+}
+.ck-sq.dark{ background:#6b3f1f; cursor:pointer; }
+.ck-sq.pick{ box-shadow:inset 0 0 0 3px #ffd166; }
+.ck-sq.dest{ box-shadow:inset 0 0 0 3px #8dffb0; }
+.ck-sq:disabled{ cursor:default; }
+.ck-man{
+  width:28px; height:28px; border-radius:50%;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,0.35), 0 2px 3px rgba(0,0,0,0.45);
+  pointer-events:none;
+}
+.ck-man.you{ background:radial-gradient(circle at 35% 30%, #4a4a4a, #111); }
+.ck-man.ai{ background:radial-gradient(circle at 35% 30%, #ffb0a0, #c42323); }
+.ck-man.king::after{
+  content:'♔';
+  display:block; text-align:center; font-size:14px; line-height:28px;
+  color:#ffd166; text-shadow:0 1px 1px rgba(0,0,0,0.7);
+}
+.ck-man.you.king::after{ color:#ffe9a3; }
+.ck-levels{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.ck-levels button{
+  min-width:70px; padding:6px 10px; border-radius:8px;
+  border:1px solid rgba(198,161,90,0.7); background:#1a140c; color:#f3e6cf;
+  font-weight:800; cursor:pointer;
+}
+.ck-levels button.on{ border-color:#ffd166; color:#ffd166; box-shadow:0 0 0 1px #ffd166; }
 .mj-table{ display:flex; flex-direction:column; gap:6px; margin:4px 0 8px; }
 .mj-label{
   text-align:center; font-size:12px; font-weight:800; letter-spacing:0.08em;
@@ -2415,8 +2458,9 @@ body.view-3d .scanlines{ opacity:0.16; }
         <div class="game-switches">
           <button type="button" class="game-switch" id="btnPoker" data-game="holdem" title="Poker">♦️</button>
           <button type="button" class="game-switch" id="btnBlackjack" data-game="blackjack" title="Blackjack">♠️</button>
-          <button type="button" class="game-switch" id="btnBaccarat" data-game="baccarat" title="Baccarat">♥️</button>
-          <button type="button" class="game-switch" id="btnConnect4" data-game="connect4" title="Connect 4">♣️</button>
+          <button type="button" class="game-switch" id="btnBaccarat" data-game="baccarat" title="Baccarat">🎲</button>
+          <button type="button" class="game-switch" id="btnConnect4" data-game="connect4" title="Connect 4">🧮</button>
+          <button type="button" class="game-switch" id="btnCheckers" data-game="checkers" title="Checkers">⚫️</button>
           <button type="button" class="game-switch" id="btnFruit" data-game="slots" title="Fruit Machine">🍋</button>
           <button type="button" class="game-switch" id="btnDarts" data-game="darts" title="Darts">🎯</button>
           <button type="button" class="game-switch" id="btnSkittles" data-game="skittles" title="Table Skittles">🧀</button>
@@ -2804,6 +2848,25 @@ body.view-3d .scanlines{ opacity:0.16; }
         </div>
       </footer>
     </div>
+    <div class="casino-view" data-game="checkers" hidden>
+      <div class="ck-wrap">
+        <div id="ckBoard" class="ck-board" aria-label="Checkers"></div>
+        <div class="ck-levels" id="ckLevels">
+          <button type="button" data-ck-level="easy">Easy</button>
+          <button type="button" data-ck-level="match" class="on">Match</button>
+          <button type="button" data-ck-level="pro">Pro</button>
+        </div>
+        <div class="bj-msg" id="ckMsg">You play black. Jumps are forced. Even money.</div>
+      </div>
+      <footer class="rl-foot">
+        <div id="ckPlayers" class="rl-players"></div>
+        <div id="ckChips" class="rl-chips"></div>
+        <div class="rl-actions">
+          <button type="button" id="ckResign">Resign</button>
+          <button type="button" id="ckNew" class="primary">New game</button>
+        </div>
+      </footer>
+    </div>
     <div class="casino-view" data-game="mahjong" hidden>
       <div class="mj-table">
         <div class="mj-label">House</div>
@@ -2858,7 +2921,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     </section>
     <section>
       <h4>Casino</h4>
-      <p>Roulette, Texas Hold’em, blackjack, baccarat, the fruit machine, Connect 4, and Mahjong use the same player banks. Darts is the target button: click a spot on the board, then tap that same spot again to throw. A quick second tap hits. A slow one falls short. Table Skittles is the cheese button after Darts: Aim mode works like Darts, or switch to Flick and drag the cheese. Score is solo. Match is first to 31 against the computer on Easy, Match, or Pro. Pub Quiz is the beer button after Skittles: pay 50 to climb a 15-question ladder to 5000, with safe havens at 50 and 500. The big money sits in the last five. Phone a friend adds time, 50/50 removes two wrong answers, and replace swaps the question once. Walk away keeps what you have won. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1. Baccarat pays 1:1 on Player, 19:20 on Banker, and 8:1 on Tie. Connect 4 and Mahjong pay even money.</p>
+      <p>Roulette, Texas Hold’em, blackjack, baccarat, the fruit machine, Connect 4, Checkers, and Mahjong use the same player banks. Darts is the target button: click a spot on the board, then tap that same spot again to throw. A quick second tap hits. A slow one falls short. Table Skittles is the cheese button after Darts: Aim mode works like Darts, or switch to Flick and drag the cheese. Score is solo. Match is first to 31 against the computer on Easy, Match, or Pro. Pub Quiz is the beer button after Skittles: pay 50 to climb a 15-question ladder to 5000, with safe havens at 50 and 500. The big money sits in the last five. Phone a friend adds time, 50/50 removes two wrong answers, and replace swaps the question once. Walk away keeps what you have won. The race stays paused while a game is open. Straight pays 35:1, splits 17:1, streets 11:1, corners 8:1, six-lines 5:1, dozens and columns 2:1, and the even-money bets pay 1:1. Baccarat pays 1:1 on Player, 19:20 on Banker, and 8:1 on Tie. Connect 4, Checkers, and Mahjong pay even money. Checkers is the black piece button: you play black, jumps are forced, and Easy, Match, or Pro sets the house strength.</p>
     </section>
     <div class="rules-actions">
       <button type="button" id="rulesClose">Close</button>
@@ -6725,6 +6788,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     { id:'quiz', title:'Pub Quiz' },
     { id:'baccarat', title:'Baccarat' },
     { id:'connect4', title:'Connect 4' },
+    { id:'checkers', title:'Checkers' },
     { id:'mahjong', title:'Mahjong' }
   ];
   let casinoIndex = 0;
@@ -6843,6 +6907,11 @@ body.view-3d .scanlines{ opacity:0.16; }
     phase: 'bet', bet: 10, stake: 0, win: [], timer: 0,
     msg: 'You play gold. Four in a row wins even money.'
   };
+  const ck = {
+    cells: null, phase: 'bet', bet: 10, stake: 0, level: 'match',
+    selected: null, dests: [], chain: null, timer: 0,
+    msg: 'You play black. Jumps are forced. Even money.'
+  };
   const mj = {
     wall: [], you: [], ai: [], youMelds: [], aiMelds: [], pool: [],
     discard: null, drawn: null, phase: 'bet', bet: 10, stake: 0, timer: 0,
@@ -6858,8 +6927,9 @@ body.view-3d .scanlines{ opacity:0.16; }
   }
   function casinoBusy(){
     const c4Live = c4.phase === 'you' || c4.phase === 'ai';
+    const ckLive = ck.phase === 'you' || ck.phase === 'ai';
     const mjLive = mj.phase === 'you' || mj.phase === 'claim' || mj.phase === 'ai';
-    return !!(roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy || skittles.busy || quiz.phase === 'play' || c4Live || mjLive);
+    return !!(roulette.spinning || slots.spinning || bj.phase === 'play' || darts.busy || skittles.busy || quiz.phase === 'play' || c4Live || ckLive || mjLive);
   }
   function casinoLock(on){
     const busy = !!(on || casinoBusy());
@@ -6928,6 +6998,18 @@ body.view-3d .scanlines{ opacity:0.16; }
       c4.phase = 'bet';
       c4.win = [];
       c4.msg = 'Game returned. The stake is back in the bank.';
+    }
+    if (ck.phase === 'you' || ck.phase === 'ai'){
+      if (ck.timer) clearTimeout(ck.timer);
+      ck.timer = 0;
+      const p = casinoHuman();
+      if (p && ck.stake) p.bankroll += ck.stake;
+      ck.stake = 0;
+      ck.phase = 'bet';
+      ck.selected = null;
+      ck.dests = [];
+      ck.chain = null;
+      ck.msg = 'Game returned. The stake is back in the bank.';
     }
     if (quiz.phase === 'play'){
       quizEndRun('close');
@@ -8226,6 +8308,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (game.id === 'quiz') quizRender();
     if (game.id === 'baccarat') bcRender();
     if (game.id === 'connect4') c4Render();
+    if (game.id === 'checkers') ckRender();
     if (game.id === 'mahjong') mjRender();
     paintCasinoPlayers();
     casinoLock(false);
@@ -8250,7 +8333,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     openRoulette();
   }
   function paintCasinoPlayers(){
-    ['pkPlayers', 'bjPlayers', 'slotPlayers', 'bcPlayers', 'c4Players', 'mjPlayers', 'quizPlayers'].forEach(id => {
+    ['pkPlayers', 'bjPlayers', 'slotPlayers', 'bcPlayers', 'c4Players', 'ckPlayers', 'mjPlayers', 'quizPlayers'].forEach(id => {
       const host = document.getElementById(id);
       if (!host) return;
       host.innerHTML = '';
@@ -9588,6 +9671,390 @@ body.view-3d .scanlines{ opacity:0.16; }
     c4Render();
   }
 
+  function ckEmptyBoard(){
+    return Array.from({ length: 8 }, () => Array(8).fill(0));
+  }
+  function ckSetupBoard(){
+    const board = ckEmptyBoard();
+    for (let r = 0; r < 8; r++){
+      for (let c = 0; c < 8; c++){
+        if ((r + c) % 2 === 0) continue;
+        if (r < 3) board[r][c] = 2;
+        else if (r > 4) board[r][c] = 1;
+      }
+    }
+    return board;
+  }
+  function ckClone(board){
+    return board.map(row => row.slice());
+  }
+  function ckSide(p){
+    if (p === 1 || p === 3) return 1;
+    if (p === 2 || p === 4) return 2;
+    return 0;
+  }
+  function ckIsKing(p){ return p === 3 || p === 4; }
+  function ckPromote(p, r){
+    if (p === 1 && r === 0) return 3;
+    if (p === 2 && r === 7) return 4;
+    return p;
+  }
+  function ckDirs(p){
+    if (ckIsKing(p)) return [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+    if (ckSide(p) === 1) return [[-1, -1], [-1, 1]];
+    return [[1, -1], [1, 1]];
+  }
+  function ckInside(r, c){ return r >= 0 && r < 8 && c >= 0 && c < 8; }
+  function ckKey(r, c){ return r + ',' + c; }
+  function ckParse(key){
+    const parts = key.split(',');
+    return { r: Number(parts[0]), c: Number(parts[1]) };
+  }
+  function ckJumpsFrom(board, r, c, piece, banned){
+    const out = [];
+    const block = banned || new Set();
+    ckDirs(piece).forEach(dir => {
+      const mr = r + dir[0];
+      const mc = c + dir[1];
+      const lr = r + dir[0] * 2;
+      const lc = c + dir[1] * 2;
+      if (!ckInside(mr, mc) || !ckInside(lr, lc)) return;
+      const mid = board[mr][mc];
+      if (!mid || ckSide(mid) === ckSide(piece)) return;
+      if (board[lr][lc]) return;
+      const midKey = ckKey(mr, mc);
+      if (block.has(midKey)) return;
+      out.push({
+        from: { r, c },
+        to: { r: lr, c: lc },
+        capture: { r: mr, c: mc },
+        piece
+      });
+    });
+    return out;
+  }
+  function ckExpandJumps(board, start){
+    const paths = [];
+    function walk(curBoard, r, c, piece, captures, path){
+      const next = ckJumpsFrom(curBoard, r, c, piece, new Set(captures.map(cap => ckKey(cap.r, cap.c))));
+      if (!next.length){
+        if (path.length) paths.push({ from: start, to: { r, c }, captures: captures.slice(), piece: start.piece });
+        return;
+      }
+      next.forEach(jump => {
+        const nb = ckClone(curBoard);
+        nb[r][c] = 0;
+        nb[jump.capture.r][jump.capture.c] = 0;
+        const landed = ckPromote(piece, jump.to.r);
+        nb[jump.to.r][jump.to.c] = landed;
+        const caps = captures.concat([jump.capture]);
+        const steps = path.concat([jump.to]);
+        // Promotion ends a multi-jump in English draughts.
+        if (landed !== piece){
+          paths.push({ from: start, to: jump.to, captures: caps, piece: start.piece });
+          return;
+        }
+        walk(nb, jump.to.r, jump.to.c, landed, caps, steps);
+      });
+    }
+    walk(board, start.r, start.c, start.piece, [], []);
+    return paths;
+  }
+  function ckMoves(board, side){
+    const jumps = [];
+    const quiet = [];
+    for (let r = 0; r < 8; r++){
+      for (let c = 0; c < 8; c++){
+        const p = board[r][c];
+        if (ckSide(p) !== side) continue;
+        const from = { r, c, piece: p };
+        const paths = ckExpandJumps(board, from);
+        if (paths.length){
+          paths.forEach(path => jumps.push(path));
+          continue;
+        }
+        ckDirs(p).forEach(dir => {
+          const nr = r + dir[0];
+          const nc = c + dir[1];
+          if (!ckInside(nr, nc) || board[nr][nc]) return;
+          quiet.push({ from: { r, c }, to: { r: nr, c: nc }, captures: [], piece: p });
+        });
+      }
+    }
+    return jumps.length ? jumps : quiet;
+  }
+  function ckApply(board, move){
+    const next = ckClone(board);
+    const piece = next[move.from.r][move.from.c];
+    next[move.from.r][move.from.c] = 0;
+    (move.captures || []).forEach(cap => { next[cap.r][cap.c] = 0; });
+    next[move.to.r][move.to.c] = ckPromote(piece, move.to.r);
+    return next;
+  }
+  function ckCount(board, side){
+    let n = 0;
+    for (let r = 0; r < 8; r++){
+      for (let c = 0; c < 8; c++){
+        const p = board[r][c];
+        if (ckSide(p) !== side) continue;
+        n += ckIsKing(p) ? 1.7 : 1;
+        if (side === 1) n += (7 - r) * 0.03;
+        else n += r * 0.03;
+        if (c === 0 || c === 7) n += 0.05;
+      }
+    }
+    return n;
+  }
+  function ckTerminal(board, sideToMove){
+    const moves = ckMoves(board, sideToMove);
+    if (moves.length) return null;
+    return sideToMove === 1 ? 'ai' : 'you';
+  }
+  function ckEval(board){
+    return ckCount(board, 2) - ckCount(board, 1);
+  }
+  function ckSearch(board, depth, alpha, beta, aiTurn){
+    const side = aiTurn ? 2 : 1;
+    const ended = ckTerminal(board, side);
+    if (ended === 'ai') return 1000 + depth;
+    if (ended === 'you') return -1000 - depth;
+    if (!depth) return ckEval(board);
+    const moves = ckMoves(board, side);
+    let best = aiTurn ? -Infinity : Infinity;
+    for (let i = 0; i < moves.length; i++){
+      const value = ckSearch(ckApply(board, moves[i]), depth - 1, alpha, beta, !aiTurn);
+      if (aiTurn){
+        if (value > best) best = value;
+        if (best > alpha) alpha = best;
+      } else {
+        if (value < best) best = value;
+        if (best < beta) beta = best;
+      }
+      if (alpha >= beta) break;
+    }
+    return best;
+  }
+  function ckPickAi(){
+    const moves = ckMoves(ck.cells, 2);
+    if (!moves.length) return null;
+    const level = ck.level;
+    if (level === 'easy'){
+      if (Math.random() < 0.35) return moves[Math.floor(Math.random() * moves.length)];
+      const caps = moves.filter(m => m.captures.length);
+      const pool = caps.length && Math.random() < 0.55 ? caps : moves;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    const depth = level === 'pro' ? 4 : 2;
+    let best = null;
+    let bestScore = -Infinity;
+    moves.forEach(move => {
+      const next = ckApply(ck.cells, move);
+      let score = ckSearch(next, depth, -Infinity, Infinity, false);
+      score += move.captures.length * 4;
+      score += (Math.random() - 0.5) * (level === 'pro' ? 0.2 : 1.2);
+      if (score > bestScore){
+        bestScore = score;
+        best = move;
+      }
+    });
+    return best || moves[0];
+  }
+  function ckSameSquare(a, b){
+    return a && b && a.r === b.r && a.c === b.c;
+  }
+  function ckDestMap(){
+    const map = new Map();
+    const moves = ck.chain
+      ? ckExpandJumps(ck.cells, { r: ck.chain.r, c: ck.chain.c, piece: ck.cells[ck.chain.r][ck.chain.c] })
+      : ckMoves(ck.cells, 1);
+    moves.forEach(move => {
+      if (ck.selected && !ckSameSquare(move.from, ck.selected)) return;
+      const key = ckKey(move.to.r, move.to.c);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(move);
+    });
+    return map;
+  }
+  function ckRender(){
+    if (!ck.cells) ck.cells = ckSetupBoard();
+    const host = document.getElementById('ckBoard');
+    const msg = document.getElementById('ckMsg');
+    const destMap = (ck.phase === 'you' && (ck.selected || ck.chain)) ? ckDestMap() : new Map();
+    const movable = new Set();
+    if (ck.phase === 'you' && !ck.chain){
+      ckMoves(ck.cells, 1).forEach(m => movable.add(ckKey(m.from.r, m.from.c)));
+    }
+    ck.dests = [...destMap.keys()].map(ckParse);
+    if (host){
+      host.replaceChildren();
+      for (let r = 0; r < 8; r++){
+        for (let c = 0; c < 8; c++){
+          const dark = (r + c) % 2 === 1;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'ck-sq' + (dark ? ' dark' : '');
+          const p = ck.cells[r][c];
+          if (p){
+            const man = document.createElement('span');
+            man.className = 'ck-man' + (ckSide(p) === 1 ? ' you' : ' ai') + (ckIsKing(p) ? ' king' : '');
+            btn.appendChild(man);
+          }
+          const isSel = ck.selected && ck.selected.r === r && ck.selected.c === c;
+          const isDest = destMap.has(ckKey(r, c));
+          if (isSel) btn.classList.add('pick');
+          if (isDest) btn.classList.add('dest');
+          const canPick = ck.phase === 'you' && dark && (
+            (ck.chain && ck.chain.r === r && ck.chain.c === c) ||
+            isDest ||
+            (!ck.chain && movable.has(ckKey(r, c)))
+          );
+          btn.disabled = ck.phase !== 'you' || !canPick;
+          btn.onclick = () => ckClick(r, c);
+          host.appendChild(btn);
+        }
+      }
+    }
+    if (msg) msg.textContent = ck.msg;
+    document.querySelectorAll('#ckLevels [data-ck-level]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.ckLevel === ck.level);
+      btn.disabled = ck.phase === 'you' || ck.phase === 'ai';
+    });
+    const resign = document.getElementById('ckResign');
+    const neu = document.getElementById('ckNew');
+    if (resign) resign.disabled = ck.phase !== 'you';
+    if (neu) neu.disabled = ck.phase === 'you' || ck.phase === 'ai';
+    casinoChipRow('ckChips', () => ck.bet, v => { ck.bet = v; });
+  }
+  function ckFinish(who){
+    const human = casinoHuman();
+    if (who === 'you' && human){
+      human.bankroll += ck.stake * 2;
+      ck.msg = 'You clear the board. +' + (ck.stake * 2);
+    } else if (who === 'draw' && human){
+      human.bankroll += ck.stake;
+      ck.msg = 'Draw. Stake returned.';
+    } else ck.msg = 'House wins.';
+    ck.phase = 'over';
+    ck.stake = 0;
+    ck.selected = null;
+    ck.dests = [];
+    ck.chain = null;
+    casinoLock(false);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    ckRender();
+  }
+  function ckStart(){
+    if (ck.phase === 'you' || ck.phase === 'ai') return;
+    const human = casinoHuman();
+    if (!human || casinoSpendable(human) < ck.bet){
+      ck.msg = 'Not enough in the bank for that chip.';
+      ckRender();
+      return;
+    }
+    if (ck.timer) clearTimeout(ck.timer);
+    human.bankroll -= ck.bet;
+    ck.stake = ck.bet;
+    ck.cells = ckSetupBoard();
+    ck.selected = null;
+    ck.dests = [];
+    ck.chain = null;
+    ck.phase = 'you';
+    ck.msg = 'Your move. Jumps are forced.';
+    casinoLock(true);
+    updateBankrollDisplays();
+    paintCasinoPlayers();
+    ckRender();
+  }
+  function ckAfterMove(sideJustMoved){
+    const nextSide = sideJustMoved === 1 ? 2 : 1;
+    const ended = ckTerminal(ck.cells, nextSide);
+    if (ended){
+      ckFinish(ended);
+      return;
+    }
+    if (nextSide === 2){
+      ck.phase = 'ai';
+      ck.selected = null;
+      ck.dests = [];
+      ck.chain = null;
+      ck.msg = 'House is moving…';
+      casinoLock(true);
+      ckRender();
+      ck.timer = setTimeout(() => {
+        ck.timer = 0;
+        const move = ckPickAi();
+        if (!move){
+          ckFinish('you');
+          return;
+        }
+        ck.cells = ckApply(ck.cells, move);
+        ckAfterMove(2);
+      }, 280);
+      return;
+    }
+    ck.phase = 'you';
+    ck.selected = null;
+    ck.dests = [];
+    ck.chain = null;
+    ck.msg = 'Your move.';
+    casinoLock(true);
+    ckRender();
+  }
+  function ckClick(r, c){
+    if (ck.phase !== 'you') return;
+    const destMap = ckDestMap();
+    const key = ckKey(r, c);
+    if (destMap.has(key)){
+      const options = destMap.get(key);
+      const move = options[0];
+      ck.cells = ckApply(ck.cells, move);
+      // Continue multi-jump if more captures from landing square.
+      const landed = ck.cells[move.to.r][move.to.c];
+      const more = move.captures.length
+        ? ckJumpsFrom(ck.cells, move.to.r, move.to.c, landed)
+        : [];
+      if (more.length){
+        ck.chain = { r: move.to.r, c: move.to.c };
+        ck.selected = { r: move.to.r, c: move.to.c };
+        ck.msg = 'Keep jumping.';
+        ckRender();
+        return;
+      }
+      ck.chain = null;
+      ck.selected = null;
+      ckAfterMove(1);
+      return;
+    }
+    if (ck.chain) return;
+    if (ckSide(ck.cells[r][c]) !== 1) return;
+    const legal = ckMoves(ck.cells, 1).some(m => m.from.r === r && m.from.c === c);
+    if (!legal){
+      ck.msg = 'That piece has no legal move.';
+      ckRender();
+      return;
+    }
+    ck.selected = { r, c };
+    ck.msg = 'Choose a square.';
+    ckRender();
+  }
+  function ckSetLevel(level){
+    if (ck.phase === 'you' || ck.phase === 'ai') return;
+    ck.level = level;
+    ckRender();
+  }
+  function resignCheckers(){
+    if (ck.phase !== 'you') return;
+    ck.stake = 0;
+    ck.phase = 'over';
+    ck.selected = null;
+    ck.dests = [];
+    ck.chain = null;
+    ck.msg = 'You resign. The stake stays with the house.';
+    casinoLock(false);
+    ckRender();
+  }
+
   function mjCounts(hand){
     const counts = Array(34).fill(0);
     hand.forEach(tile => { counts[tile] += 1; });
@@ -10071,6 +10538,13 @@ body.view-3d .scanlines{ opacity:0.16; }
     const c4ResignBtn = document.getElementById('c4Resign');
     if (c4New) c4New.onclick = c4Start;
     if (c4ResignBtn) c4ResignBtn.onclick = resignConnect4;
+    document.querySelectorAll('#ckLevels [data-ck-level]').forEach(btn => {
+      btn.onclick = () => ckSetLevel(btn.dataset.ckLevel);
+    });
+    const ckNew = document.getElementById('ckNew');
+    const ckResignBtn = document.getElementById('ckResign');
+    if (ckNew) ckNew.onclick = ckStart;
+    if (ckResignBtn) ckResignBtn.onclick = resignCheckers;
     const mjDealBtn = document.getElementById('mjDeal');
     const mjPungBtn = document.getElementById('mjPung');
     const mjChowBtn = document.getElementById('mjChow');
@@ -10085,6 +10559,7 @@ body.view-3d .scanlines{ opacity:0.16; }
     if (mjResignBtn) mjResignBtn.onclick = resignMahjong;
     bcRender();
     c4Render();
+    ckRender();
     mjRender();
     const slotHandle = document.getElementById('slotHandle');
     const slotSpinBtn = document.getElementById('slotSpin');
